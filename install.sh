@@ -65,8 +65,7 @@ link_file "$DOTFILES/ghostty/config"            "$HOME/.config/ghostty/config"
 # --- 编辑器 ---
 echo "✏️  编辑器"
 link_file "$DOTFILES/vim/.vimrc"                "$HOME/.vimrc"
-link_file "$DOTFILES/vscode/settings.json"      "$HOME/Library/Application Support/Code/User/settings.json"
-link_file "$DOTFILES/vscode/keybindings.json"   "$HOME/Library/Application Support/Code/User/keybindings.json"
+bash "$DOTFILES/vscode/link_all.sh"
 
 # --- 提示符 & 系统信息 ---
 echo "🎨 提示符 & 系统信息"

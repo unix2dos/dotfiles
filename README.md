@@ -14,7 +14,7 @@
 | **ghostty** | Ghostty 终端配置 |
 | **starship** | Starship 提示符主题 |
 | **fastfetch** | 系统信息展示配置 |
-| **vscode** | VS Code 设置 + 快捷键 |
+| **vscode** | VS Code / Cursor / Antigravity / Kiro 设置 + 快捷键 |
 | **opencode** | Opencode AI 配置 |
 
 ## 安装
