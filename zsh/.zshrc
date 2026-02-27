@@ -254,14 +254,18 @@ function rgf {
 
 # --- 8.2 AI Git 提交辅助函数 ---
 function gitmsg() {
-   sgpt '你是一位资深的软件工程师，擅长编写清晰、规范的 Git 提交信息。根据我提供的内容，生成一条符合「约定式提交规范」的中文 Git 提交信息。要求: 1.  格式: 严格遵循 `<类型>(<范围>): <主题>` 的格式。常用类型: `feat`(新功能), `fix`(修复), `refactor`(重构), `style`(格式), `docs`(文档), `perf`(性能), `ci`(持续集成), `chore`(杂务)。2.内容: 用言简意赅的中文进行描述。只描述核心的、用户可感知或对开发者重要的变更。省略不重要的细节，如修改变量名、调整缩进等（除非是`style`类型的提交）。3. 输出:不要添加任何前言、解释或思考过程,直接输出最终的提交信息，且仅输出一条。'
+   local lang_desc="中文"
+   if [[ "$1" == "en" ]]; then
+       lang_desc="English"
+   fi
+   sgpt "你是一位资深的软件工程师，擅长编写清晰、规范的 Git 提交信息。根据我提供的内容，生成一条符合「约定式提交规范」的${lang_desc} Git 提交信息。要求: 1.  格式: 严格遵循 \`<类型>(<范围>): <主题>\` 的格式。常用类型: \`feat\`(新功能), \`fix\`(修复), \`refactor\`(重构), \`style\`(格式), \`docs\`(文档), \`perf\`(性能), \`ci\`(持续集成), \`chore\`(杂务)。2.内容: 用言简意赅的${lang_desc}进行描述。只描述核心的、用户可感知或对开发者重要的变更。省略不重要的细节，如修改变量名、调整缩进等（除非是\`style\`类型的提交）。3. 输出:不要添加任何前言、解释或思考过程,直接输出最终的提交信息，且仅输出一条。"
 }
 
 alias ca='opencode -m opencode/minimax-m2.1-free run "提交全部代码"'
 # --- 8.3 智能提交函数 (ac) ---
 # 功能: 分析 git diff HEAD，生成提交消息，支持确认/编辑/取消
 function ac() {
-	local message=$(gitmsg <<< "$(git diff HEAD)")
+	local message=$(gitmsg "$1" <<< "$(git diff HEAD)")
 
     if [ -z "$message" ]; then
         echo "Error: Failed to generate commit message." >&2
