@@ -37,17 +37,6 @@ brew install eza ripgrep fzf starship fastfetch diff-so-fancy trash bat
 brew install --cask alacritty ghostty
 ```
 
-## 同步（维护者用）
-
-本仓库的配置从私有仓库 `LevonConfig` 同步而来，敏感信息已过滤。
-
-```bash
-./sync.sh   # 从 LevonConfig 同步安全配置
-git diff     # 检查变更
-git add -A && git commit -m "chore: 同步配置"
-git push
-```
-
 ## License
 
 MIT
