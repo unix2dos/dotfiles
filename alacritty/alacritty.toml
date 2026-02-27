@@ -1,0 +1,46 @@
+# 吸血鬼配色绝了
+[general]
+import = ["~/workspace/LevonConfig/Config/alacritty/themes/dracula.toml"]
+
+
+[font]
+size = 17.0
+
+[font.normal]
+family = "MesloLGS NF"
+
+[selection]
+semantic_escape_chars = ",│`|:\"' ()[]{}<>\t"
+save_to_clipboard = true
+
+
+[mouse]
+hide_when_typing = true
+
+[window]
+# 窗口内边距，让内容不贴边，更美观
+#padding = { x = 15, y = 15 }
+# 动态标题 - 显示当前目录或正在运行的程序
+dynamic_title = true
+# 'OnlyLeft' 通常是最佳选择，因为它不会影响你用右边的 Option 键输入特殊符号。
+option_as_alt = 'OnlyLeft' 
+
+
+
+[scrolling]
+# 历史记录行数（越大占用内存越多）
+history = 10000
+# 滚动倍数（滚轮滚动的行数）
+multiplier = 3
+
+[[hints.enabled]]
+# 正则表达式匹配 URL
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+hyperlinks = true
+command = "open"  # macOS 打开命令
+post_processing = true
+
+
+[hints.enabled.mouse]
+enabled = true
+mods = "Command"  # Command + 点击打开链接

@@ -1,0 +1,146 @@
+{
+    "window.commandCenter": true, // 中心显示所有可用的命令
+    "workbench.colorTheme": "IntelliJ IDEA New UI Dark", // 主题
+    "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-dark", // 图标主题
+    "workbench.editor.restoreViewState": true, // 当你重新打开一个之前关闭过的文件时，恢复它的视图状态，包括光标位置、滚动位置和折叠的代码块。这是一个非常有用的设置。
+    "workbench.editor.revealIfOpen": true, // 当你试图从文件浏览器或其他地方打开一个已经打开的文件时，VS Code 不会再新开一个标签页，而是自动切换到那个已经打开的标签页。最佳实践，避免重复打开文件。
+    "explorer.autoReveal": true, // 当你切换到某个文件的标签页时，左侧的文件浏览器会自动展开并高亮显示这个文件所在的位置。方便定位文件。
+    "files.hotExit": "onExitAndWindowClose", // 当你关闭 VS Code 窗口或整个程序时，会自动记住未保存的修改，下次打开时恢复。强烈推荐，有效防止代码丢失。
+    "files.trimTrailingWhitespace": true, // 删除行尾多余的空格
+    "files.insertFinalNewline": true, // 在文件末尾添加一个空行
+    "editor.fontFamily": "'JetBrains Mono', Consolas, 'Courier New', monospace", // JetBrains Mono，这是一款非常受开发者欢迎的编程字体。
+    "editor.fontLigatures": false, // 是否启用字体连字
+    "editor.fontSize": 17, // 字体大小
+    "editor.bracketPairColorization.enabled": true, // 启用括号对着色。
+    "editor.guides.bracketPairs": "active", // 为当前光标所在的括号对显示引导线，让视野更清晰。
+    "editor.formatOnSave": true, // 保存时自动格式化代码。
+    "editor.renderWhitespace": "selection", // 渲染空白字符，有助于发现多余的空格或错误的缩进
+    "editor.codeLens": true,
+    "editor.minimap.enabled": false,
+    "[go]": {
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false,
+        "editor.formatOnType": false
+    },
+    "go.formatTool": "goimports", // 它除了格式化代码外，还会自动添加或删除 import 语句
+    "go.lintTool": "golangci-lint", // go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest  它集成了数十种检查工具，功能远超默认的 linter
+    "go.lintOnSave": "package", // 在保存时运行 Linter (代码检查工具)。package 表示对整个包进行检查。这是个好习惯，能及早发现问题。
+    "go.useLanguageServer": true, // 启用 Go 语言服务器 (gopls)，这提供了智能提示、代码跳转、重构等高级功能。必须开启。
+    "go.toolsManagement.autoUpdate": true,
+    "go.diagnostic.vulncheck": "Imports",
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/vendor": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "**/dist/**": true,
+        "**/vendor/**": true
+    },
+    "roo-cline.vsCodeLmModelSelector": {},
+    "cursor.cpp.disabledLanguages": [
+        "markdown",
+        "plaintext"
+    ],
+    "cursor.general.disableHttp2": true,
+    "amp.url": "https://ampcode.com/",
+    "editor.wordBasedSuggestions": "off",
+    "amp.tab.enabled": true,
+    "amp.notifications.enabled": true,
+    "amp.mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@latest",
+                "--headless",
+                "--isolated"
+            ]
+        }
+    },
+    "diffEditor.ignoreTrimWhitespace": false,
+    "amp.permissions": [
+        {
+            "tool": "Bash",
+            "action": "ask",
+            "matches": {
+                "cmd": [
+                    "*rm*-rf*",
+                    "*rm*-r*--force*",
+                    "*rm*--force*-r*"
+                ]
+            }
+        },
+        {
+            "tool": "Bash",
+            "action": "ask",
+            "matches": {
+                "cmd": [
+                    "*find*-exec*",
+                    "*find*-delete*"
+                ]
+            }
+        },
+        {
+            "tool": "Bash",
+            "action": "ask",
+            "matches": {
+                "cmd": [
+                    "*git*push*--force*",
+                    "*git*push*-f*"
+                ]
+            }
+        },
+        {
+            "tool": "Bash",
+            "action": "ask",
+            "matches": {
+                "cmd": [
+                    "sudo*",
+                    "su*",
+                    "*chmod*777*",
+                    "*chown*root*"
+                ]
+            }
+        },
+        {
+            "tool": "*",
+            "action": "allow",
+            "matches": {}
+        }
+    ],
+    "kiroAgent.agentAutonomy": "Autopilot",
+    "kiroAgent.modelSelection": "claude-opus-4.5",
+    "editor.inlineSuggest.showToolbar": "always",
+    "makefile.configureOnOpen": false,
+    "agCockpit.statusBarFormat": "standard",
+    "amp.experimental.modes": [
+        "deep"
+    ],
+    "antigravity-auto-accept.autoRetryEnabled": true,
+    "kilo-code.debug": false,
+    "kilo-code.allowedCommands": [
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "kilo-code.deniedCommands": [],
+    "agCockpit.groupingEnabled": true,
+    "antigravitySync.autoStartRetry": true,
+    "workbench.editorAssociations": {
+        "*.md": "default"
+    },
+    "markdown-preview-enhanced.automaticallyShowPreviewOfMarkdownBeingEdited": true,
+    "markdown-preview-enhanced.alwaysShowBacklinksInPreview": true,
+    "markdown-preview-enhanced.breakOnSingleNewLine": false,
+    "markdown-preview-enhanced.enableCriticMarkupSyntax": true,
+    "markdown-preview-enhanced.enableExtendedTableSyntax": true,
+    "markdown-preview-enhanced.enableHTML5Embed": true,
+    "agCockpit.dataMasked": false
+}

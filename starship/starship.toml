@@ -1,0 +1,156 @@
+# ~/.config/starship.toml
+
+# ============================================
+# ⚙️ 全局设置
+# ============================================
+add_newline = true      # 命令之间增加空行，让双行提示符不拥挤
+command_timeout = 1000  # 防止右侧模块卡顿
+
+# ============================================
+# 👉 左侧配置 (第一行内容 + 换行 + 第二行光标)
+# ============================================
+format = """
+$os\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$line_break\
+$character"""
+# 注意上面加入了 $line_break (换行符)
+# $character (光标) 现在位于最后，也就是第二行
+
+# ============================================
+# 👉 右侧配置 (浮动在第一行的最右侧)
+# ============================================
+right_format = """
+$cmd_duration\
+$c\
+$cmake\
+$cobol\
+$daml\
+$dart\
+$deno\
+$dotnet\
+$elixir\
+$elm\
+$erlang\
+$fennel\
+$golang\
+$guix_shell\
+$haskell\
+$haxe\
+$helm\
+$java\
+$julia\
+$kotlin\
+$gradle\
+$lua\
+$nim\
+$nodejs\
+$ocaml\
+$opa\
+$perl\
+$php\
+$pulumi\
+$purescript\
+$python\
+$raku\
+$rlang\
+$red\
+$ruby\
+$rust\
+$scala\
+$solidity\
+$swift\
+$terraform\
+$vlang\
+$vagrant\
+$zig\
+$buf\
+$nix_shell\
+$conda\
+$meson\
+$spack\
+$memory_usage\
+$aws\
+$gcloud\
+$openstack\
+$azure\
+$env_var\
+$crystal\
+$custom\
+$jobs\
+$battery\
+$time"""
+
+# ============================================
+# 🎨 样式细节微调 (保持无背景默认色)
+# ============================================
+
+# [换行符] - 可以在这里决定是否显示上一行的空隙，默认即可
+[line_break]
+disabled = false
+
+# [输入光标] - 现在它位于第二行开头
+[character]
+#success_symbol = "[❯](bold green) "
+#error_symbol = "[❯](bold red) "
+success_symbol = "[╰](white)[❯](cyan)[❯](blue)[❯](green) "
+error_symbol = "[╰](white)[❯](red)[❯](red)[❯](red) "
+
+# [目录]
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+style = "cyan bold"
+read_only = " 🔒"
+
+# [Git 分支]
+[git_branch]
+symbol = " "
+style = "green bold"
+
+# [Git 状态]
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "bold yellow"
+conflicted = "\uf071 "
+ahead = "\uf062 ${count}"
+behind = "\uf063 ${count}"
+diverged = "\uf0ec \uf062 ${ahead_count}\uf063 ${behind_count}"
+untracked = "\uf016 ${count} " 
+stashed = "\uf187 ${count} "  
+modified = "\uf044 ${count} "
+staged = "\uf067 ${count} "   
+renamed = "\uf061 ${count} "  
+deleted = "\uf014 ${count} " 
+
+# [Nodejs]
+[nodejs]
+symbol = "\ue719 "        #   (六边形 Logo，比原本的  更厚实)
+style = "bold green"
+
+# [Golang]
+[golang]
+symbol = "\ue626 "        #   (GO 字母图标，比原本的  地鼠更清晰)
+style = "bold cyan"
+
+# [Python]
+[python]
+symbol = "\ue73c "        #   (标准的 Python Logo，比原本的  更有辨识度)
+style = "bold yellow"
+
+# [命令执行耗时]
+[cmd_duration]
+min_time = 2000
+format = "[$duration](bold yellow) "
+
+# [当前时间]
+[time]
+disabled = false
+style = "bold white"
+format = "[$time]($style) "
+use_12hr = false
+

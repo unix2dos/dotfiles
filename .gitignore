@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# 敏感文件（双重保险）
+*.pem
+*.key
+.env
+**/ssh/
+**/known_hosts

@@ -1,0 +1,59 @@
+// Place your key bindings in this file to override the defaults
+[
+    {
+        "key": "alt+q",
+        "command": "editor.action.addSelectionToNextFindMatch",
+        "when": "editorFocus"
+    },
+    {
+        "key": "cmd+d",
+        "command": "-editor.action.addSelectionToNextFindMatch",
+        "when": "editorFocus"
+    },
+    {
+        "key": "cmd+q",
+        "command": "workbench.files.action.compareFileWith",
+        "when": "activeEditor && filesExplorerFocus && !explorerResourceIsFolder && !inputFocus && !listMultiSelection"
+    },
+    {
+        "key": "cmd+d",
+        "command": "-workbench.files.action.compareFileWith",
+        "when": "activeEditor && filesExplorerFocus && !explorerResourceIsFolder && !inputFocus && !listMultiSelection"
+    },
+    {
+        "key": "cmd+q",
+        "command": "-workbench.action.quit"
+    },
+    {
+        "key": "alt+=",
+        "command": "yo1dog.cursor-align.alignCursors",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "alt+a",
+        "command": "-yo1dog.cursor-align.alignCursors",
+        "when": "editorTextFocus"
+    },
+    {
+        "key": "shift+cmd+l",
+        "command": "-aichat.insertselectionintochat"
+    },
+    {
+        "key": "alt+w",
+        "command": "editor.action.selectHighlights",
+        "when": "editorFocus"
+    },
+    {
+        "key": "shift+cmd+l",
+        "command": "-editor.action.selectHighlights",
+        "when": "editorFocus"
+    },
+    {
+        "key": "shift+cmd+i",
+        "command": "-composer.newAgentChat"
+    },
+    {
+        "key": "cmd+h",
+        "command": "references-view.findImplementations"
+    }
+]

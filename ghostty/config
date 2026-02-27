@@ -1,0 +1,43 @@
+# 修改完配置，需要 shift + cmd + , 刷新
+# ========== 字体设置 ==========
+font-family = ""
+font-family = "JetBrainsMono Nerd Font"
+font-family = "Maple Mono NF CN"
+font-size = 17
+adjust-cell-height = 25%
+# 启用 Maple Mono 连字和字体特性（官方推荐配置）
+font-feature = calt, cv01, cv03, ss01, ss02, ss03
+font-thicken = true
+
+# ========== 主题设置 ==========
+# 前景与背景的最低对比度下限（1 到 21）
+#minimum-contrast = 3
+theme = dracula
+
+
+# ========== 光标设置 ==========
+cursor-style = block
+cursor-style-blink = true
+# 光标颜色（使用明亮的橙色，更醒目）
+cursor-color = #ff9e64
+# 光标下的文本颜色
+cursor-text = #1a1b26
+
+
+# ========== 窗口外观 ==========
+# 适度留白，减轻压迫感
+window-padding-x = 10
+window-padding-y = 5
+window-padding-balance = true
+macos-titlebar-style = tabs
+macos-window-shadow = true
+
+
+# ========== 其他优化 ==========
+background-opacity = 0.95
+background-blur-radius = 10
+# 滚动缓冲区大小（单位：字节）
+scrollback-limit = 200000000
+# 在输入时隐藏鼠标
+mouse-hide-while-typing = true
+macos-option-as-alt = true
