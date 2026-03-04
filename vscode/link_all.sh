@@ -13,6 +13,7 @@ TARGET_APPS_DIRS=(
     "$HOME/Library/Application Support/Cursor/User"
     "$HOME/Library/Application Support/Antigravity/User"
     "$HOME/Library/Application Support/Kiro/User"
+    "$HOME/Library/Application Support/Windsurf/User"
 )
 # =========================================
 
