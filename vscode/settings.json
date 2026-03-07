@@ -4,6 +4,7 @@
     "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-dark", // 图标主题
     "workbench.editor.restoreViewState": true, // 当你重新打开一个之前关闭过的文件时，恢复它的视图状态，包括光标位置、滚动位置和折叠的代码块。这是一个非常有用的设置。
     "workbench.editor.revealIfOpen": true, // 当你试图从文件浏览器或其他地方打开一个已经打开的文件时，VS Code 不会再新开一个标签页，而是自动切换到那个已经打开的标签页。最佳实践，避免重复打开文件。
+    "workbench.activityBar.orientation": "vertical", // icon 在左边
     "explorer.autoReveal": true, // 当你切换到某个文件的标签页时，左侧的文件浏览器会自动展开并高亮显示这个文件所在的位置。方便定位文件。
     "files.hotExit": "onExitAndWindowClose", // 当你关闭 VS Code 窗口或整个程序时，会自动记住未保存的修改，下次打开时恢复。强烈推荐，有效防止代码丢失。
     "files.trimTrailingWhitespace": true, // 删除行尾多余的空格
