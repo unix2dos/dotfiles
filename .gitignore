@@ -4,6 +4,7 @@
 # IDE
 .idea/
 .vscode/
+.claude/
 
 # 敏感文件（双重保险）
 *.pem
