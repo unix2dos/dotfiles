@@ -143,5 +143,13 @@
     "markdown-preview-enhanced.enableCriticMarkupSyntax": true,
     "markdown-preview-enhanced.enableExtendedTableSyntax": true,
     "markdown-preview-enhanced.enableHTML5Embed": true,
-    "agCockpit.dataMasked": false
+    "agCockpit.dataMasked": false,
+    "terminal.integrated.copyOnSelection": true,
+    "terminal.integrated.cursorBlinking": true,
+    "terminal.integrated.enableImages": true,
+    "terminal.integrated.enableVisualBell": true,
+    "terminal.integrated.fontLigatures.enabled": true,
+    "terminal.integrated.fontSize": 17,
+    "terminal.integrated.gpuAcceleration": "on",
+    "terminal.integrated.ignoreBracketedPasteMode": true
 }
