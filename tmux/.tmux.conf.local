@@ -466,7 +466,8 @@ tmux_conf_theme_status_left=" ❐ #S"                   # 状态栏左侧内容:
 # 状态栏右侧内容: 指示器(前缀/鼠标等) | IP地址 | 周数 | 模式指示器
 tmux_conf_theme_status_right='#{prefix}#{mouse}#{pairing}#{synchronized}|  #(ipconfig getifaddr en0)| 🌻W#(date +%V) |#{tmux_mode_indicator}'
 tmux_conf_theme_mouse="🐭"                            # 鼠标开启状态图标
-tmux_conf_theme_synchronized="🎡"                     # 面板同步模式图标
+tmux_conf_theme_pairing="💞"                          # 多客户端配对, tmux list-clients 查看，tmux自动连接
+tmux_conf_theme_synchronized="💫"                     # 面板同步模式图标, :setw synchronize-panes on
 tmux_conf_theme_prefix="🔥🔥🔥🔥🔥🔥"                 # 按下前缀键(Ctrl+a)时的提示图标
 tmux_conf_copy_to_os_clipboard=true                   # 允许复制到系统剪贴板
 
