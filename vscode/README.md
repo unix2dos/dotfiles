@@ -1,4 +1,4 @@
-# VSCode / Cursor / Antigravity / Kiro 配置
+# VSCode / Cursor / Windsurf / Antigravity / Kiro 配置
 
 > 统一管理所有 VS Code 系编辑器的 `settings.json` 和 `keybindings.json`
 
@@ -14,6 +14,7 @@
 
 - VS Code (`~/Library/Application Support/Code/User`)
 - Cursor (`~/Library/Application Support/Cursor/User`)
+- Windsurf (`~/Library/Application Support/Windsurf/User`)
 - Antigravity (`~/Library/Application Support/Antigravity/User`)
 - Kiro (`~/Library/Application Support/Kiro/User`)
 

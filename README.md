@@ -24,7 +24,7 @@
 | 👻 [ghostty](ghostty/) | Ghostty 终端配置 |
 | 🚀 [starship](starship/) | Starship 提示符主题 |
 | ⚡ [fastfetch](fastfetch/) | 系统信息展示配置 |
-| 🔧 [vscode](vscode/) | VS Code / Cursor / Antigravity / Kiro 设置 + 快捷键 |
+| 🔧 [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
 | 🤖 [opencode](opencode/) | Opencode AI 配置 |
 | 🧠 [claude](claude/) | Claude Code CLI 配置及自定义 Statusline 脚本 |
 | 🎯 [agent-skills](agent-skills/) | 统一的 agent skills 运行时安装层 |
