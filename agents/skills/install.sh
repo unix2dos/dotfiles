@@ -6,10 +6,18 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/sources.sh"
 
 SKILLS_INSTALL_ROOT="${SKILLS_INSTALL_ROOT:-$HOME/.skills-installed}"
-CODEX_SKILLS_LINK="${CODEX_SKILLS_LINK:-$HOME/.codex/skills}"
-AGENTS_SKILLS_LINK="${AGENTS_SKILLS_LINK:-$HOME/.agents/skills}"
 BACKUP_SUFFIX="${BACKUP_SUFFIX:-.backup}"
 TIMESTAMP="${TIMESTAMP:-$(date +%Y%m%d%H%M%S)}"
+
+CONSUMER_SKILL_LINKS=(
+  "$HOME/.agents/skills"
+  "$HOME/.claude/skills"
+  "$HOME/.codex/skills"
+  "$HOME/.config/opencode/skills"
+  "$HOME/.config/alma/skills"
+  "$HOME/.gemini/antigravity/skills"
+  "$HOME/.openclaw/skills"
+)
 
 backup_path() {
   local path="$1"
@@ -88,8 +96,10 @@ rebuild_install_root() {
 main() {
   rebuild_install_root
 
-  repoint_consumer_link "$SKILLS_INSTALL_ROOT" "$CODEX_SKILLS_LINK"
-  repoint_consumer_link "$SKILLS_INSTALL_ROOT" "$AGENTS_SKILLS_LINK"
+  local consumer_link
+  for consumer_link in "${CONSUMER_SKILL_LINKS[@]}"; do
+    repoint_consumer_link "$SKILLS_INSTALL_ROOT" "$consumer_link"
+  done
 }
 
 main "$@"

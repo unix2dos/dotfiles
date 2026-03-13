@@ -12,8 +12,13 @@
    - `/Users/liuwei/workspace/compat-ed3d`
 3. 运行时安装层：`/Users/liuwei/.skills-installed`
 4. 消费入口层：
-   - `/Users/liuwei/.codex/skills`
    - `/Users/liuwei/.agents/skills`
+   - `/Users/liuwei/.claude/skills`
+   - `/Users/liuwei/.codex/skills`
+   - `/Users/liuwei/.config/opencode/skills`
+   - `/Users/liuwei/.config/alma/skills`
+   - `/Users/liuwei/.gemini/antigravity/skills`
+   - `/Users/liuwei/.openclaw/skills`
 
 `/Users/liuwei/workspace/skills` 只负责维护你自己的 skills 源码，不应该再承载 `superpowers`、`ed3d-*` 或其他仅用于运行时聚合的软链接入口。
 
@@ -42,8 +47,16 @@ bash /Users/liuwei/workspace/dotfiles/agents/skills/install.sh
 这个脚本会：
 
 1. 重建 `/Users/liuwei/.skills-installed`
-2. 备份当前的 `~/.codex/skills` 和 `~/.agents/skills`
-3. 把两个入口都指向 `/Users/liuwei/.skills-installed`
+2. 备份当前的各个 skills 消费入口
+3. 把下面这些入口统一指向 `/Users/liuwei/.skills-installed`
+
+- `~/.agents/skills`
+- `~/.claude/skills`
+- `~/.codex/skills`
+- `~/.config/opencode/skills`
+- `~/.config/alma/skills`
+- `~/.gemini/antigravity/skills`
+- `~/.openclaw/skills`
 
 备份会以时间戳命名，同时更新稳定的 `.backup` 软链接，指向最近一次备份。
 

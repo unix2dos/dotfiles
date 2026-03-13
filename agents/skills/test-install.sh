@@ -8,6 +8,16 @@ INSTALL_SCRIPT="$ROOT_DIR/agents/skills/install.sh"
 README_SCRIPT="$ROOT_DIR/agents/skills/README.md"
 ROOT_README="$ROOT_DIR/README.md"
 
+CONSUMER_LINKS=(
+  ".agents/skills"
+  ".claude/skills"
+  ".codex/skills"
+  ".config/opencode/skills"
+  ".config/alma/skills"
+  ".gemini/antigravity/skills"
+  ".openclaw/skills"
+)
+
 fail() {
   echo "FAIL: $*" >&2
   exit 1
@@ -78,8 +88,11 @@ run_installer_test() {
     "$generated_root/ed3d-omega/SKILL.md" \
     "$third_party_root/brainstorming/SKILL.md"
 
-  mkdir -p "$fake_home/.codex/skills" "$fake_home/.agents/skills"
-  touch "$fake_home/.codex/skills/old" "$fake_home/.agents/skills/old"
+  local relative_link
+  for relative_link in "${CONSUMER_LINKS[@]}"; do
+    mkdir -p "$fake_home/$relative_link"
+    touch "$fake_home/$relative_link/old"
+  done
 
   HOME="$fake_home" \
   TIMESTAMP="20260313190001" \
@@ -88,19 +101,19 @@ run_installer_test() {
   THIRD_PARTY_SKILLS_ROOT="$third_party_root" \
   bash "$INSTALL_SCRIPT"
 
-  assert_eq "$(readlink "$fake_home/.codex/skills")" "$fake_home/.skills-installed" "codex skills link target"
-  assert_eq "$(readlink "$fake_home/.agents/skills")" "$fake_home/.skills-installed" "agents skills link target"
+  for relative_link in "${CONSUMER_LINKS[@]}"; do
+    assert_eq "$(readlink "$fake_home/$relative_link")" "$fake_home/.skills-installed" "$relative_link link target"
+    test -e "$fake_home/$relative_link.backup" || fail "expected backup for $relative_link"
+  done
+
   assert_eq "$(readlink "$fake_home/.skills-installed/alpha")" "$own_root/alpha" "owned skill target"
   assert_eq "$(readlink "$fake_home/.skills-installed/ed3d-omega")" "$generated_root/ed3d-omega" "generated skill target"
   assert_eq "$(readlink "$fake_home/.skills-installed/brainstorming")" "$third_party_root/brainstorming" "third-party skill target"
 
-  test -e "$fake_home/.codex/skills.backup" || fail "expected codex backup"
-  test -e "$fake_home/.agents/skills.backup" || fail "expected agents backup"
-
-  local codex_backup_target
-  local agents_backup_target
-  codex_backup_target="$(readlink "$fake_home/.codex/skills.backup")"
-  agents_backup_target="$(readlink "$fake_home/.agents/skills.backup")"
+  local before_backups=()
+  for relative_link in "${CONSUMER_LINKS[@]}"; do
+    before_backups+=("$(readlink "$fake_home/$relative_link.backup")")
+  done
 
   HOME="$fake_home" \
   TIMESTAMP="20260313190002" \
@@ -109,8 +122,11 @@ run_installer_test() {
   THIRD_PARTY_SKILLS_ROOT="$third_party_root" \
   bash "$INSTALL_SCRIPT"
 
-  assert_eq "$(readlink "$fake_home/.codex/skills.backup")" "$codex_backup_target" "installer should not rotate codex backup when link is already correct"
-  assert_eq "$(readlink "$fake_home/.agents/skills.backup")" "$agents_backup_target" "installer should not rotate agents backup when link is already correct"
+  local index=0
+  for relative_link in "${CONSUMER_LINKS[@]}"; do
+    assert_eq "$(readlink "$fake_home/$relative_link.backup")" "${before_backups[$index]}" "installer should not rotate backup when link is already correct for $relative_link"
+    index=$((index + 1))
+  done
 
   rm -rf "$sandbox"
 }
@@ -120,6 +136,11 @@ run_docs_test() {
   assert_file_contains "$README_SCRIPT" "/Users/liuwei/workspace/skills"
   assert_file_contains "$README_SCRIPT" "/Users/liuwei/.codex/superpowers"
   assert_file_contains "$README_SCRIPT" "/Users/liuwei/workspace/compat-ed3d"
+  assert_file_contains "$README_SCRIPT" "/Users/liuwei/.claude/skills"
+  assert_file_contains "$README_SCRIPT" "/Users/liuwei/.config/opencode/skills"
+  assert_file_contains "$README_SCRIPT" "/Users/liuwei/.config/alma/skills"
+  assert_file_contains "$README_SCRIPT" "/Users/liuwei/.gemini/antigravity/skills"
+  assert_file_contains "$README_SCRIPT" "/Users/liuwei/.openclaw/skills"
   assert_file_contains "$README_SCRIPT" "install.sh"
   assert_file_contains "$README_SCRIPT" "备份"
   assert_file_contains "$README_SCRIPT" "新增来源"

@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build a platform-neutral runtime skill aggregation layer at `/Users/liuwei/.skills-installed`, move installation ownership into `dotfiles`, and return `/Users/liuwei/workspace/skills` to a pure source-repo role.
+**Goal:** Build a platform-neutral runtime skill aggregation layer at `/Users/liuwei/.skills-installed`, move installation ownership into `dotfiles`, manage all current skill consumer entrypoints there, and return `/Users/liuwei/workspace/skills` to a pure source-repo role.
 
 **Architecture:** Keep owned skills, third-party skills, and generated skills in separate source locations. Add a `dotfiles` installer that rebuilds a single runtime aggregation directory and repoints the live consumer entrypoints to it with backups.
 
@@ -77,8 +77,8 @@ Extend the shell test to build a temporary fake home directory and assert that r
 
 - creates `~/.skills-installed`
 - links one owned skill, one `superpowers` skill, and one `ed3d-*` skill into it
-- backs up existing `~/.codex/skills` and `~/.agents/skills`
-- repoints both entrypaths to `~/.skills-installed`
+- backs up all existing consumer entrypaths
+- repoints all supported entrypaths to `~/.skills-installed`
 
 **Step 2: Run test to verify it fails**
 
@@ -99,9 +99,14 @@ Create `install.sh` with:
 - source enumeration via `sources.sh`
 - deterministic linking into `~/.skills-installed`
 - duplicate handling with explicit priority
-- repointing for:
-  - `~/.codex/skills`
+- repointing for all supported consumer entrypaths:
   - `~/.agents/skills`
+  - `~/.claude/skills`
+  - `~/.codex/skills`
+  - `~/.config/opencode/skills`
+  - `~/.config/alma/skills`
+  - `~/.gemini/antigravity/skills`
+  - `~/.openclaw/skills`
 
 **Step 4: Run test to verify it passes**
 
@@ -232,6 +237,11 @@ git -C /Users/liuwei/workspace/skills commit -m "refactor: separate skills sourc
 - Verify: `/Users/liuwei/.skills-installed`
 - Verify: `/Users/liuwei/.codex/skills`
 - Verify: `/Users/liuwei/.agents/skills`
+- Verify: `/Users/liuwei/.claude/skills`
+- Verify: `/Users/liuwei/.config/opencode/skills`
+- Verify: `/Users/liuwei/.config/alma/skills`
+- Verify: `/Users/liuwei/.gemini/antigravity/skills`
+- Verify: `/Users/liuwei/.openclaw/skills`
 
 **Step 1: Write the failing test**
 
@@ -249,6 +259,11 @@ Run:
 ```bash
 readlink /Users/liuwei/.codex/skills
 readlink /Users/liuwei/.agents/skills
+readlink /Users/liuwei/.claude/skills
+readlink /Users/liuwei/.config/opencode/skills
+readlink /Users/liuwei/.config/alma/skills
+readlink /Users/liuwei/.gemini/antigravity/skills
+readlink /Users/liuwei/.openclaw/skills
 ```
 
 Expected: outputs do not yet match `/Users/liuwei/.skills-installed`.
@@ -270,8 +285,7 @@ readlink /Users/liuwei/.skills-installed/brainstorming
 
 Expected:
 
-- `~/.codex/skills` -> `/Users/liuwei/.skills-installed`
-- `~/.agents/skills` -> `/Users/liuwei/.skills-installed`
+- all supported consumer entrypaths resolve to `/Users/liuwei/.skills-installed`
 - `ed3d-codebase-investigator` resolves to `/Users/liuwei/workspace/compat-ed3d/...`
 - `brainstorming` resolves to the chosen source according to priority
 

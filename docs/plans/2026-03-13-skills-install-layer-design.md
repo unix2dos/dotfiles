@@ -23,7 +23,14 @@
 - 不把 `superpowers`、`ed3d-*` 这类第三方或生成型 skill 直接放进源码仓库
 - 用一个平台中立的安装聚合层统一管理运行时可见的 skills
 - 用 `dotfiles` 中的脚本重建聚合层和消费入口
-- 当前只覆盖真实在用的入口：`/Users/liuwei/.codex/skills` 和 `/Users/liuwei/.agents/skills`
+- 当前覆盖真实在用的入口：
+  - `/Users/liuwei/.agents/skills`
+  - `/Users/liuwei/.claude/skills`
+  - `/Users/liuwei/.codex/skills`
+  - `/Users/liuwei/.config/opencode/skills`
+  - `/Users/liuwei/.config/alma/skills`
+  - `/Users/liuwei/.gemini/antigravity/skills`
+  - `/Users/liuwei/.openclaw/skills`
 
 ## Non-Goals
 
@@ -117,6 +124,11 @@
 
 - `/Users/liuwei/.codex/skills`
 - `/Users/liuwei/.agents/skills`
+- `/Users/liuwei/.claude/skills`
+- `/Users/liuwei/.config/opencode/skills`
+- `/Users/liuwei/.config/alma/skills`
+- `/Users/liuwei/.gemini/antigravity/skills`
+- `/Users/liuwei/.openclaw/skills`
 
 职责：
 
@@ -146,7 +158,7 @@
 3. `ed3d-*` 保持在 `/Users/liuwei/workspace/compat-ed3d/targets/codex/skills`
 4. 运行 `dotfiles` 中的 installer
 5. installer 重建 `/Users/liuwei/.skills-installed`
-6. installer 让 `~/.codex/skills`、`~/.agents/skills` 都指向这个聚合层
+6. installer 让所有已纳入的 skills 消费入口都指向这个聚合层
 
 ## Acceptance Criteria
 
@@ -157,19 +169,24 @@
 5. 新建 `/Users/liuwei/.skills-installed` 作为唯一安装聚合目录。
 6. `/Users/liuwei/.codex/skills` 必须指向 `/Users/liuwei/.skills-installed`。
 7. `/Users/liuwei/.agents/skills` 必须指向 `/Users/liuwei/.skills-installed`。
-8. `superpowers` 相关 skill 在聚合层中仍然可用，并指向 `/Users/liuwei/.codex/superpowers` 下真实来源。
-9. `ed3d-*` 相关 skill 在聚合层中仍然可用，并指向 `/Users/liuwei/workspace/compat-ed3d` 下真实来源。
-10. 你自维护的本地 skill 在聚合层中仍然可用，并指向 `/Users/liuwei/workspace/skills` 下真实来源。
-11. 整个链路中不存在循环软链接。
-12. 切换前原有 `~/.codex/skills` 和 `~/.agents/skills` 有可恢复备份。
-13. `dotfiles` 中存在一个可重复执行的脚本，用于重建 `/Users/liuwei/.skills-installed`。
-14. 该脚本执行后，能够完整重建聚合层、`~/.codex/skills` 和 `~/.agents/skills`。
-15. `dotfiles` 文档中明确说明架构分层、脚本职责、重建方式和新增来源方式。
+8. `/Users/liuwei/.claude/skills` 必须指向 `/Users/liuwei/.skills-installed`。
+9. `/Users/liuwei/.config/opencode/skills` 必须指向 `/Users/liuwei/.skills-installed`。
+10. `/Users/liuwei/.config/alma/skills` 必须指向 `/Users/liuwei/.skills-installed`。
+11. `/Users/liuwei/.gemini/antigravity/skills` 必须指向 `/Users/liuwei/.skills-installed`。
+12. `/Users/liuwei/.openclaw/skills` 必须指向 `/Users/liuwei/.skills-installed`。
+13. `superpowers` 相关 skill 在聚合层中仍然可用，并指向 `/Users/liuwei/.codex/superpowers` 下真实来源。
+14. `ed3d-*` 相关 skill 在聚合层中仍然可用，并指向 `/Users/liuwei/workspace/compat-ed3d` 下真实来源。
+15. 你自维护的本地 skill 在聚合层中仍然可用，并指向 `/Users/liuwei/workspace/skills` 下真实来源。
+16. 整个链路中不存在循环软链接。
+17. 切换前原有消费入口有可恢复备份。
+18. `dotfiles` 中存在一个可重复执行的脚本，用于重建 `/Users/liuwei/.skills-installed`。
+19. 该脚本执行后，能够完整重建聚合层和所有已纳入的 skills 消费入口。
+20. `dotfiles` 文档中明确说明架构分层、脚本职责、重建方式和新增来源方式。
 
 ## Rollout Notes
 
 - 先补 installer 和文档，再切换本机实际入口
-- 先重建聚合层，再修改 `~/.codex/skills` 和 `~/.agents/skills`
+- 先重建聚合层，再修改所有已纳入的 skills 消费入口
 - 最后清理 `workspace/skills` 中历史遗留的安装态软链接
 
 ## Risks
