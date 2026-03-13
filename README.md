@@ -17,6 +17,7 @@
 | **vscode** | VS Code / Cursor / Antigravity / Kiro 设置 + 快捷键 |
 | **opencode** | Opencode AI 配置 |
 | **claude** | Claude Code CLI 配置及自定义 Statusline 脚本 |
+| **codex** | Codex skills 安装层与入口编排 |
 
 ## 安装
 
@@ -28,6 +29,8 @@ chmod +x install.sh
 ```
 
 `install.sh` 会将配置文件**符号链接**到系统对应位置。已有文件会自动备份为 `*.backup.{timestamp}`。
+
+Codex skills 的运行时安装层说明见 [codex/README.md](codex/README.md)。
 
 ## 依赖工具
 
