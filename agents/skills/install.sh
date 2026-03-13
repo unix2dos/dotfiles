@@ -9,6 +9,8 @@ SKILLS_INSTALL_ROOT="${SKILLS_INSTALL_ROOT:-$HOME/.skills-installed}"
 BACKUP_SUFFIX="${BACKUP_SUFFIX:-.backup}"
 TIMESTAMP="${TIMESTAMP:-$(date +%Y%m%d%H%M%S)}"
 
+# Every supported runtime reads from its conventional path, but all of them
+# should resolve to the same neutral install layer.
 CONSUMER_SKILL_LINKS=(
   "$HOME/.agents/skills"
   "$HOME/.claude/skills"
@@ -71,6 +73,8 @@ discover_skill_dirs() {
 }
 
 rebuild_install_root() {
+  # Rebuild from scratch so the install layer reflects current sources and
+  # never accumulates stale symlinks from removed skills.
   rm -rf "$SKILLS_INSTALL_ROOT"
   mkdir -p "$SKILLS_INSTALL_ROOT"
 
@@ -96,6 +100,7 @@ rebuild_install_root() {
 main() {
   rebuild_install_root
 
+  # Repoint every runtime-specific entrypath to the shared neutral layer.
   local consumer_link
   for consumer_link in "${CONSUMER_SKILL_LINKS[@]}"; do
     repoint_consumer_link "$SKILLS_INSTALL_ROOT" "$consumer_link"

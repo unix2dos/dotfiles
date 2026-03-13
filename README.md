@@ -2,22 +2,13 @@
 
 > macOS 开发环境配置文件集合
 
-## 包含内容
+## 主要内容
 
-| 配置 | 说明 |
-|------|------|
-| **zsh** | Zsh shell 配置 (Antidote 插件管理, Starship 提示符) |
-| **git** | Git 全局配置 (diff-so-fancy, 别名, LFS) |
-| **tmux** | Tmux 配置 (基于 gpakosz/.tmux) |
-| **vim** | Vim 编辑器配置 |
-| **alacritty** | Alacritty 终端配置 + 主题 |
-| **ghostty** | Ghostty 终端配置 |
-| **starship** | Starship 提示符主题 |
-| **fastfetch** | 系统信息展示配置 |
-| **vscode** | VS Code / Cursor / Antigravity / Kiro 设置 + 快捷键 |
-| **opencode** | Opencode AI 配置 |
-| **claude** | Claude Code CLI 配置及自定义 Statusline 脚本 |
-| **agents/skills** | Agent skills 安装层与入口编排 |
+- `zsh`、`git`、`tmux`、`vim`：终端与开发基础配置
+- `alacritty`、`ghostty`、`starship`、`fastfetch`：终端外观与系统信息展示
+- `vscode`：VS Code / Cursor / Kiro 等编辑器设置
+- `claude`、`opencode`：AI 工具配置
+- `agents/skills`：统一的 agent skills 运行时安装层
 
 ## 安装
 
@@ -30,7 +21,10 @@ chmod +x install.sh
 
 `install.sh` 会将配置文件**符号链接**到系统对应位置。已有文件会自动备份为 `*.backup.{timestamp}`。
 
-Agent skills 的运行时安装层说明见 [agents/skills/README.md](agents/skills/README.md)。
+## 补充说明
+
+- Agent skills 的安装层说明见 [agents/skills/README.md](agents/skills/README.md)
+- VS Code 相关说明见 [vscode/README.md](vscode/README.md)
 
 ## 依赖工具
 
