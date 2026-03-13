@@ -2,7 +2,7 @@
 
 > macOS 开发环境配置文件集合
 
-## 包含内容
+## 主要内容
 
 | 配置 | 说明 |
 |------|------|
@@ -17,6 +17,9 @@
 | **vscode** | VS Code / Cursor / Antigravity / Kiro 设置 + 快捷键 |
 | **opencode** | Opencode AI 配置 |
 | **claude** | Claude Code CLI 配置及自定义 Statusline 脚本 |
+| **agents/skills** | 统一的 agent skills 运行时安装层 |
+
+
 
 ## 安装
 
@@ -28,6 +31,11 @@ chmod +x install.sh
 ```
 
 `install.sh` 会将配置文件**符号链接**到系统对应位置。已有文件会自动备份为 `*.backup.{timestamp}`。
+
+## 补充说明
+
+- Agent skills 的安装层说明见 [agents/skills/README.md](agents/skills/README.md)
+- VS Code 相关说明见 [vscode/README.md](vscode/README.md)
 
 ## 依赖工具
 
