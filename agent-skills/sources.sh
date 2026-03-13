@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-DEFAULT_OWNED_SKILLS_ROOT="/Users/liuwei/workspace/skills"
-DEFAULT_GENERATED_SKILLS_ROOT="/Users/liuwei/workspace/compat-ed3d/targets/codex/skills"
+DEFAULT_OWNED_SKILLS_ROOT="$HOME/workspace/skills"
+DEFAULT_GENERATED_SKILLS_ROOT="$HOME/workspace/compat-ed3d/targets/codex/skills"
 
 owned_skills_root() {
   printf '%s\n' "${OWNED_SKILLS_ROOT:-$DEFAULT_OWNED_SKILLS_ROOT}"
