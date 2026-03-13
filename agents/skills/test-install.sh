@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SOURCE_SCRIPT="$ROOT_DIR/codex/skills-sources.sh"
-INSTALL_SCRIPT="$ROOT_DIR/codex/skills-install.sh"
-README_SCRIPT="$ROOT_DIR/codex/README.md"
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+SOURCE_SCRIPT="$ROOT_DIR/agents/skills/sources.sh"
+INSTALL_SCRIPT="$ROOT_DIR/agents/skills/install.sh"
+README_SCRIPT="$ROOT_DIR/agents/skills/README.md"
 ROOT_README="$ROOT_DIR/README.md"
 
 fail() {
@@ -120,10 +120,10 @@ run_docs_test() {
   assert_file_contains "$README_SCRIPT" "/Users/liuwei/workspace/skills"
   assert_file_contains "$README_SCRIPT" "/Users/liuwei/.codex/superpowers"
   assert_file_contains "$README_SCRIPT" "/Users/liuwei/workspace/compat-ed3d"
-  assert_file_contains "$README_SCRIPT" "skills-install.sh"
-  assert_file_contains "$README_SCRIPT" "backup"
-  assert_file_contains "$README_SCRIPT" "add a new source"
-  assert_file_contains "$ROOT_README" "codex/README.md"
+  assert_file_contains "$README_SCRIPT" "install.sh"
+  assert_file_contains "$README_SCRIPT" "备份"
+  assert_file_contains "$README_SCRIPT" "新增来源"
+  assert_file_contains "$ROOT_README" "agents/skills/README.md"
 }
 
 main() {

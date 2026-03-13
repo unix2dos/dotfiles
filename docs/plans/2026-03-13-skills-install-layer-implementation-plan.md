@@ -13,8 +13,8 @@
 ### Task 1: Add an explicit skills source manifest
 
 **Files:**
-- Create: `/Users/liuwei/workspace/dotfiles/codex/skills-sources.sh`
-- Create: `/Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh`
+- Create: `/Users/liuwei/workspace/dotfiles/agents/skills/sources.sh`
+- Create: `/Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh`
 
 **Step 1: Write the failing test**
 
@@ -24,7 +24,7 @@ Add a shell test that creates temporary source directories for:
 - `/Users/liuwei/.codex/superpowers/skills`
 - `/Users/liuwei/workspace/compat-ed3d/targets/codex/skills`
 
-The test should source `skills-sources.sh` and assert:
+The test should source `sources.sh` and assert:
 
 - all required source roots are declared
 - disabled or missing roots are surfaced clearly
@@ -35,14 +35,14 @@ The test should source `skills-sources.sh` and assert:
 Run:
 
 ```bash
-bash /Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh
+bash /Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh
 ```
 
-Expected: FAIL because `skills-sources.sh` does not exist yet.
+Expected: FAIL because `sources.sh` does not exist yet.
 
 **Step 3: Write minimal implementation**
 
-Create `skills-sources.sh` with:
+Create `sources.sh` with:
 
 - a function returning enabled source roots in priority order
 - clear labels for owned, generated, and third-party sources
@@ -53,7 +53,7 @@ Create `skills-sources.sh` with:
 Run:
 
 ```bash
-bash /Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh
+bash /Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh
 ```
 
 Expected: PASS and prints the ordered sources.
@@ -61,15 +61,15 @@ Expected: PASS and prints the ordered sources.
 **Step 5: Commit**
 
 ```bash
-git -C /Users/liuwei/workspace/dotfiles add codex/skills-sources.sh codex/test-skills-install.sh
+git -C /Users/liuwei/workspace/dotfiles add agents/skills/sources.sh agents/skills/test-install.sh
 git -C /Users/liuwei/workspace/dotfiles commit -m "feat: add skills source manifest"
 ```
 
 ### Task 2: Implement the neutral installer and entrypoint repointing
 
 **Files:**
-- Create: `/Users/liuwei/workspace/dotfiles/codex/skills-install.sh`
-- Modify: `/Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh`
+- Create: `/Users/liuwei/workspace/dotfiles/agents/skills/install.sh`
+- Modify: `/Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh`
 
 **Step 1: Write the failing test**
 
@@ -85,18 +85,18 @@ Extend the shell test to build a temporary fake home directory and assert that r
 Run:
 
 ```bash
-bash /Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh
+bash /Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh
 ```
 
-Expected: FAIL because `skills-install.sh` does not exist yet.
+Expected: FAIL because `install.sh` does not exist yet.
 
 **Step 3: Write minimal implementation**
 
-Create `skills-install.sh` with:
+Create `install.sh` with:
 
 - strict mode: `set -euo pipefail`
 - reusable backup-and-link helpers
-- source enumeration via `skills-sources.sh`
+- source enumeration via `sources.sh`
 - deterministic linking into `~/.skills-installed`
 - duplicate handling with explicit priority
 - repointing for:
@@ -108,7 +108,7 @@ Create `skills-install.sh` with:
 Run:
 
 ```bash
-bash /Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh
+bash /Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh
 ```
 
 Expected: PASS and shows correct symlink targets without cycles.
@@ -116,19 +116,19 @@ Expected: PASS and shows correct symlink targets without cycles.
 **Step 5: Commit**
 
 ```bash
-git -C /Users/liuwei/workspace/dotfiles add codex/skills-install.sh codex/test-skills-install.sh
+git -C /Users/liuwei/workspace/dotfiles add agents/skills/install.sh agents/skills/test-install.sh
 git -C /Users/liuwei/workspace/dotfiles commit -m "feat: add skills installer"
 ```
 
 ### Task 3: Document the runtime model and operator workflow
 
 **Files:**
-- Create: `/Users/liuwei/workspace/dotfiles/codex/README.md`
+- Create: `/Users/liuwei/workspace/dotfiles/agents/skills/README.md`
 - Modify: `/Users/liuwei/workspace/dotfiles/README.md`
 
 **Step 1: Write the failing test**
 
-Define a doc checklist in `test-skills-install.sh` that verifies documentation mentions:
+Define a doc checklist in `test-install.sh` that verifies documentation mentions:
 
 - `/Users/liuwei/.skills-installed`
 - source locations
@@ -141,14 +141,14 @@ Define a doc checklist in `test-skills-install.sh` that verifies documentation m
 Run:
 
 ```bash
-bash /Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh
+bash /Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh
 ```
 
 Expected: FAIL because the documentation does not mention the new architecture yet.
 
 **Step 3: Write minimal implementation**
 
-Add `codex/README.md` describing:
+Add `agents/skills/README.md` describing:
 
 - source layer vs install layer
 - supported current entrypoints
@@ -162,7 +162,7 @@ Update root `README.md` to point to the Codex skill installer docs.
 Run:
 
 ```bash
-bash /Users/liuwei/workspace/dotfiles/codex/test-skills-install.sh
+bash /Users/liuwei/workspace/dotfiles/agents/skills/test-install.sh
 ```
 
 Expected: PASS and doc references are found.
@@ -170,7 +170,7 @@ Expected: PASS and doc references are found.
 **Step 5: Commit**
 
 ```bash
-git -C /Users/liuwei/workspace/dotfiles add codex/README.md README.md
+git -C /Users/liuwei/workspace/dotfiles add agents/skills/README.md README.md
 git -C /Users/liuwei/workspace/dotfiles commit -m "docs: add skills installer guide"
 ```
 
@@ -228,7 +228,7 @@ git -C /Users/liuwei/workspace/skills commit -m "refactor: separate skills sourc
 ### Task 5: Cut over the live machine state and verify the accepted paths
 
 **Files:**
-- Use: `/Users/liuwei/workspace/dotfiles/codex/skills-install.sh`
+- Use: `/Users/liuwei/workspace/dotfiles/agents/skills/install.sh`
 - Verify: `/Users/liuwei/.skills-installed`
 - Verify: `/Users/liuwei/.codex/skills`
 - Verify: `/Users/liuwei/.agents/skills`
@@ -278,6 +278,6 @@ Expected:
 **Step 5: Commit**
 
 ```bash
-git -C /Users/liuwei/workspace/dotfiles add codex/skills-install.sh codex/skills-sources.sh codex/README.md README.md docs/plans/2026-03-13-skills-install-layer-design.md docs/plans/2026-03-13-skills-install-layer-implementation-plan.md
+git -C /Users/liuwei/workspace/dotfiles add agents/skills/install.sh agents/skills/sources.sh agents/skills/README.md README.md docs/plans/2026-03-13-skills-install-layer-design.md docs/plans/2026-03-13-skills-install-layer-implementation-plan.md
 git -C /Users/liuwei/workspace/dotfiles commit -m "feat: add neutral skills install layer"
 ```

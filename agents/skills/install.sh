@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source "$SCRIPT_DIR/skills-sources.sh"
+source "$SCRIPT_DIR/sources.sh"
 
 SKILLS_INSTALL_ROOT="${SKILLS_INSTALL_ROOT:-$HOME/.skills-installed}"
 CODEX_SKILLS_LINK="${CODEX_SKILLS_LINK:-$HOME/.codex/skills}"

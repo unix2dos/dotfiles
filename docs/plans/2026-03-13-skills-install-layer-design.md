@@ -129,14 +129,14 @@
 
 建议新增：
 
-- `/Users/liuwei/workspace/dotfiles/codex/skills-install.sh`
-- `/Users/liuwei/workspace/dotfiles/codex/skills-sources.sh`
-- `/Users/liuwei/workspace/dotfiles/codex/README.md`
+- `/Users/liuwei/workspace/dotfiles/agents/skills/install.sh`
+- `/Users/liuwei/workspace/dotfiles/agents/skills/sources.sh`
+- `/Users/liuwei/workspace/dotfiles/agents/skills/README.md`
 
 职责分工：
 
-- `skills-sources.sh`：声明来源目录和启用规则
-- `skills-install.sh`：备份旧入口，重建 `~/.skills-installed`，再重建消费入口
+- `sources.sh`：声明来源目录和启用规则
+- `install.sh`：备份旧入口，重建 `~/.skills-installed`，再重建消费入口
 - `README.md`：解释架构、命令和新增来源方式
 
 ## Runtime Flow
