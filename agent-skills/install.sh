@@ -1,16 +1,23 @@
 #!/bin/bash
+# ============================================
+# Skills 运行时安装脚本
+# ============================================
+# 从多个来源聚合 skills 到统一安装目录，
+# 并将各 AI 工具的消费入口重定向到该目录。
+# ============================================
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/sources.sh"
 
+# --- 配置 ---
 SKILLS_INSTALL_ROOT="${SKILLS_INSTALL_ROOT:-$HOME/.skills-installed}"
 BACKUP_SUFFIX="${BACKUP_SUFFIX:-.backup}"
 TIMESTAMP="${TIMESTAMP:-$(date +%Y%m%d%H%M%S)}"
 
-# Every supported runtime reads from its conventional path, but all of them
-# should resolve to the same neutral install layer.
+# 所有 AI 工具运行时的 skills 消费入口
+# 安装后统一指向 $SKILLS_INSTALL_ROOT
 CONSUMER_SKILL_LINKS=(
   "$HOME/.agents/skills"
   "$HOME/.claude/skills"
@@ -21,6 +28,9 @@ CONSUMER_SKILL_LINKS=(
   "$HOME/.openclaw/skills"
 )
 
+# --- 工具函数 ---
+
+# 备份已有路径，并维护一个稳定的 .backup 软链接指向最近一次备份
 backup_path() {
   local path="$1"
 
@@ -34,10 +44,12 @@ backup_path() {
   ln -s "$backup" "${path}${BACKUP_SUFFIX}"
 }
 
+# 确保目标路径的父目录存在
 ensure_parent_dir() {
   mkdir -p "$(dirname "$1")"
 }
 
+# 创建符号链接（已存在且正确则跳过）
 link_entry() {
   local target="$1"
   local link_path="$2"
@@ -52,6 +64,7 @@ link_entry() {
   ln -s "$target" "$link_path"
 }
 
+# 将消费入口重定向到目标目录（先备份再链接）
 repoint_consumer_link() {
   local target="$1"
   local link_path="$2"
@@ -66,15 +79,18 @@ repoint_consumer_link() {
   link_entry "$target" "$link_path"
 }
 
+# 扫描目录下所有包含 SKILL.md 的子目录（即有效 skill）
 discover_skill_dirs() {
   local root="$1"
 
   find "$root" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print | sort
 }
 
+# --- 核心逻辑 ---
+
+# 从零重建安装目录，按优先级聚合所有来源的 skills
+# 同名 skill 保留高优先级版本，跳过低优先级
 rebuild_install_root() {
-  # Rebuild from scratch so the install layer reflects current sources and
-  # never accumulates stale symlinks from removed skills.
   rm -rf "$SKILLS_INSTALL_ROOT"
   mkdir -p "$SKILLS_INSTALL_ROOT"
 
@@ -100,7 +116,7 @@ rebuild_install_root() {
 main() {
   rebuild_install_root
 
-  # Repoint every runtime-specific entrypath to the shared neutral layer.
+  # 将所有消费入口指向统一安装目录
   local consumer_link
   for consumer_link in "${CONSUMER_SKILL_LINKS[@]}"; do
     repoint_consumer_link "$SKILLS_INSTALL_ROOT" "$consumer_link"

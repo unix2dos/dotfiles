@@ -8,8 +8,8 @@
 
 1. 源码层：`~/workspace/skills`（[unix2dos/skills](https://github.com/unix2dos/skills)）
 2. 第三方/生成来源层：
-   - `~/.codex/superpowers`
-   - `~/workspace/compat-ed3d`
+   - `~/.codex/superpowers`（[obra/superpowers](https://github.com/obra/superpowers)）
+   - `~/workspace/compat-ed3d`（[unix2dos/ed3d-plugins](https://github.com/unix2dos/ed3d-plugins)）
 3. 运行时安装层：`~/.skills-installed`
 4. 消费入口层：
    - `~/.agents/skills`
