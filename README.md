@@ -16,6 +16,7 @@
 | **fastfetch** | 系统信息展示配置 |
 | **vscode** | VS Code / Cursor / Antigravity / Kiro 设置 + 快捷键 |
 | **opencode** | Opencode AI 配置 |
+| **claude** | Claude Code CLI 配置及自定义 Statusline 脚本 |
 
 ## 安装
 
