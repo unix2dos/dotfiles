@@ -4,14 +4,13 @@
 
 ## 架构分层
 
-当前采用四层结构：
+当前采用三层结构：
 
-1. 源码层：`~/workspace/skills`（[unix2dos/skills](https://github.com/unix2dos/skills)）
-2. 第三方/生成来源层：
+1. 来源层（按顺序声明，越靠前优先级越高）：
+   - `~/workspace/skills`（[unix2dos/skills](https://github.com/unix2dos/skills)）
    - `~/.codex/superpowers`（[obra/superpowers](https://github.com/obra/superpowers)）
-   - `~/workspace/compat-ed3d`（[unix2dos/ed3d-plugins](https://github.com/unix2dos/ed3d-plugins)）
-3. 运行时安装层：`~/.skills-installed`
-4. 消费入口层：
+2. 运行时安装层：`~/.skills-installed`
+3. 消费入口层：
    - `~/.agents/skills`
    - `~/.claude/skills`
    - `~/.codex/skills`
@@ -20,7 +19,7 @@
    - `~/.gemini/antigravity/skills`
    - `~/.openclaw/skills`
 
-`~/workspace/skills` 只负责维护你自己的 skills 源码，不应该再承载 `superpowers`、`ed3d-*` 或其他仅用于运行时聚合的软链接入口。
+`~/workspace/skills` 只负责维护你自己的 skills 源码，不应该再承载 `superpowers` 或其他仅用于运行时聚合的软链接入口。
 
 ## 文件说明
 
@@ -29,11 +28,10 @@
 
 ## 来源优先级
 
-同名 skill 按下面的优先级取第一个命中项：
+同名 skill 按 `sources.sh` 中声明顺序取第一个命中项。
 
 1. owned source
-2. generated source
-3. third-party source
+2. third-party source
 
 ## 安装
 
@@ -47,7 +45,8 @@ bash ~/workspace/dotfiles/agent-skills/install.sh
 
 1. 重建 `~/.skills-installed`
 2. 备份当前的各个 skills 消费入口
-3. 把下面这些入口统一指向 `~/.skills-installed`
+3. 按 `sources.sh` 中的来源顺序聚合同名 skill
+4. 把下面这些入口统一指向 `~/.skills-installed`
 
 - `~/.agents/skills`
 - `~/.claude/skills`
@@ -63,7 +62,6 @@ bash ~/workspace/dotfiles/agent-skills/install.sh
 
 新增来源时按这个顺序处理：
 
-1. 先决定它属于 owned、generated 还是 third-party
-2. 在 `sources.sh` 里补充来源目录和优先级
-3. 重新运行安装脚本
-4. 真实内容应继续保留在各自的仓库或生成目录中，`~/.skills-installed` 只负责运行时聚合
+1. 在 `sources.sh` 里追加来源标签和来源目录，放到需要的优先级位置
+2. 重新运行安装脚本
+3. 真实内容应继续保留在各自的仓库或生成目录中，`~/.skills-installed` 只负责运行时聚合
