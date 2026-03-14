@@ -229,12 +229,12 @@ alias open="open -R"                           # 在 Finder 中显示
 alias grep="rg"                                # 使用 ripgrep 代替 grep
 alias t="tmux"                                 # Tmux 快捷方式
 alias r="rustc"                                # Rust 编译器
-alias cz="czg"                                 # Commitizen
+alias ac="czg"                                 # Commitizen
 
 # --- 7.4 网络和代理 ---
 alias ssh='AUTOSSH_GATETIME=0 autossh -M 0'    # 使用 AutoSSH
 alias ssho='command ssh'                       # 原生 SSH
-alias proxy='export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890'  # 开启代理
+alias proxy='export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897 all_proxy=socks5://127.0.0.1:7897'  # 开启代理
 alias disproxy='unset http_proxy https_proxy all_proxy'  # 关闭代理
 alias myip='curl ifconfig.co/json'             # 查看公网 IP
 
@@ -255,16 +255,16 @@ function rgf {
 # --- 8.2 AI Git 提交辅助函数 ---
 function gitmsg() {
    local lang_desc="中文"
-   if [[ "$1" == "en" ]]; then
+   if [[ "$1" == "ai" ]]; then
        lang_desc="English"
    fi
    sgpt "你是一位资深的软件工程师，擅长编写清晰、规范的 Git 提交信息。根据我提供的内容，生成一条符合「约定式提交规范」的${lang_desc} Git 提交信息。要求: 1.  格式: 严格遵循 \`<类型>(<范围>): <主题>\` 的格式。常用类型: \`feat\`(新功能), \`fix\`(修复), \`refactor\`(重构), \`style\`(格式), \`docs\`(文档), \`perf\`(性能), \`ci\`(持续集成), \`chore\`(杂务)。2.内容: 用言简意赅的${lang_desc}进行描述。只描述核心的、用户可感知或对开发者重要的变更。省略不重要的细节，如修改变量名、调整缩进等（除非是\`style\`类型的提交）。3. 输出:不要添加任何前言、解释或思考过程,直接输出最终的提交信息，且仅输出一条。"
 }
 
 alias ca='opencode -m opencode/minimax-m2.1-free run "提交全部代码"'
-# --- 8.3 智能提交函数 (ac) ---
+# --- 8.3 智能提交函数 (cz) ---
 # 功能: 分析 git diff HEAD，生成提交消息，支持确认/编辑/取消
-function ac() {
+function cz() {
 	local message=$(gitmsg "$1" <<< "$(git diff HEAD)")
 
     if [ -z "$message" ]; then
