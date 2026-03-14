@@ -153,5 +153,6 @@
     "terminal.integrated.gpuAcceleration": "on",
     "terminal.integrated.ignoreBracketedPasteMode": true,
     "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', 'Maple Mono NF CN'",
-    "claudeCode.selectedModel": "opus"
+    "claudeCode.selectedModel": "default",
+    "claudeCode.preferredLocation": "panel"
 }
