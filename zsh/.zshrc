@@ -218,6 +218,7 @@ alias gs='git status'                          # Git 状态
 alias gd='git diff'                            # Git diff
 alias gdh='git diff HEAD'                      # Git diff HEAD
 alias gt="git tag -ln9999 --sort=-version:refname"  # 显示所有 Git 标签
+alias gwl='git worktree list'
 
 # --- 7.2 文件操作别名 ---
 alias ls='eza -h'                              # 更好的 ls (使用 eza)
