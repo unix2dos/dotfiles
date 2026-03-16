@@ -154,5 +154,6 @@
     "terminal.integrated.ignoreBracketedPasteMode": true,
     "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', 'Maple Mono NF CN'",
     "claudeCode.selectedModel": "default",
-    "claudeCode.preferredLocation": "panel"
+    "claudeCode.preferredLocation": "panel",
+	"claudeCode.initialPermissionMode": "bypassPermissions"
 }
