@@ -27,7 +27,8 @@
 | 🔧 [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
 | 🤖 [opencode](opencode/) | Opencode AI 配置 |
 | 🧠 [claude](claude/) | Claude Code CLI 配置及自定义 Statusline 脚本 |
-| 🎯 [agent-skills](agent-skills/) | 统一的 agent skills 运行时安装层 |
+| 🎯 [skills-manager](skills-manager/) | 全局 AI skills 多来源聚合安装层 |
+| 🧰 [ai-kit](ai-kit/) | 项目级 AI 工具安装器 |
 
 ## 🚀 安装
 
@@ -50,7 +51,8 @@ brew install --cask alacritty ghostty
 
 ## 📖 补充说明
 
-- Agent skills 的安装层说明见 [agent-skills/README.md](agent-skills/README.md)
+- 全局 skills 管理见 [skills-manager/README.md](skills-manager/README.md)
+- 项目级 AI 工具安装见 [ai-kit/README.md](ai-kit/README.md)
 - VS Code 相关说明见 [vscode/README.md](vscode/README.md)
 
 ## 📄 License
