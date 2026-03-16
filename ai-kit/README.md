@@ -15,12 +15,22 @@ bash ~/workspace/dotfiles/ai-kit/install.sh
 | 工具 | 说明 | 安装 |
 |---|---|---|
 | [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | UI/UX 设计智能（67 种风格、161 配色、57 字体） | 自动 |
+| [superpowers](https://github.com/obra/superpowers) | skills + hooks + agents 完整框架 | 手动，见下方 |
 | [ed3d-plugins](https://github.com/ed3dai/ed3d-plugins) | RPI 规划工作流，9 个插件 | 手动，见下方 |
 | [claude-skills](https://github.com/Jeffallan/claude-skills) | 全栈开发技能集，66 个技能 | 手动，见下方 |
 
 ---
 
 ## 手动安装（在 Claude Code 内执行）
+
+**superpowers**
+
+```
+/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
+```
+
+> skills 层由 skills-manager 统一管理；此命令额外激活 hooks（会话上下文注入）和 agents（code-reviewer）。
 
 **ed3d-plugins**
 
