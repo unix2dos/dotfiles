@@ -231,6 +231,7 @@ alias grep="rg"                                # 使用 ripgrep 代替 grep
 alias t="tmux"                                 # Tmux 快捷方式
 alias r="rustc"                                # Rust 编译器
 alias ac="czg"                                 # Commitizen
+alias c="cluade"
 
 # --- 7.4 网络和代理 ---
 alias ssh='AUTOSSH_GATETIME=0 autossh -M 0'    # 使用 AutoSSH
@@ -400,3 +401,6 @@ fi
 # ============================================
 # 配置文件结束
 # ============================================
+
+# Auto Accept — launch Antigravity with CDP
+alias antigravity-cdp='open -n -a "/Applications/Antigravity.app" --args --remote-debugging-port=9000'
