@@ -11,13 +11,19 @@
   "enabledPlugins": {
     "superpowers@superpowers-marketplace": true
   },
-  "skipDangerousModePermissionPrompt": true,
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
       }
+    },
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
     }
-  }
+  },
+  "skipDangerousModePermissionPrompt": true
 }

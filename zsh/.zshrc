@@ -219,11 +219,11 @@ alias gd='git diff'                            # Git diff
 alias gdh='git diff HEAD'                      # Git diff HEAD
 alias gt="git tag -ln9999 --sort=-version:refname"  # 显示所有 Git 标签
 alias gwl='git worktree list'
+alias cc='claude'
 
 # --- 7.2 文件操作别名 ---
 alias ls='eza -h'                              # 更好的 ls (使用 eza)
 alias ll='eza -alh --total-size --icons'       # 详细列表显示
-alias rm="trash"                               # 使用 trash 代替 rm
 alias open="open -R"                           # 在 Finder 中显示
 
 # --- 7.3 工具别名 ---
@@ -247,6 +247,25 @@ alias lw="cd ~/go/src/picplus"                 # 快速进入项目目录
 # ============================================
 # 8. 自定义函数
 # ============================================
+
+rm() {
+  # 过滤掉所有 rm 的参数（如 -rf, -r, -f, -i 等），只保留文件路径
+  local args=()
+  for arg in "$@"; do
+    if [[ "$arg" != -* ]]; then
+      args+=("$arg")
+    fi
+  done
+
+  if [[ ${#args[@]} -eq 0 ]]; then
+    echo "rm (trash): no files specified" >&2
+    return 1
+  fi
+
+  trash "${args[@]}"
+}
+
+
 
 # --- 8.1 搜索工具 ---
 # 搜索文件名（使用 ripgrep）
@@ -401,6 +420,3 @@ fi
 # ============================================
 # 配置文件结束
 # ============================================
-
-# Auto Accept — launch Antigravity with CDP
-alias antigravity-cdp='open -n -a "/Applications/Antigravity.app" --args --remote-debugging-port=9000'
