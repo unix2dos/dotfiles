@@ -4,14 +4,17 @@
 # ============================================
 # 使用按顺序声明的来源列表，同名 skill 取第一个命中项。
 # 当前启用：
-#   1. owned
-#   2. third-party
+#   1. owned       — 自有 skill 源码
+#   2. community   — 收藏的社区 skill（由 update-community.sh 拉取）
+#   3. third-party — 第三方 skill 框架（如 obra/superpowers）
 # ============================================
 
 set -euo pipefail
 
 # 自有 skills 源码目录
 DEFAULT_OWNED_SKILLS_ROOT="$HOME/workspace/skills"
+# 社区 skills 目录（收藏的三方 skill）
+DEFAULT_COMMUNITY_SKILLS_ROOT="$HOME/.skills-community"
 # 第三方 skills 根目录
 DEFAULT_THIRD_PARTY_SKILLS_ROOT="$HOME/.codex/superpowers/skills"
 
@@ -19,11 +22,13 @@ DEFAULT_THIRD_PARTY_SKILLS_ROOT="$HOME/.codex/superpowers/skills"
 # 如需新增来源，请同时在两个数组尾部追加同索引项。
 SKILL_SOURCE_LABELS=(
   "owned"
+  "community"
   "third-party"
 )
 
 SKILL_SOURCE_PATHS=(
   "${OWNED_SKILLS_ROOT:-$DEFAULT_OWNED_SKILLS_ROOT}"
+  "${COMMUNITY_SKILLS_ROOT:-$DEFAULT_COMMUNITY_SKILLS_ROOT}"
   "${THIRD_PARTY_SKILLS_ROOT:-$DEFAULT_THIRD_PARTY_SKILLS_ROOT}"
 )
 
