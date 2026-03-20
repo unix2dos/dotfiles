@@ -27,6 +27,7 @@
 | 🔧 [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
 | 🤖 [opencode](opencode/) | Opencode AI 配置 |
 | 🧠 [claude](claude/) | Claude Code CLI 配置及自定义 Statusline 脚本 |
+| ⚡ [amp](amp/) | Amp CLI 配置 |
 | 🎯 [skills-manager](skills-manager/) | 全局 AI skills 多来源聚合安装层 |
 | 🧰 [ai-kit](ai-kit/) | 项目级 AI 工具安装器 |
 
