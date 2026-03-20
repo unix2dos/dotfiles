@@ -541,6 +541,8 @@ set -g @continuum-restore 'on'                        # Tmux 启动时自动恢�
 # 快速切换 panel 配置
 set -g @fzf_pane_switch_bind-key "w"                  # Prefix + w: 使用 fzf 切换 Pane
 set -g @fzf_pane_switch_list-panes-format "s/%//:pane_id session_name window_name" # fzf 列表显示格式
+bind -n C-w run-shell "'$HOME/.tmux/plugins/tmux-fzf-pane-switch/select_pane.sh' 'true' 'center,70%,80%' 'right,,,nowrap' \"s/%//:pane_id session_name window_name\""
+bind -n M-w run-shell "'$HOME/.tmux/plugins/tmux-fzf-pane-switch/select_pane.sh' 'true' 'center,70%,80%' 'right,,,nowrap' \"s/%//:pane_id session_name window_name\""
 
 # 智能提取复制配置(按tab 开启一个弹窗操作，酷炫)
 set -g @extrakto_key "f"                         # Prefix + f : extrakto 模式
