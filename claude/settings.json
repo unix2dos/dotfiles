@@ -9,7 +9,8 @@
   },
   "enabledPlugins": {
     "superpowers@superpowers-marketplace": true,
-    "claude-hud@claude-hud": true
+    "claude-hud@claude-hud": true,
+    "gopls-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "superpowers-marketplace": {
