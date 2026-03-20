@@ -1,0 +1,41 @@
+{
+  "lineLayout": "expanded",
+  "showSeparators": false,
+  "pathLevels": 1,
+  "elementOrder": ["project", "context", "usage", "environment", "tools", "agents", "todos"],
+  "gitStatus": {
+    "enabled": true,
+    "showDirty": true,
+    "showAheadBehind": true,
+    "showFileStats": true
+  },
+  "display": {
+    "showModel": true,
+    "showProject": true,
+    "showContextBar": true,
+    "contextValue": "percent",
+    "showConfigCounts": false,
+    "showTokenBreakdown": true,
+    "showUsage": true,
+    "usageBarEnabled": true,
+    "showTools": false,
+    "showAgents": false,
+    "showTodos": false,
+    "autocompactBuffer": "enabled",
+    "usageThreshold": 0,
+    "sevenDayThreshold": 0,
+    "environmentThreshold": 0,
+    "customLine": ""
+  },
+  "usage": {
+    "cacheTtlSeconds": 60,
+    "failureCacheTtlSeconds": 15
+  },
+  "colors": {
+    "context": "green",
+    "usage": "brightBlue",
+    "warning": "yellow",
+    "usageWarning": "brightMagenta",
+    "critical": "red"
+  }
+}
