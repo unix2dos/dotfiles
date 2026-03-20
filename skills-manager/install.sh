@@ -91,12 +91,16 @@ discover_skill_dirs() {
 # 从零重建安装目录，按优先级聚合所有来源的 skills
 # 同名 skill 保留高优先级版本，跳过低优先级
 rebuild_install_root() {
+  echo -e "\n\033[0;36m━━━ 正在重建 Skills 聚合层 ━━━\033[0m"
   rm -rf "$SKILLS_INSTALL_ROOT"
   mkdir -p "$SKILLS_INSTALL_ROOT"
+
+  local total_skills=0
 
   while IFS=$'\t' read -r label root; do
     [ -n "$root" ] || continue
 
+    local source_count=0
     while IFS= read -r skill_dir; do
       [ -n "$skill_dir" ] || continue
       local skill_name
@@ -104,23 +108,37 @@ rebuild_install_root() {
       local link_path="$SKILLS_INSTALL_ROOT/$skill_name"
 
       if [ -e "$link_path" ] || [ -L "$link_path" ]; then
-        printf 'INFO: keeping higher-priority skill %s, skipping %s from %s\n' "$skill_name" "$skill_name" "$label" >&2
+        printf '\033[1;33m[WARN]\033[0m keeping higher-priority skill %s, skipping %s from %s\n' "$skill_name" "$skill_name" "$label" >&2
         continue
       fi
 
       ln -s "$skill_dir" "$link_path"
+      ((source_count++))
+      ((total_skills++))
     done < <(discover_skill_dirs "$root")
+    
+    if [ "$source_count" -gt 0 ]; then
+      echo -e "\033[0;34m[INFO]\033[0m 来源 [${label}]: 添加了 ${source_count} 个 skill"
+    fi
   done < <(list_skill_sources)
+  
+  echo -e "\033[0;32m[OK]\033[0m   共聚合 ${total_skills} 个独立 skill 到 ${SKILLS_INSTALL_ROOT}\n"
 }
 
 main() {
   rebuild_install_root
 
+  echo -e "\033[0;36m━━━ 正在分发消费入口 ━━━\033[0m"
   # 将所有消费入口指向统一安装目录
   local consumer_link
+  local linked_count=0
   for consumer_link in "${CONSUMER_SKILL_LINKS[@]}"; do
     repoint_consumer_link "$SKILLS_INSTALL_ROOT" "$consumer_link"
+    echo -e "\033[0;34m[INFO]\033[0m 链接: ${consumer_link} -> ${SKILLS_INSTALL_ROOT}"
+    ((linked_count++))
   done
+  
+  echo -e "\033[0;32m[OK]\033[0m   成功为 ${linked_count} 个 AI 工具分发了消费入口\n"
 }
 
 main "$@"

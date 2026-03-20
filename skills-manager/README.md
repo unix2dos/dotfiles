@@ -4,19 +4,18 @@
 
 ## 快速开始
 
-```bash
-# 1. 按需 clone 来源
-git clone https://github.com/unix2dos/skills.git ~/workspace/skills
+1. **一键拉取 & 安装全部 Skills**
+   
+   ```bash
+   bash ~/workspace/dotfiles/skills-manager/update-community.sh
+   bash ~/workspace/dotfiles/skills-manager/install.sh
+   ```
 
-# 2. 拉取社区 skills
-bash ~/workspace/dotfiles/skills-manager/update-community.sh
-
-# 3. 安装（聚合 + 分发）
-bash ~/workspace/dotfiles/skills-manager/install.sh
-
-# 4. 验证
-ls -la ~/.claude/skills   # 预期：~/.claude/skills -> ~/.skills-installed
-```
+2. **验证结果** (可选)
+   
+   ```bash
+   ls -la ~/.claude/skills   # 预期：~/.claude/skills -> ~/.skills-installed
+   ```
 
 ---
 
