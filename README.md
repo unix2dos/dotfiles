@@ -8,54 +8,77 @@
 
 <h1 align="center">~ dotfiles ~</h1>
 
-<p align="center"><i>macOS 开发环境配置文件集合</i></p>
+<p align="center"><i>我的开发环境配置文件集合</i></p>
 
 ---
 
-## 📦 主要内容
-
-| 配置 | 说明 |
-|:-----|:-----|
-| 🐚 [zsh](zsh/) | Zsh shell 配置 (Antidote 插件管理, Starship 提示符) |
-| 📝 [git](git/) | Git 全局配置 (diff-so-fancy, 别名, LFS) |
-| 🖥️ [tmux](tmux/) | Tmux 配置 (基于 gpakosz/.tmux) |
-| ✏️ [vim](vim/) | Vim 编辑器配置 |
-| 💻 [alacritty](alacritty/) | Alacritty 终端配置 + 主题 |
-| 👻 [ghostty](ghostty/) | Ghostty 终端配置 |
-| 🚀 [starship](starship/) | Starship 提示符主题 |
-| ⚡ [fastfetch](fastfetch/) | 系统信息展示配置 |
-| 🔧 [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
-| 🤖 [opencode](opencode/) | Opencode AI 配置 |
-| 🧠 [claude](claude/) | Claude Code CLI 配置及自定义 Statusline 脚本 |
-| ⚡ [amp](amp/) | Amp CLI 配置 |
-| 🎯 [skills-manager](skills-manager/) | 全局 AI skills 多来源聚合安装层 |
-| 🧰 [ai-kit](ai-kit/) | 项目级 AI 工具安装器 |
-
-## 🚀 安装
+## 安装
 
 ```bash
+# 1. 克隆仓库
 git clone https://github.com/unix2dos/dotfiles.git ~/workspace/dotfiles
-cd ~/workspace/dotfiles
-chmod +x install.sh && ./install.sh
+
+# 2. 符号链接配置文件（已有文件自动备份为 *.backup.{timestamp}）
+cd ~/workspace/dotfiles && ./install.sh
+
+# 3. 安装全局 AI skills（可选，详见 skills-manager/README.md）
+bash ~/workspace/dotfiles/skills-manager/install.sh
 ```
 
-> `install.sh` 会将配置文件**符号链接**到系统对应位置。已有文件会自动备份为 `*.backup.{timestamp}`。
-
-## 🔧 依赖工具
-
-以下工具需要提前安装（推荐使用 [Homebrew](https://brew.sh)）：
+### 依赖
 
 ```bash
-brew install eza ripgrep fzf starship fastfetch diff-so-fancy trash bat
+brew install eza ripgrep fzf starship fastfetch diff-so-fancy trash bat yq
 brew install --cask alacritty ghostty
 ```
 
-## 📖 补充说明
+---
 
-- 全局 skills 管理见 [skills-manager/README.md](skills-manager/README.md)
-- 项目级 AI 工具安装见 [ai-kit/README.md](ai-kit/README.md)
-- VS Code 相关说明见 [vscode/README.md](vscode/README.md)
+## 目录结构
 
-## 📄 License
+### Shell & 终端
+
+| 目录 | 说明 |
+|:-----|:-----|
+| [zsh](zsh/) | Zsh 配置 (Antidote + Starship) |
+| [tmux](tmux/) | Tmux 配置 (基于 gpakosz/.tmux) |
+| [alacritty](alacritty/) | Alacritty 终端 + 主题 |
+| [ghostty](ghostty/) | Ghostty 终端 |
+| [starship](starship/) | Starship 提示符主题 |
+| [fastfetch](fastfetch/) | 系统信息展示 |
+
+### 编辑器 & IDE
+
+| 目录 | 说明 |
+|:-----|:-----|
+| [vim](vim/) | Vim 配置 |
+| [git](git/) | Git 全局配置 (diff-so-fancy, 别名, LFS) |
+| [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
+
+### AI 工具
+
+| 目录 | 说明 |
+|:-----|:-----|
+| [claude](claude/) | Claude Code CLI 配置 + 自定义 Statusline |
+| [opencode](opencode/) | Opencode AI 配置 |
+| [amp](amp/) | Amp CLI 配置 |
+| [skills-manager](skills-manager/) | 全局 AI skills 聚合层 (owned → superpowers → gstack → community) |
+
+### 项目级工具（按需安装）
+
+在项目根目录执行，不由 skills-manager 管理：
+
+```bash
+npx uipro-cli init --ai claude        # Claude Code
+npx uipro-cli init --ai codex         # Codex
+npx uipro-cli init --ai antigravity   # Antigravity
+npx uipro-cli init --ai all           # 全部平台
+```
+
+> [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) — UI/UX 设计智能 (67 风格 / 161 配色 / 57 字体)
+
+---
+
+## License
 
 MIT
