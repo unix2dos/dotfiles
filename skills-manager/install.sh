@@ -232,6 +232,11 @@ step_build_and_fetch() {
       if [[ "$DRY_RUN" == false ]]; then
         mkdir -p "$local_dir"
         rsync -av --delete "${rsync_excludes[@]}" "$src_dir/" "$local_dir/" >/dev/null 2>&1
+        # patch: ensure SKILL.md name matches the configured skill_name
+        local skill_md="${local_dir}/SKILL.md"
+        if [[ -f "$skill_md" ]]; then
+          sed -i '' "s/^name: .*/name: ${skill_name}/" "$skill_md"
+        fi
       fi
       ((success++))
     done
