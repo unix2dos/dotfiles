@@ -64,19 +64,6 @@ brew install --cask alacritty ghostty
 | [amp](amp/) | Amp CLI 配置 |
 | [skills-manager](skills-manager/) | 全局 AI skills 聚合层 (owned → superpowers → gstack → community) |
 
-### 项目级工具（按需安装）
-
-在项目根目录执行，不由 skills-manager 管理：
-
-```bash
-npx uipro-cli init --ai claude        # Claude Code
-npx uipro-cli init --ai codex         # Codex
-npx uipro-cli init --ai antigravity   # Antigravity
-npx uipro-cli init --ai all           # 全部平台
-```
-
-> [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) — UI/UX 设计智能 (67 风格 / 161 配色 / 57 字体)
-
 ---
 
 ## License

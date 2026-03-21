@@ -76,3 +76,14 @@ sources:
       - name: asking-clarifying-questions
         repo: ed3dai/ed3d-plugins
         subdir: plugins/ed3d-plan-and-execute/skills/asking-clarifying-questions
+
+# ============================================
+# 项目级 Skills（手动按需安装，不参与全局聚合）
+# ============================================
+# install.sh 不处理此段，仅作为声明式目录。
+
+project_skills:
+  - name: ui-ux-pro-max
+    repo: https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
+    install: npx uipro-cli init --ai <claude|codex|antigravity|all>
+    note: "UI/UX 设计智能 (67 风格 / 161 配色 / 57 字体)"
