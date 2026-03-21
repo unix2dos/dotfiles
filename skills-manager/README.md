@@ -4,54 +4,44 @@
 
 ## 快速开始
 
-1. **一键拉取 & 安装全部 Skills**
-   
-   ```bash
-   bash ~/workspace/dotfiles/skills-manager/update-community.sh
-   bash ~/workspace/dotfiles/skills-manager/install.sh
-   ```
-
-2. **验证结果** (可选)
-   
-   ```bash
-   ls -la ~/.claude/skills   # 预期：~/.claude/skills -> ~/.skills-installed
-   ```
-
----
-
-## 来源
-
-### A：unix2dos/skills（优先级 1）
-
-自有 skills 仓库。
-
 ```bash
-git clone https://github.com/unix2dos/skills.git ~/workspace/skills
+bash ~/workspace/dotfiles/skills-manager/install.sh
 ```
 
-### B：社区 skills（优先级 2）
+一条命令搞定：克隆所有来源 → 拉取外部资源 → 聚合分发到所有 AI 工具。
 
-收藏的社区 skills，由 `update-community.sh` 从各 GitHub 仓库拉取到 `~/.skills-community/`。
+## 文件说明
+
+| 文件 | 什么时候改 |
+|---|---|
+| `sources.sh` | 加来源、调优先级顺序 |
+| `fetch.sh` | 加/删要拉取的外部 skill 仓库 |
+| `link.sh` | 加/删 AI 工具消费入口 |
+| `install.sh` | 一般不用改，一键运行入口 |
+
+## 来源（按优先级从高到低）
+
+| 优先级 | 来源 | 仓库 | 安装方式 |
+|--------|------|------|----------|
+| 1 | owned | unix2dos/skills | git clone |
+| 2 | superpowers | obra/superpowers | git clone |
+| 3 | gstack | garrytan/gstack | git clone + bun build |
+| 4 | community | 多个 GitHub 仓库 | clone + rsync 提取 |
+
+同名 skill 以高优先级为准。
+
+## 单独运行子步骤
 
 ```bash
-# 拉取/更新社区 skills
-bash ~/workspace/dotfiles/skills-manager/update-community.sh
+# 只拉取/更新外部 skills（gstack + 社区）
+bash ~/workspace/dotfiles/skills-manager/fetch.sh
 
-# 仅预览变更
-bash ~/workspace/dotfiles/skills-manager/update-community.sh --dry-run
+# 只重新聚合分发（不拉取）
+bash ~/workspace/dotfiles/skills-manager/link.sh
+
+# 预览模式
+bash ~/workspace/dotfiles/skills-manager/install.sh --dry-run
 ```
-
-### C：obra/superpowers（优先级 3）
-
-第三方 skills 框架。
-
-```bash
-git clone https://github.com/obra/superpowers.git ~/.codex/superpowers
-```
-
-clone 完成后重新运行 `install.sh` 生效。
-
----
 
 ## 自定义路径
 
@@ -60,19 +50,6 @@ clone 完成后重新运行 `install.sh` 生效。
 | 变量 | 默认值 | 来源 |
 |---|---|---|
 | `OWNED_SKILLS_ROOT` | `~/workspace/skills` | unix2dos/skills |
+| `SUPERPOWERS_SKILLS_ROOT` | `~/.skills-community/superpowers/skills` | obra/superpowers |
+| `GSTACK_SKILLS_ROOT` | `~/.skills-community/gstack/.agents/skills` | garrytan/gstack |
 | `COMMUNITY_SKILLS_ROOT` | `~/.skills-community` | 社区 skill 收藏 |
-| `THIRD_PARTY_SKILLS_ROOT` | `~/.codex/superpowers/skills` | obra/superpowers |
-
----
-
-## 附录：架构
-
-| 层 | 路径 | 说明 |
-|---|---|---|
-| 来源层 | `~/workspace/skills` | 自有 skill 源码 |
-| 来源层 | `~/.skills-community` | 收藏的社区 skill |
-| 来源层 | `~/.codex/superpowers/skills` | 第三方 skill 框架 |
-| 安装层 | `~/.skills-installed` | 聚合目录，同名取高优先级 |
-| 消费层 | `~/.claude/skills`, `~/.codex/skills` 等 | AI 工具入口，软链接到安装层 |
-
-来源优先级：A > B > C，同名 skill 以高优先级为准。

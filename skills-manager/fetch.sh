@@ -1,11 +1,11 @@
 #!/bin/bash
 # ============================================
-# 社区 Skills 批量更新工具
+# 外部 Skills 构建 + 拉取
 # ============================================
-# 从上游 GitHub 仓库拉取收藏的社区 skills 到本地目录。
+# gstack 构建（bun build）+ 社区 skills 拉取。
 # 用法:
-#   bash update-community.sh            # 执行更新
-#   bash update-community.sh --dry-run  # 仅预览，不实际修改
+#   bash fetch.sh            # 执行更新
+#   bash fetch.sh --dry-run  # 仅预览，不实际修改
 # ============================================
 
 set -euo pipefail
@@ -14,6 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/sources.sh"
 
 COMMUNITY_DIR="${COMMUNITY_SKILLS_ROOT:-$DEFAULT_COMMUNITY_SKILLS_ROOT}"
+GSTACK_DIR="${GSTACK_SKILLS_ROOT:-$HOME/.skills-community/gstack}"
 DRY_RUN=false
 TMPDIR_BASE=""
 
@@ -116,6 +117,50 @@ update_skill() {
   return 0
 }
 
+# ─── gstack 更新 ──────────────────────────────────────────────────
+
+# gstack 运行时资源目录（skills 通过 ~/.codex/skills/gstack/bin/... 引用）
+GSTACK_RUNTIME_ASSETS=(bin browse review qa)
+
+update_gstack() {
+  log_header "gstack 构建"
+
+  if [[ ! -d "$GSTACK_DIR/.git" ]]; then
+    log_warn "gstack 仓库不存在，请先运行 install.sh"
+    return 1
+  fi
+
+  if [[ "$DRY_RUN" == true ]]; then
+    log_info "[DRY-RUN] 跳过构建步骤"
+    return 0
+  fi
+
+  # 2. 安装依赖并构建
+  log_info "正在安装依赖并构建..."
+  (
+    cd "$GSTACK_DIR"
+    bun install --silent 2>/dev/null
+    bun run build 2>/dev/null
+  ) || {
+    log_error "gstack 构建失败"
+    return 1
+  }
+
+  # 3. 在 .agents/skills/gstack/ 中创建运行时资源符号链接
+  #    确保 ~/.codex/skills/gstack/bin/... 等路径可达
+  local gstack_skill_dir="$GSTACK_DIR/.agents/skills/gstack"
+  for asset in "${GSTACK_RUNTIME_ASSETS[@]}"; do
+    local src="$GSTACK_DIR/$asset"
+    local dst="$gstack_skill_dir/$asset"
+    if [[ -d "$src" ]] && { [[ -L "$dst" ]] || [[ ! -e "$dst" ]]; }; then
+      ln -snf "$src" "$dst"
+    fi
+  done
+
+  log_success "gstack 更新完成（含运行时资源链接）"
+  return 0
+}
+
 # ─── 主流程 ───────────────────────────────────────────────────────
 
 main() {
@@ -123,7 +168,7 @@ main() {
     case "$arg" in
       --dry-run) DRY_RUN=true ;;
       -h|--help)
-        echo "用法: bash update-community.sh [--dry-run]"
+        echo "用法: bash fetch.sh [--dry-run]"
         echo ""
         echo "  --dry-run  仅预览变更，不实际修改文件"
         echo "  -h,--help  显示帮助信息"
@@ -148,6 +193,13 @@ main() {
     log_warn "DRY-RUN 模式: 不会修改任何文件"
   fi
 
+  # ── gstack 单独更新（独立仓库，非 SKILLS 映射表） ──
+  log_info "gstack 目录: $GSTACK_DIR"
+  local gstack_ok=0
+  if update_gstack; then
+    gstack_ok=1
+  fi
+
   log_info "目标目录: $COMMUNITY_DIR"
   log_info "待更新 Skill 数量: ${#SKILLS[@]}"
 
@@ -169,7 +221,8 @@ main() {
   # 输出报告
   echo ""
   log_header "更新报告"
-  log_info "总计: ${#SKILLS[@]}  成功: ${GREEN}${success}${NC}  失败: ${RED}${failed}${NC}"
+  log_info "gstack: $([ $gstack_ok -eq 1 ] && echo -e "${GREEN}成功${NC}" || echo -e "${RED}失败${NC}")"
+  log_info "社区 skills 总计: ${#SKILLS[@]}  成功: ${GREEN}${success}${NC}  失败: ${RED}${failed}${NC}"
 
   if [[ ${#failed_names[@]} -gt 0 ]]; then
     log_error "失败的 Skill: ${failed_names[*]}"
@@ -178,7 +231,7 @@ main() {
   if [[ "$DRY_RUN" == false && $success -gt 0 ]]; then
     echo ""
     log_info "提示: 社区 skills 已更新到 ${YELLOW}${COMMUNITY_DIR}${NC}"
-    log_info "运行 ${YELLOW}bash $SCRIPT_DIR/install.sh${NC} 重建安装层"
+    log_info "运行 ${YELLOW}bash $SCRIPT_DIR/link.sh${NC} 重建安装层"
   fi
 
   [[ $failed -eq 0 ]]
