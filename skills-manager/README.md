@@ -53,10 +53,8 @@ npx uipro-cli init --ai all           # 全部平台
 
 ```bash
 git clone --depth 1 https://github.com/pbakaus/impeccable.git /tmp/impeccable
-
 cp -r /tmp/impeccable/.claude ./          # Claude Code
 cp -r /tmp/impeccable/.codex ./           # Codex (OpenAI)
 cp -r /tmp/impeccable/.cursor ./          # Cursor
 cp -r /tmp/impeccable/.gemini ./          # Gemini CLI
-cp /tmp/impeccable/AGENTS.md ./           # Codex / 通用 agents
 ```
