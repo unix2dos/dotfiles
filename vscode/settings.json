@@ -155,5 +155,6 @@
     "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', 'Maple Mono NF CN'",
     "claudeCode.selectedModel": "default",
     "claudeCode.preferredLocation": "panel",
-	"claudeCode.initialPermissionMode": "bypassPermissions"
+    "claudeCode.initialPermissionMode": "bypassPermissions",
+    "git.openRepositoryInParentFolders": "never"
 }
