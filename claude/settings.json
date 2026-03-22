@@ -1,7 +1,10 @@
 {
   "env": {},
   "permissions": {
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "mcp__pencil"
+    ]
   },
   "model": "opusplan",
   "statusLine": {

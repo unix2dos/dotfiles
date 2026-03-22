@@ -244,6 +244,27 @@ step_build_and_fetch() {
     cleanup
     TMPDIR_BASE=""
     log_success "${name}: ${success} ok, ${failed} failed"
+
+    # ── prune stale community skill dirs ──
+    # collect configured skill names into a lookup string "|name1|name2|...|"
+    local configured="|"
+    for ((j = 0; j < skills_count; j++)); do
+      configured+="|$(cfg_raw ".sources[$i].skills[$j].name")|"
+    done
+    # remove any dir with SKILL.md whose name is not in the configured list
+    local pruned=0
+    while IFS= read -r stale_dir; do
+      local sname
+      sname="$(basename "$stale_dir")"
+      if [[ "$configured" != *"|${sname}|"* ]]; then
+        log_warn "pruning stale skill: ${sname}"
+        if [[ "$DRY_RUN" == false ]]; then
+          rm -rf "$stale_dir"
+        fi
+        ((pruned++))
+      fi
+    done < <(discover_skill_dirs "$clone_to")
+    [[ "$pruned" -gt 0 ]] && log_info "${name}: pruned ${pruned} stale skill(s)"
   done
 }
 

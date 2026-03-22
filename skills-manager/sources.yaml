@@ -54,9 +54,9 @@ sources:
         repo: anthropics/skills
         subdir: skills/skill-creator
 
-      - name: yt-dlp-downloader
-        repo: MapleShaw/yt-dlp-downloader-skill
-        branch: master
+      #- name: yt-dlp-downloader
+      #  repo: MapleShaw/yt-dlp-downloader-skill
+      #  branch: master
 
       - name: humanizer-zh
         repo: op7418/Humanizer-zh
@@ -65,9 +65,9 @@ sources:
         repo: vercel-labs/skills
         subdir: skills/find-skills
 
-      - name: hackernews
-        repo: vm0-ai/vm0-skills
-        subdir: hackernews
+      #- name: hackernews
+      #  repo: vm0-ai/vm0-skills
+      #  subdir: hackernews
 
       - name: architecture-designer
         repo: Jeffallan/claude-skills
