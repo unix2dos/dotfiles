@@ -512,36 +512,35 @@ bind p run-shell '\
 
 
 
-# Prefix + w: 查找所有运行 AI CLI (claude/aider/gemini) 的 Pane，fzf 选择后跳转
-bind w display-popup -w 80% -h 50% -E 'bash -c '\''\
-  declare -A pane_map pane_path pane_title; \
-  while IFS=$'\''\t'\'' read -r ppid label path title; do \
-    pane_map[$ppid]="$label"; \
-    pane_path[$ppid]="$path"; \
-    pane_title[$ppid]="$title"; \
-  done < <(tmux list-panes -a -F "#{pane_pid}\t#{session_name}:#{window_index}.#{pane_index}\t#{pane_current_path}\t#{pane_title}"); \
+# Prefix + w: 查找所有运行 AI CLI (claude/aider/gemini/amp) 的 Pane，fzf 选择后跳转
+bind w display-popup -w 90% -h 80% -E '\
+  tmpf=$(mktemp); \
+  tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"; \
   results=""; \
-  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^\s*[0-9]+ (claude|aider|gemini)" | /usr/bin/grep -v grep | awk "{print \$1}"); do \
-    cmd=$(ps -o command= -p "$cpid" 2>/dev/null | tr -d " "); \
+  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^\s*[0-9]+ (claude|aider|gemini|amp)" | /usr/bin/grep -v grep | awk "{print \$1}"); do \
+    cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed "s/^ *//"); \
     pid=$cpid; \
     while [ "$pid" != "1" ] && [ -n "$pid" ]; do \
-      if [ -n "${pane_map[$pid]}" ]; then \
-        dir=$(basename "${pane_path[$pid]}"); \
-        results="${results}${pane_map[$pid]}\t${cmd}\t${dir}\t${pane_title[$pid]}\n"; \
+      line=$(/usr/bin/grep -m1 "^${pid} " "$tmpf"); \
+      if [ -n "$line" ]; then \
+        label=$(echo "$line" | awk "{print \$2}"); \
+        dir=$(basename "$(echo "$line" | awk "{print \$3}")"); \
+        results="${results}$(printf "%-20s %-15s %s" "$label" "$dir" "$cmd")\n"; \
         break; \
       fi; \
       pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " "); \
     done; \
   done; \
+  rm -f "$tmpf"; \
   if [ -z "$results" ]; then \
     echo "No AI CLI found."; read -r; exit 0; \
   fi; \
-  selected=$(printf "$results" | column -t -s $'\''\t'\'' | fzf --height=100% --prompt="AI Panes > " --no-sort --header="PANE          CLI      DIR          TITLE"); \
+  selected=$(printf "$results" | fzf --height=100% --prompt="AI Panes > " --no-sort --header="$(printf "%-20s %-15s %s" "PANE" "DIR" "CLI")" --preview="tmux capture-pane -e -p -t {1}" --preview-window=right:60%); \
   if [ -n "$selected" ]; then \
     target=$(echo "$selected" | awk "{print \$1}"); \
     tmux switch-client -t "$target"; \
   fi \
-'\'''
+'
 
 # Ctrl + Shift + Left/Right: 交换窗口位置并跟随焦点 (无需 Prefix)
 bind-key -n C-S-Left swap-window -t -1\; select-window -t -1
