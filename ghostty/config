@@ -34,7 +34,7 @@ macos-window-shadow = true
 
 
 # ========== 其他优化 ==========
-background-opacity = 0.90
+background-opacity = 0.95
 background-blur-radius = 10
 # 滚动缓冲区大小（单位：字节）
 scrollback-limit = 200000000
