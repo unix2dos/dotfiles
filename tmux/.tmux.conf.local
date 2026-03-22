@@ -495,29 +495,31 @@ unbind-key -T copy-mode-vi f
 
 bind Tab switch-client -l                             # Prefix + Tab: 切换回上一个会话
 bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消全屏 (注意要点击非交互区域)
-# 绑定 prefix + p 到 popup toggle
-bind p run-shell '\
-    popup_session="_popup"; \
-    current_path="#{pane_current_path}"; \
-    if [ "$(tmux display-message -p "#S")" = "$popup_session" ]; then \
+# Popup toggle: prefix + p / Option + p
+%hidden POPUP_CMD='\
+    s="_popup"; p="#{pane_current_path}"; \
+    if [ "$(tmux display-message -p "#S")" = "$s" ]; then \
         tmux detach-client; \
-    elif tmux has-session -t $popup_session 2>/dev/null; then \
-        tmux send-keys -t ${popup_session}: C-c; \
-        tmux send-keys -t ${popup_session}: "cd \"$current_path\"" Enter; \
-        tmux popup -w 80% -h 80% -E "tmux attach-session -t $popup_session"; \
+    elif tmux has-session -t $s 2>/dev/null; then \
+        tmux send-keys -t ${s}: C-c; \
+        tmux send-keys -t ${s}: "cd \"$p\"" Enter; \
+        tmux set -t $s window-active-style "bg=default"; \
+        tmux popup -w 90% -h 90% -E "tmux attach-session -t $s"; \
     else \
-        tmux popup -d "$current_path" -w 80% -h 80% -E "tmux new-session -s $popup_session"; \
+        tmux popup -d "$p" -w 90% -h 90% -E "tmux new-session -s $s \\; set window-active-style bg=default"; \
     fi \
 '
+bind p run-shell "$POPUP_CMD"
+bind -n M-p run-shell "$POPUP_CMD"
 
 
 
-# Prefix + w: 查找所有运行 AI CLI (claude/aider/gemini/amp) 的 Pane，fzf 选择后跳转
+# Prefix + w: 查找所有运行 AI CLI (claude/codex/gemini/amp) 的 Pane，fzf 选择后跳转
 bind w display-popup -w 90% -h 80% -E '\
   tmpf=$(mktemp); \
   tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"; \
   results=""; \
-  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^\s*[0-9]+ (claude|aider|gemini|amp)" | /usr/bin/grep -v grep | awk "{print \$1}"); do \
+  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^\s*[0-9]+ (claude|codex|gemini|amp)" | /usr/bin/grep -v grep | awk "{print \$1}"); do \
     cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed "s/^ *//"); \
     pid=$cpid; \
     while [ "$pid" != "1" ] && [ -n "$pid" ]; do \
