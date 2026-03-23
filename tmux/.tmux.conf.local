@@ -510,6 +510,7 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
 '
 bind p run-shell "$POPUP_CMD"
 bind -n M-p run-shell "$POPUP_CMD"
+bind -n M-o run-shell "$POPUP_CMD"
 
 
 

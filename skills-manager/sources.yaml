@@ -13,6 +13,7 @@ consumers:
   - ~/.claude/skills
   - ~/.codex/skills
   - ~/.config/opencode/skills
+  - ~/.config/alma/skills
   - ~/.gemini/antigravity/skills
   - ~/.openclaw/skills
 
