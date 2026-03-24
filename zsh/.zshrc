@@ -223,8 +223,8 @@ alias cc='claude'
 alias ca='opencode -m opencode/minimax-m2.5-free run "提交全部代码"'
 
 # --- 7.2 文件操作别名 ---
-alias ls='eza -h'                              # 更好的 ls (使用 eza)
-alias ll='eza -alh --total-size --icons'       # 详细列表显示
+alias ls='eza -h --hyperlink'                   # 更好的 ls (使用 eza, 支持 CMD+点击打开)
+alias ll='eza -alh --total-size --icons --hyperlink' # 详细列表显示
 alias open="open -R"                           # 在 Finder 中显示
 
 # --- 7.3 工具别名 ---
