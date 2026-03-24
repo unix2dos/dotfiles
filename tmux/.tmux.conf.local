@@ -495,19 +495,30 @@ unbind-key -T copy-mode-vi f
 
 bind Tab switch-client -l                             # Prefix + Tab: 切换回上一个会话
 bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消全屏 (注意要点击非交互区域)
-# Popup toggle: prefix + p / Option + p
+# ─── Popup 浮动终端 ─────────────────────────────────────────────────────────
+# 逻辑：按下快捷键 →
+#   ① 若当前已在 _popup session：detach 收起浮窗
+#   ② 若 _popup session 存在但不在里面：同步路径后 attach，用 popup 浮窗打开
+#   ③ 若 _popup session 不存在：新建 session，用 popup 浮窗打开
+#
+# %hidden：tmux 3.1+ 私有变量，不暴露给子 shell / 插件，防止被意外覆盖
 %hidden POPUP_CMD='\
     s="_popup"; p="#{pane_current_path}"; \
     if [ "$(tmux display-message -p "#S")" = "$s" ]; then \
         tmux detach-client; \
     elif tmux has-session -t $s 2>/dev/null; then \
-        tmux send-keys -t ${s}: C-c; \
-        tmux send-keys -t ${s}: "cd \"$p\"" Enter; \
+        cmd=$(tmux display-message -t ${s}: -p "#{pane_current_command}"); \
+        case "$cmd" in \
+            bash|zsh|fish|sh) \
+                tmux send-keys -t ${s}: "cd \"$p\"" Enter; \
+            ;; \
+        esac; \
         tmux popup -w 90% -h 90% -E "tmux attach-session -t $s"; \
     else \
         tmux popup -d "$p" -w 90% -h 90% -E "tmux new-session -s $s"; \
     fi \
 '
+# M-p / M-o（Option+p/o）：触发 popup 切换，不需要 prefix
 bind -n M-p run-shell "$POPUP_CMD"
 bind -n M-o run-shell "$POPUP_CMD"
 
