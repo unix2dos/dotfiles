@@ -2,8 +2,8 @@
   "env": {},
   "permissions": {
     "defaultMode": "plan",
-    "allow": [
-      "mcp__pencil"
+    "deny": [
+      "Bash(rm:*)"
     ]
   },
   "model": "opusplan",
