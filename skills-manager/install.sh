@@ -252,10 +252,14 @@ step_build_and_fetch() {
       configured+="|$(cfg_raw ".sources[$i].skills[$j].name")|"
     done
     # remove any dir with SKILL.md whose name is not in the configured list
+    # skip git repos (dirs managed by other sources, e.g. gstack, superpowers)
     local pruned=0
     while IFS= read -r stale_dir; do
       local sname
       sname="$(basename "$stale_dir")"
+      if [[ -d "${stale_dir}/.git" ]]; then
+        continue
+      fi
       if [[ "$configured" != *"|${sname}|"* ]]; then
         log_warn "pruning stale skill: ${sname}"
         if [[ "$DRY_RUN" == false ]]; then
@@ -264,7 +268,9 @@ step_build_and_fetch() {
         ((pruned++))
       fi
     done < <(discover_skill_dirs "$clone_to")
-    [[ "$pruned" -gt 0 ]] && log_info "${name}: pruned ${pruned} stale skill(s)"
+    if [[ "$pruned" -gt 0 ]]; then
+      log_info "${name}: pruned ${pruned} stale skill(s)"
+    fi
   done
 }
 
@@ -316,7 +322,9 @@ step_link() {
       ((total_skills++))
     done < <(discover_skill_dirs "$scan_root")
 
-    [[ "$count" -gt 0 ]] && log_info "source [${name}]: ${count} skills"
+    if [[ "$count" -gt 0 ]]; then
+      log_info "source [${name}]: ${count} skills"
+    fi
   done
 
   log_success "total: ${total_skills} skills -> ${install_dir}"

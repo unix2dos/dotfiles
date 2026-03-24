@@ -12,10 +12,10 @@ consumers:
   - ~/.agents/skills
   - ~/.claude/skills
   - ~/.codex/skills
+  - ~/.openclaw/skills
   - ~/.config/opencode/skills
   - ~/.config/alma/skills
   - ~/.gemini/antigravity/skills
-  - ~/.openclaw/skills
 
 # 来源（按优先级从高到低排列）
 sources:
@@ -47,27 +47,10 @@ sources:
     desc: 社区 skills（从各 GitHub 仓库提取子目录）
     clone_to: ~/.skills-community
     skills:
-      - name: my-code-review
-        desc: 代码审查：质量、安全、SOLID 原则
-        repo: supercent-io/skills-template
-        subdir: .agent-skills/code-review
-
       - name: skill-creator
         desc: 创建、编辑、评估 AI skills
         repo: anthropics/skills
         subdir: skills/skill-creator
-
-      #- name: yt-dlp-downloader
-      #  repo: MapleShaw/yt-dlp-downloader-skill
-      #  branch: master
-
-      #- name: hackernews
-      #  repo: vm0-ai/vm0-skills
-      #  subdir: hackernews
-
-      - name: humanizer-zh
-        desc: 去除中文文本的 AI 生成痕迹，使行文更自然
-        repo: op7418/Humanizer-zh
 
       - name: find-skills
         desc: 帮助发现和安装社区 skills
@@ -83,3 +66,7 @@ sources:
         desc: 实现前澄清需求歧义，避免方向跑偏
         repo: ed3dai/ed3d-plugins
         subdir: plugins/ed3d-plan-and-execute/skills/asking-clarifying-questions
+
+      - name: humanizer-zh
+        desc: 去除中文文本的 AI 生成痕迹，使行文更自然
+        repo: op7418/Humanizer-zh
