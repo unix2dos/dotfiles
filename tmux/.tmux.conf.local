@@ -599,6 +599,9 @@ set -g @extrakto_insert_key "tab"                # 模式下 tab 插入
 #### 5.1 Yazi 需要的 passthrough（让终端查询穿透 tmux）####
 set -g allow-passthrough on
 
+#### 5.2 Hyperlinks 支持（让 tmux 内的链接可点击）####
+set -ga terminal-features ",xterm-256color:hyperlinks"
+
 ####  6. 多 panel 显示 (智能边框) ####
 set-option -g pane-active-border-style "fg=black,bg=green"  # 激活窗格边框样式
 set-option -g pane-border-style "fg=gray,bg=default"        # 普通窗格边框样式
