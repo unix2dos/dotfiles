@@ -1,22 +1,34 @@
+# # #
 # 修改完配置，需要 shift + cmd + , 刷新
+# # #
+
 # ========== 字体设置 ==========
+# 先清空字体族列表，避免继承默认值
 font-family = ""
+# 首选字体（优先级最高）
 font-family = "JetBrainsMono Nerd Font"
+# 备选字体，支持中文和 Nerd Font 图标
 font-family = "Maple Mono NF CN"
+# 字体大小（单位：pt）
 font-size = 17
+# 行高增大 25%（相对调整），改善行间距
 adjust-cell-height = 25%
 # 启用 Maple Mono 连字和字体特性（官方推荐配置）
 font-feature = calt, cv01, cv03, ss01, ss02, ss03
+# 在 macOS 上加粗字体渲染，低分辨率屏幕字体更清晰
 font-thicken = true
 
 # ========== 主题设置 ==========
-# 前景与背景的最低对比度下限（1 到 21）
+# 前景与背景的最低对比度下限（1 到 21），已禁用使用默认值
 #minimum-contrast = 3
+# 使用 Dracula 配色方案
 theme = dracula
 
 
 # ========== 光标设置 ==========
+# 光标形状为实心方块
 cursor-style = block
+# 启用光标闪烁动画
 cursor-style-blink = true
 # 光标颜色（使用明亮的橙色，更醒目）
 cursor-color = #ff9e64
@@ -26,20 +38,34 @@ cursor-text = #1a1b26
 
 # ========== 窗口外观 ==========
 # 适度留白，减轻压迫感
+# 左右内边距 10 像素
 window-padding-x = 10
+# 上下内边距 5 像素
 window-padding-y = 5
+# 将终端网格无法整除窗口时产生的剩余空间均匀分布到四边，使内容居中
 window-padding-balance = true
+# 标题栏样式为标签页模式（将系统标签页整合进标题栏）
 macos-titlebar-style = tabs
+# 启用窗口阴影
 macos-window-shadow = true
 
 
 # ========== 其他优化 ==========
+# 背景透明度（1.0 为全不透明，越小越透明）
 background-opacity = 0.95
+# 背景模糊半径（需配合 background-opacity < 1 使用）
 background-blur-radius = 10
 # 滚动缓冲区大小（单位：字节）
 scrollback-limit = 200000000
 # 在输入时隐藏鼠标
 mouse-hide-while-typing = true
+# 将 Option 键映射为 Alt 键，兼容 Vim/Emacs 等终端快捷键
 macos-option-as-alt = true
-copy-on-select = true
+# 选中文本后自动复制到系统剪贴板（而非仅复制到选区剪贴板）
+copy-on-select = clipboard
+# 允许终端程序读取系统剪贴板
+clipboard-read = allow
+# 允许终端程序写入系统剪贴板
+clipboard-write = allow
+# 关闭窗口或标签页前弹出确认提示，防止误操作
 confirm-close-surface = true
