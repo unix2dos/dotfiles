@@ -220,6 +220,7 @@ alias gdh='git diff HEAD'                      # Git diff HEAD
 alias gt="git tag -ln9999 --sort=-version:refname"  # 显示所有 Git 标签
 alias gwl='git worktree list'
 alias cc='claude'
+alias ca='opencode -m opencode/minimax-m2.5-free run "提交全部代码"'
 
 # --- 7.2 文件操作别名 ---
 alias ls='eza -h'                              # 更好的 ls (使用 eza)
@@ -282,7 +283,6 @@ function gitmsg() {
    sgpt "你是一位资深的软件工程师，擅长编写清晰、规范的 Git 提交信息。根据我提供的内容，生成一条符合「约定式提交规范」的${lang_desc} Git 提交信息。要求: 1.  格式: 严格遵循 \`<类型>(<范围>): <主题>\` 的格式。常用类型: \`feat\`(新功能), \`fix\`(修复), \`refactor\`(重构), \`style\`(格式), \`docs\`(文档), \`perf\`(性能), \`ci\`(持续集成), \`chore\`(杂务)。2.内容: 用言简意赅的${lang_desc}进行描述。只描述核心的、用户可感知或对开发者重要的变更。省略不重要的细节，如修改变量名、调整缩进等（除非是\`style\`类型的提交）。3. 输出:不要添加任何前言、解释或思考过程,直接输出最终的提交信息，且仅输出一条。"
 }
 
-alias ca='opencode -m opencode/minimax-m2.1-free run "提交全部代码"'
 # --- 8.3 智能提交函数 (cz) ---
 # 功能: 分析 git diff HEAD，生成提交消息，支持确认/编辑/取消
 function cz() {
@@ -415,3 +415,7 @@ fi
 if [[ -n "$PS1" ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
 	  tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 fi
+# ww shell wrapper begin
+WW_HELPER_BIN="/Users/liuwei/.local/bin/ww-helper"
+source "/Users/liuwei/.local/bin/ww.sh"
+# ww shell wrapper end
