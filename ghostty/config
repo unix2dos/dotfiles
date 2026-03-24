@@ -41,3 +41,5 @@ scrollback-limit = 200000000
 # 在输入时隐藏鼠标
 mouse-hide-while-typing = true
 macos-option-as-alt = true
+copy-on-select = true
+confirm-close-surface = true

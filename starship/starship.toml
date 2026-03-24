@@ -4,17 +4,16 @@
 # ⚙️ 全局设置
 # ============================================
 add_newline = true      # 命令之间增加空行，让双行提示符不拥挤
-command_timeout = 1000  # 防止右侧模块卡顿
+command_timeout = 500   # 模块超时时间，超时直接跳过
+scan_timeout = 30       # 扫描文件系统的超时时间（默认值）
 
 # ============================================
 # 👉 左侧配置 (第一行内容 + 换行 + 第二行光标)
 # ============================================
 format = """
-$os\
-$username\
-$hostname\
 $directory\
 $git_branch\
+$git_state\
 $git_status\
 $line_break\
 $character"""
@@ -26,61 +25,11 @@ $character"""
 # ============================================
 right_format = """
 $cmd_duration\
-$c\
-$cmake\
-$cobol\
-$daml\
-$dart\
-$deno\
-$dotnet\
-$elixir\
-$elm\
-$erlang\
-$fennel\
 $golang\
-$guix_shell\
-$haskell\
-$haxe\
-$helm\
-$java\
-$julia\
-$kotlin\
-$gradle\
-$lua\
-$nim\
 $nodejs\
-$ocaml\
-$opa\
-$perl\
-$php\
-$pulumi\
-$purescript\
 $python\
-$raku\
-$rlang\
-$red\
-$ruby\
 $rust\
-$scala\
-$solidity\
-$swift\
-$terraform\
-$vlang\
-$vagrant\
-$zig\
-$buf\
-$nix_shell\
-$conda\
-$meson\
-$spack\
-$memory_usage\
-$aws\
-$gcloud\
-$openstack\
-$azure\
-$env_var\
-$crystal\
-$custom\
+$docker_context\
 $jobs\
 $battery\
 $time"""
@@ -104,6 +53,7 @@ error_symbol = "[╰](white)[❯](red)[❯](red)[❯](red) "
 [directory]
 truncation_length = 3
 truncation_symbol = "…/"
+truncate_to_repo = true
 style = "cyan bold"
 read_only = " 🔒"
 
@@ -116,6 +66,7 @@ style = "green bold"
 [git_status]
 format = "([$all_status$ahead_behind]($style) )"
 style = "bold yellow"
+ignore_submodules = true
 conflicted = "\uf071 "
 ahead = "\uf062 ${count}"
 behind = "\uf063 ${count}"
@@ -131,21 +82,38 @@ deleted = "\uf014 ${count} "
 [nodejs]
 symbol = "\ue719 "        #   (六边形 Logo，比原本的  更厚实)
 style = "bold green"
+format = "[$symbol]($style)"
 
 # [Golang]
 [golang]
 symbol = "\ue626 "        #   (GO 字母图标，比原本的  地鼠更清晰)
 style = "bold cyan"
+format = "[$symbol]($style)"
 
 # [Python]
 [python]
 symbol = "\ue73c "        #   (标准的 Python Logo，比原本的  更有辨识度)
 style = "bold yellow"
+format = "[$symbol]($style)"
+
+# [Rust]
+[rust]
+format = "[$symbol]($style)"
+
+# [Docker]
+[docker_context]
+symbol = " "
+format = "[$symbol$context](blue bold) "
+only_with_files = true
 
 # [命令执行耗时]
 [cmd_duration]
-min_time = 2000
+min_time = 500
 format = "[$duration](bold yellow) "
+
+# [AWS]
+[aws]
+disabled = true
 
 # [当前时间]
 [time]
