@@ -108,10 +108,30 @@ cleanup() {
   fi
 }
 
+# ─── Step 0: clean ────────────────────────────────────────────────
+
+step_clean() {
+  log_header "Step 0/4 — clean stale dirs"
+
+  local community_dir install_dir
+  community_dir=$(cfg '.community_dir')
+  install_dir=$(cfg '.install_dir')
+
+  for dir in "$community_dir" "$install_dir"; do
+    if [[ -z "$dir" ]]; then continue; fi
+    if [[ "$DRY_RUN" == true ]]; then
+      log_info "[DRY-RUN] would remove: ${dir}"
+    elif [[ -e "$dir" || -L "$dir" ]]; then
+      rm -rf "$dir"
+      log_success "removed: ${dir}"
+    fi
+  done
+}
+
 # ─── Step 1: clone ────────────────────────────────────────────────
 
 step_clone() {
-  log_header "Step 1/3 — clone repos"
+  log_header "Step 1/4 — clone repos"
 
   local count
   count=$(yq '.sources | length' "$CONFIG")
@@ -133,7 +153,7 @@ step_clone() {
 # ─── Step 2: build + fetch community ─────────────────────────────
 
 step_build_and_fetch() {
-  log_header "Step 2/3 — build + fetch community"
+  log_header "Step 2/4 — build + fetch community"
 
   local count
   count=$(yq '.sources | length' "$CONFIG")
@@ -277,13 +297,12 @@ step_build_and_fetch() {
 # ─── Step 3: aggregate + link ─────────────────────────────────────
 
 step_link() {
-  log_header "Step 3/3 — aggregate + link"
+  log_header "Step 3/4 — aggregate + link"
 
   local install_dir
   install_dir=$(cfg '.install_dir')
 
   # ── aggregate ──
-  rm -rf "$install_dir"
   mkdir -p "$install_dir"
 
   local total_skills=0
@@ -367,6 +386,7 @@ main() {
     log_warn "DRY-RUN mode"
   fi
 
+  step_clean
   step_clone
   step_build_and_fetch
   step_link

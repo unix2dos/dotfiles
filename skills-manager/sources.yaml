@@ -7,6 +7,9 @@
 # 聚合目录
 install_dir: ~/.skills-installed
 
+# 社区 clone 根目录（安装前会整体清理）
+community_dir: ~/.skills-community
+
 # AI 工具消费入口（全部 symlink 到 install_dir）
 consumers:
   - ~/.agents/skills
