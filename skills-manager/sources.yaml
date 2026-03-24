@@ -4,10 +4,17 @@
 # 顺序即优先级，靠前的优先级更高
 # 同名 skill 保留高优先级版本
 
-# 聚合目录
+# 两层目录设计说明：
+#   community_dir  = git 仓库暂存区。一个仓库可能含多个 skill（如 superpowers 含几十个），
+#                    需要先 clone 到这里，再从中发现并提取各个 skill。
+#   install_dir    = 扁平聚合层，只存 symlink，每个 entry 对应一个 skill。
+#                    消费者（Claude/Codex 等）只需 symlink 到这一个目录即可。
+#   两层不可合并：仓库与 skill 是 1:N 关系，必须先 clone 再提取。
+
+# 聚合目录（symlink 层，消费者入口）
 install_dir: ~/.skills-installed
 
-# 社区 clone 根目录（安装前会整体清理）
+# 社区 clone 根目录（仓库暂存区，安装前会整体清理）
 community_dir: ~/.skills-community
 
 # AI 工具消费入口（全部 symlink 到 install_dir）
