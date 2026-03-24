@@ -61,9 +61,6 @@ scrollback-limit = 200000000
 mouse-hide-while-typing = true
 # 将 Option 键映射为 Alt 键，兼容 Vim/Emacs 等终端快捷键
 macos-option-as-alt = true
-# Cmd+o 发送与 Option+o (M-o) 相同的转义序列，让 tmux 的 M-o 绑定同时响应
-keybind = cmd+o=text:\x1bo
-keybind = cmd+p=text:\x1bo
 # 选中文本后自动复制到系统剪贴板（而非仅复制到选区剪贴板）
 copy-on-select = clipboard
 # 允许终端程序读取系统剪贴板
@@ -72,3 +69,6 @@ clipboard-read = allow
 clipboard-write = allow
 # 关闭窗口或标签页前弹出确认提示，防止误操作
 confirm-close-surface = true
+# Cmd+p 发送与 Option+p 相同的转义序列
+keybind = cmd+p=text:\x1bp
+

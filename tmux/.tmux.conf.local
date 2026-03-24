@@ -516,9 +516,8 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
         tmux popup -d "$p" -w 90% -h 90% -E "tmux new-session -s $s"; \
     fi \
 '
-# M-p / M-o（Option+p/o）：触发 popup 切换，不需要 prefix
+# Option+p：触发 popup 切换，不需要 prefix
 bind -n M-p run-shell "$POPUP_CMD"
-bind -n M-o run-shell "$POPUP_CMD"
 
 
 
