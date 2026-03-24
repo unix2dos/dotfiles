@@ -1,6 +1,6 @@
 # 吸血鬼配色绝了
 [general]
-import = ["~/workspace/LevonConfig/Config/alacritty/themes/dracula.toml"]
+import = ["~/workspace/dotfiles/alacritty/themes/dracula.toml"]
 
 
 [font]
