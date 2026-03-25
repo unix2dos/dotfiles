@@ -1,7 +1,7 @@
 {
   "env": {},
   "permissions": {
-    "defaultMode": "plan",
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash(git:*)",
       "Bash(gh:*)",
@@ -48,7 +48,8 @@
       "WebSearch",
       "WebFetch",
       "Write",
-      "Edit"
+      "Edit",
+      "mcp__pencil"
     ],
     "deny": [
       "Bash(rm:*)"
