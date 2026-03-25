@@ -223,8 +223,8 @@ alias cc='claude'
 alias ca='opencode -m opencode/minimax-m2.5-free run "提交全部代码"'
 
 # --- 7.2 文件操作别名 ---
-alias ls='eza -h --hyperlink'                   # 更好的 ls (使用 eza, 支持 CMD+点击打开)
-alias ll='eza -alh --total-size --icons --hyperlink' # 详细列表显示
+alias ls='eza -h --hyperlink'                   # 更好的 ls (使用 eza)
+alias ll='eza -alh --total-size --icons --hyperlink'  # 详细列表显示
 alias open="open -R"                           # 在 Finder 中显示
 
 # --- 7.3 工具别名 ---
@@ -415,7 +415,9 @@ fi
 if [[ -n "$PS1" ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
 	  tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 fi
-# ww shell wrapper begin
-WW_HELPER_BIN="/Users/liuwei/.local/bin/ww-helper"
-source "/Users/liuwei/.local/bin/ww.sh"
-# ww shell wrapper end
+
+# timg: 在 tmux 中强制使用 Kitty 图片协议
+export TIMG_PIXELATION=kitty
+alias img="timg -pk"
+alias see="open"
+eval "$("/opt/homebrew/opt/ww/bin/ww-helper" init zsh)"
