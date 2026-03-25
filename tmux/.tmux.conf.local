@@ -520,9 +520,9 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
 bind -n M-p run-shell "$POPUP_CMD"
 
 # Option+o：切换垂直分屏 yazi 文件管理器（再按一次关闭）
-bind -n M-o if-shell 'tmux list-panes -F "##{pane_id}:##{pane_current_command}" | grep -q yazi' \
-  'run-shell "tmux list-panes -F \"##{pane_id}:##{pane_current_command}\" | grep yazi | cut -d: -f1 | xargs -I{} tmux kill-pane -t {}"' \
-  'split-window -h -c "#{pane_current_path}" "yazi \"#{pane_current_path}\""'
+#bind -n M-o if-shell 'tmux list-panes -F "##{pane_id}:##{pane_current_command}" | grep -q yazi' \
+#  'run-shell "tmux list-panes -F \"##{pane_id}:##{pane_current_command}\" | grep yazi | cut -d: -f1 | xargs -I{} tmux kill-pane -t {}"' \
+#  'split-window -h -c "#{pane_current_path}" "yazi \"#{pane_current_path}\""'
 
 
 
