@@ -505,10 +505,11 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
     if [ "$(tmux display-message -p "#S")" = "$s" ]; then \
         tmux detach-client; \
     elif tmux has-session -t $s 2>/dev/null; then \
-        cmd=$(tmux display-message -t ${s}: -p "#{pane_current_command}"); \
+        cmd=$(tmux list-panes -t $s -F "##{pane_current_command}" | head -1); \
         case "$cmd" in \
-            bash|zsh|fish|sh) \
+            *bash|*zsh|*fish|*sh) \
                 tmux send-keys -t ${s}: "cd \"$p\"" Enter; \
+                sleep 0.15; \
             ;; \
         esac; \
         tmux popup -w 90% -h 90% -E "tmux attach-session -t $s"; \
