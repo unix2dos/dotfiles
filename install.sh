@@ -78,7 +78,7 @@ link_file "$DOTFILES/opencode/opencode.json"        "$HOME/.config/opencode/open
 link_file "$DOTFILES/opencode/oh-my-opencode.json"  "$HOME/.config/opencode/oh-my-opencode.json"
 link_file "$DOTFILES/claude/settings.json"          "$HOME/.claude/settings.json"
 link_file "$DOTFILES/claude/CLAUDE.md"              "$HOME/.claude/CLAUDE.md"
-link_file "$DOTFILES/claude/statusline-command.sh"  "$HOME/.claude/statusline-command.sh"
+link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statusline-hud-wrapper.sh"
 link_file "$DOTFILES/claude/plugins/claude-hud/config.json" "$HOME/.claude/plugins/claude-hud/config.json"
 link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.json"
 
