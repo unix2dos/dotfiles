@@ -29,10 +29,8 @@ consumers:
 
 # 来源（按优先级从高到低排列）
 # 可选字段：
-#   enable: false          — 跳过整个 source
 #   prefix: xxx            — symlink 名变为 xxx-{skill_name}（prefix: "" 显式不加前缀）
 #   exclude: [a, b]        — 排除指定 skill
-#   社区 skill 支持 enable: false 禁用单个 skill
 sources:
   - name: owned
     desc: 自有 skills

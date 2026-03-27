@@ -78,14 +78,6 @@ cfg_raw() {
   echo "$val"
 }
 
-is_source_enabled() {
-  local idx="$1"
-  local enabled
-  enabled=$(cfg_raw ".sources[$idx].enable")
-  # default: enabled (empty or "true")
-  [[ -z "$enabled" || "$enabled" == "true" ]]
-}
-
 is_skill_excluded() {
   local idx="$1" skill_name="$2"
   local exclude_count
@@ -178,11 +170,6 @@ step_clone() {
     local name repo clone_to branch
     name=$(cfg_raw ".sources[$i].name")
 
-    if ! is_source_enabled "$i"; then
-      log_info "skip disabled source: ${name}"
-      continue
-    fi
-
     repo=$(cfg_raw ".sources[$i].repo")
     clone_to=$(cfg ".sources[$i].clone_to")
     branch=$(cfg_raw ".sources[$i].branch")
@@ -205,10 +192,6 @@ step_build_and_fetch() {
   for ((i = 0; i < count; i++)); do
     local name clone_to build
     name=$(cfg_raw ".sources[$i].name")
-
-    if ! is_source_enabled "$i"; then
-      continue
-    fi
 
     clone_to=$(cfg ".sources[$i].clone_to")
     build=$(cfg_raw ".sources[$i].build")
@@ -258,15 +241,8 @@ step_build_and_fetch() {
     local success=0 failed=0
 
     for ((j = 0; j < skills_count; j++)); do
-      local skill_name skill_repo skill_subdir skill_branch skill_enable
+      local skill_name skill_repo skill_subdir skill_branch
       skill_name=$(cfg_raw ".sources[$i].skills[$j].name")
-
-      # skip disabled community skill
-      skill_enable=$(cfg_raw ".sources[$i].skills[$j].enable")
-      if [[ "$skill_enable" == "false" ]]; then
-        log_info "  skip disabled: ${skill_name}"
-        continue
-      fi
 
       # skip excluded community skill
       if is_skill_excluded "$i" "$skill_name"; then
@@ -377,10 +353,6 @@ step_link() {
   for ((i = 0; i < source_count; i++)); do
     local name clone_to skills_dir
     name=$(cfg_raw ".sources[$i].name")
-
-    if ! is_source_enabled "$i"; then
-      continue
-    fi
 
     clone_to=$(cfg ".sources[$i].clone_to")
     skills_dir=$(cfg_raw ".sources[$i].skills_dir")
