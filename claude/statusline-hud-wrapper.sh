@@ -24,4 +24,8 @@ if [ -d "$cwd" ]; then
   fi
 fi
 
-printf '%s%s' "$hud_output" "$wt_label"
+if [ -n "$wt_label" ]; then
+  printf '%s │ %s' "🌳 wt:${wt_name}" "$hud_output"
+else
+  printf '%s' "$hud_output"
+fi
