@@ -12,3 +12,5 @@
 .env
 **/ssh/
 **/known_hosts
+
+.worktrees/

@@ -51,8 +51,7 @@
       "WebSearch",
       "WebFetch",
       "Write",
-      "Edit",
-      "mcp__pencil"
+      "Edit"
     ],
     "deny": [],
     "defaultMode": "bypassPermissions"
