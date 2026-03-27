@@ -13,9 +13,15 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CONFIG="$SCRIPT_DIR/sources.yaml"
+CONFIG="$SCRIPT_DIR/skills_sources.yaml"
+CLAUDE_CONFIG="$SCRIPT_DIR/skills_claude.yaml"
+CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
 DRY_RUN=false
 TMPDIR_BASE=""
+
+# skill_link_name -> source_name mapping (populated in step_link)
+# Format: "|link_name=source_name|..." (bash 3.x compatible)
+SKILL_SOURCE_MAP="|"
 
 for arg in "$@"; do
   case "$arg" in
@@ -143,7 +149,7 @@ cleanup() {
 # ─── Step 0: clean ────────────────────────────────────────────────
 
 step_clean() {
-  log_header "Step 0/4 — clean stale dirs"
+  log_header "Step 0/5 — clean stale dirs"
 
   local community_dir install_dir
   community_dir=$(cfg '.community_dir')
@@ -163,7 +169,7 @@ step_clean() {
 # ─── Step 1: clone ────────────────────────────────────────────────
 
 step_clone() {
-  log_header "Step 1/4 — clone repos"
+  log_header "Step 1/5 — clone repos"
 
   local count
   count=$(yq '.sources | length' "$CONFIG")
@@ -191,7 +197,7 @@ step_clone() {
 # ─── Step 2: build + fetch community ─────────────────────────────
 
 step_build_and_fetch() {
-  log_header "Step 2/4 — build + fetch community"
+  log_header "Step 2/5 — build + fetch community"
 
   local count
   count=$(yq '.sources | length' "$CONFIG")
@@ -354,7 +360,7 @@ step_build_and_fetch() {
 # ─── Step 3: aggregate + link ─────────────────────────────────────
 
 step_link() {
-  log_header "Step 3/4 — aggregate + link"
+  log_header "Step 3/5 — aggregate + link"
 
   local install_dir
   install_dir=$(cfg '.install_dir')
@@ -365,6 +371,8 @@ step_link() {
   local total_skills=0
   local source_count
   source_count=$(yq '.sources | length' "$CONFIG")
+  # Track claimed skill names for priority (first source wins)
+  local claimed_skills="|"
 
   for ((i = 0; i < source_count; i++)); do
     local name clone_to skills_dir
@@ -401,14 +409,20 @@ step_link() {
       # prefix
       local link_name
       link_name=$(get_skill_link_name "$i" "$sname")
-      local link_path="${install_dir}/${link_name}"
 
-      if [[ -e "$link_path" || -L "$link_path" ]]; then
+      # priority: first source to claim a name wins
+      if [[ "$claimed_skills" == *"|${link_name}|"* ]]; then
         log_warn "keep higher-priority ${link_name}, skip from ${name}"
         continue
       fi
 
-      ln -s "$skill_dir" "$link_path"
+      claimed_skills="${claimed_skills}${link_name}|"
+      SKILL_SOURCE_MAP="${SKILL_SOURCE_MAP}${link_name}=${name}|"
+
+      local link_path="${install_dir}/${link_name}"
+      if [[ "$DRY_RUN" == false ]]; then
+        ln -s "$skill_dir" "$link_path"
+      fi
       ((count++))
       ((total_skills++))
     done < <(discover_skill_dirs "$scan_root")
@@ -428,6 +442,12 @@ step_link() {
   for ((i = 0; i < consumer_count; i++)); do
     local consumer
     consumer=$(cfg ".consumers[$i]")
+
+    # skip claude — handled separately in step_claude
+    if [[ "$consumer" == "$CLAUDE_SKILLS_DIR" ]]; then
+      continue
+    fi
+
     mkdir -p "$(dirname "$consumer")"
 
     if [[ -L "$consumer" && "$(readlink "$consumer")" == "$install_dir" ]]; then
@@ -444,7 +464,109 @@ step_link() {
     ((linked++))
   done
 
-  log_success "linked to ${linked} AI tools"
+  log_success "linked to ${linked} AI tools (Claude Code handled separately)"
+}
+
+# ─── Step 4: Claude Code filtered install ────────────────────────
+
+step_claude() {
+  log_header "Step 4/5 — Claude Code filtered install"
+
+  local install_dir
+  install_dir=$(cfg '.install_dir')
+
+  # ── load whitelist from sources_claude.yaml ──
+  # Store as "|name1|name2|..." for bash 3.x compatible lookup
+  local claude_include_sources="|"
+  local claude_include_skills="|"
+  local has_config=false
+
+  if [[ -f "$CLAUDE_CONFIG" ]]; then
+    has_config=true
+    log_info "loading sources_claude.yaml (whitelist mode)"
+
+    local is_count
+    is_count=$(yq '.include_sources | length' "$CLAUDE_CONFIG" 2>/dev/null)
+    if [[ "$is_count" != "0" && "$is_count" != "null" ]]; then
+      for ((i = 0; i < is_count; i++)); do
+        local src
+        src=$(yq -r ".include_sources[$i]" "$CLAUDE_CONFIG")
+        claude_include_sources="${claude_include_sources}${src}|"
+      done
+    fi
+
+    local ik_count
+    ik_count=$(yq '.include | length' "$CLAUDE_CONFIG" 2>/dev/null)
+    if [[ "$ik_count" != "0" && "$ik_count" != "null" ]]; then
+      for ((i = 0; i < ik_count; i++)); do
+        local sk
+        sk=$(yq -r ".include[$i]" "$CLAUDE_CONFIG")
+        claude_include_skills="${claude_include_skills}${sk}|"
+      done
+    fi
+
+    log_info "include_sources: ${claude_include_sources}"
+    log_info "include_skills:  ${claude_include_skills}"
+  else
+    log_info "sources_claude.yaml not found, installing all skills"
+  fi
+
+  # ── prepare ~/.claude/skills as physical directory ──
+  if [[ "$DRY_RUN" == false ]]; then
+    if [[ -L "$CLAUDE_SKILLS_DIR" ]]; then
+      rm -f "$CLAUDE_SKILLS_DIR"
+    elif [[ -d "$CLAUDE_SKILLS_DIR" ]]; then
+      rm -rf "$CLAUDE_SKILLS_DIR"
+    fi
+    mkdir -p "$CLAUDE_SKILLS_DIR"
+  fi
+
+  # ── create filtered symlinks ──
+  local included=0 skipped=0
+
+  for link_path in "$install_dir"/*; do
+    [[ -e "$link_path" || -L "$link_path" ]] || continue
+
+    local link_name
+    link_name="$(basename "$link_path")"
+
+    # if no config, install everything
+    if [[ "$has_config" == true ]]; then
+      # lookup source name from SKILL_SOURCE_MAP
+      local source_name="unknown"
+      if [[ "$SKILL_SOURCE_MAP" == *"|${link_name}="* ]]; then
+        source_name="${SKILL_SOURCE_MAP#*|${link_name}=}"
+        source_name="${source_name%%|*}"
+      fi
+
+      # whitelist: must match include_sources OR include
+      local allowed=false
+      if [[ "$claude_include_sources" == *"|${source_name}|"* ]]; then
+        allowed=true
+      elif [[ "$claude_include_skills" == *"|${link_name}|"* ]]; then
+        allowed=true
+      fi
+
+      if [[ "$allowed" == false ]]; then
+        log_info "  skip (not in whitelist): ${link_name}"
+        ((skipped++))
+        continue
+      fi
+    fi
+
+    # create symlink: ~/.claude/skills/xxx -> actual skill dir
+    local target
+    if [[ "$DRY_RUN" == true ]]; then
+      # in dry-run, resolve from SKILL_SOURCE_MAP context
+      ((included++))
+    else
+      target="$(readlink "$link_path")"
+      ln -s "$target" "${CLAUDE_SKILLS_DIR}/${link_name}"
+      ((included++))
+    fi
+  done
+
+  log_success "Claude Code: ${included} skills installed, ${skipped} skipped"
 }
 
 # ─── main ─────────────────────────────────────────────────────────
@@ -462,6 +584,7 @@ main() {
   step_clone
   step_build_and_fetch
   step_link
+  step_claude
 
   echo ""
   log_success "all done!"
