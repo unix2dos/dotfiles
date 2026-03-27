@@ -80,3 +80,9 @@ sources:
       - name: humanizer-zh
         desc: 去除中文文本的 AI 生成痕迹，使行文更自然
         repo: op7418/Humanizer-zh
+
+      - name: ljg-roundtable
+        desc: 圆桌派/多视角专家结构化讨论框架
+        repo: lijigang/ljg-skills
+        branch: master
+        subdir: skills/ljg-roundtable
