@@ -28,24 +28,32 @@ consumers:
   - ~/.gemini/antigravity/skills
 
 # 来源（按优先级从高到低排列）
+# 可选字段：
+#   enable: false          — 跳过整个 source
+#   prefix: xxx            — symlink 名变为 xxx-{skill_name}（prefix: "" 显式不加前缀）
+#   exclude: [a, b]        — 排除指定 skill
+#   社区 skill 支持 enable: false 禁用单个 skill
 sources:
   - name: owned
     desc: 自有 skills
     repo: https://github.com/unix2dos/skills.git
     clone_to: ~/workspace/skills
     skills_dir: .
+    prefix: lw
 
   - name: superpowers
     desc: 工程流程框架：规划、执行、调试、TDD 等全套研发流程 skills
     repo: https://github.com/obra/superpowers.git
     clone_to: ~/.skills-community/superpowers
     skills_dir: skills
+    prefix: superpowers
 
   - name: minimalist-entrepreneur
     desc: 精益创业 skills：社区发现、验证创意、MVP、定价、增长等全流程
     repo: https://github.com/slavingia/skills.git
     clone_to: ~/.skills-community/minimalist-entrepreneur
     skills_dir: skills
+    prefix: mini
 
   - name: ljg-skills
     desc: lijigang 自定义技能集：圆桌讨论、论文阅读、卡片写作、投资分析等
@@ -54,9 +62,11 @@ sources:
     branch: master
     skills_dir: skills
     build: cd skills/ljg-card && npm install --silent && npx playwright install chromium
+    exclude: [ljg-x-download, ljg-word, ljg-travel]
 
   - name: gstack
     desc: Garry Tan 工程团队 skills：代码审查、QA、浏览器自动化等
+    enable: false
     repo: https://github.com/garrytan/gstack.git
     clone_to: ~/.skills-community/gstack
     skills_dir: .agents/skills

@@ -72,6 +72,38 @@ cfg_raw() {
   echo "$val"
 }
 
+is_source_enabled() {
+  local idx="$1"
+  local enabled
+  enabled=$(cfg_raw ".sources[$idx].enable")
+  # default: enabled (empty or "true")
+  [[ -z "$enabled" || "$enabled" == "true" ]]
+}
+
+is_skill_excluded() {
+  local idx="$1" skill_name="$2"
+  local exclude_count
+  exclude_count=$(yq ".sources[$idx].exclude | length" "$CONFIG" 2>/dev/null)
+  [[ "$exclude_count" == "0" || "$exclude_count" == "null" ]] && return 1
+  for ((k = 0; k < exclude_count; k++)); do
+    local excluded
+    excluded=$(cfg_raw ".sources[$idx].exclude[$k]")
+    [[ "$excluded" == "$skill_name" ]] && return 0
+  done
+  return 1
+}
+
+get_skill_link_name() {
+  local idx="$1" skill_name="$2"
+  local prefix
+  prefix=$(cfg_raw ".sources[$idx].prefix")
+  if [[ -n "$prefix" ]]; then
+    echo "${prefix}-${skill_name}"
+  else
+    echo "$skill_name"
+  fi
+}
+
 clone_or_pull() {
   local label="$1" repo_url="$2" dest="$3" branch="${4:-main}"
 
@@ -139,6 +171,12 @@ step_clone() {
   for ((i = 0; i < count; i++)); do
     local name repo clone_to branch
     name=$(cfg_raw ".sources[$i].name")
+
+    if ! is_source_enabled "$i"; then
+      log_info "skip disabled source: ${name}"
+      continue
+    fi
+
     repo=$(cfg_raw ".sources[$i].repo")
     clone_to=$(cfg ".sources[$i].clone_to")
     branch=$(cfg_raw ".sources[$i].branch")
@@ -161,6 +199,11 @@ step_build_and_fetch() {
   for ((i = 0; i < count; i++)); do
     local name clone_to build
     name=$(cfg_raw ".sources[$i].name")
+
+    if ! is_source_enabled "$i"; then
+      continue
+    fi
+
     clone_to=$(cfg ".sources[$i].clone_to")
     build=$(cfg_raw ".sources[$i].build")
 
@@ -209,8 +252,22 @@ step_build_and_fetch() {
     local success=0 failed=0
 
     for ((j = 0; j < skills_count; j++)); do
-      local skill_name skill_repo skill_subdir skill_branch
+      local skill_name skill_repo skill_subdir skill_branch skill_enable
       skill_name=$(cfg_raw ".sources[$i].skills[$j].name")
+
+      # skip disabled community skill
+      skill_enable=$(cfg_raw ".sources[$i].skills[$j].enable")
+      if [[ "$skill_enable" == "false" ]]; then
+        log_info "  skip disabled: ${skill_name}"
+        continue
+      fi
+
+      # skip excluded community skill
+      if is_skill_excluded "$i" "$skill_name"; then
+        log_info "  exclude: ${skill_name}"
+        continue
+      fi
+
       skill_repo=$(cfg_raw ".sources[$i].skills[$j].repo")
       skill_subdir=$(cfg_raw ".sources[$i].skills[$j].subdir")
       skill_branch=$(cfg_raw ".sources[$i].skills[$j].branch")
@@ -312,6 +369,11 @@ step_link() {
   for ((i = 0; i < source_count; i++)); do
     local name clone_to skills_dir
     name=$(cfg_raw ".sources[$i].name")
+
+    if ! is_source_enabled "$i"; then
+      continue
+    fi
+
     clone_to=$(cfg ".sources[$i].clone_to")
     skills_dir=$(cfg_raw ".sources[$i].skills_dir")
 
@@ -329,10 +391,20 @@ step_link() {
       [[ -n "$skill_dir" ]] || continue
       local sname
       sname="$(basename "$skill_dir")"
-      local link_path="${install_dir}/${sname}"
+
+      # exclude check
+      if is_skill_excluded "$i" "$sname"; then
+        log_info "exclude ${sname} from ${name}"
+        continue
+      fi
+
+      # prefix
+      local link_name
+      link_name=$(get_skill_link_name "$i" "$sname")
+      local link_path="${install_dir}/${link_name}"
 
       if [[ -e "$link_path" || -L "$link_path" ]]; then
-        log_warn "keep higher-priority ${sname}, skip from ${name}"
+        log_warn "keep higher-priority ${link_name}, skip from ${name}"
         continue
       fi
 

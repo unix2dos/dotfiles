@@ -62,18 +62,11 @@
     "command": "bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/statusline-hud-wrapper.sh"
   },
   "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true,
     "claude-hud@claude-hud": true,
     "gopls-lsp@claude-plugins-official": true,
     "claude-mem@thedotmack": true
   },
   "extraKnownMarketplaces": {
-    "superpowers-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      }
-    },
     "claude-plugins-official": {
       "source": {
         "source": "github",
