@@ -41,6 +41,20 @@ sources:
     clone_to: ~/.skills-community/superpowers
     skills_dir: skills
 
+  - name: minimalist-entrepreneur
+    desc: 精益创业 skills：社区发现、验证创意、MVP、定价、增长等全流程
+    repo: https://github.com/slavingia/skills.git
+    clone_to: ~/.skills-community/minimalist-entrepreneur
+    skills_dir: skills
+
+  - name: ljg-skills
+    desc: lijigang 自定义技能集：圆桌讨论、论文阅读、卡片写作、投资分析等
+    repo: https://github.com/lijigang/ljg-skills.git
+    clone_to: ~/.skills-community/ljg-skills
+    branch: master
+    skills_dir: skills
+    build: cd skills/ljg-card && npm install --silent && npx playwright install chromium
+
   - name: gstack
     desc: Garry Tan 工程团队 skills：代码审查、QA、浏览器自动化等
     repo: https://github.com/garrytan/gstack.git
@@ -80,9 +94,3 @@ sources:
       - name: humanizer-zh
         desc: 去除中文文本的 AI 生成痕迹，使行文更自然
         repo: op7418/Humanizer-zh
-
-      - name: ljg-roundtable
-        desc: 圆桌派/多视角专家结构化讨论框架
-        repo: lijigang/ljg-skills
-        branch: master
-        subdir: skills/ljg-roundtable
