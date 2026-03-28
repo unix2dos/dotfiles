@@ -36,6 +36,15 @@ brew install --cask alacritty ghostty
 
 ## 目录结构
 
+### AI 工具
+
+| 目录 | 说明 |
+|:-----|:-----|
+| [claude](claude/) | Claude Code CLI 配置 + 自定义 Statusline |
+| [amp](amp/) | Amp CLI 配置 |
+| [opencode](opencode/) | Opencode AI 配置 |
+| [skills-manager](skills-manager/) | 全局 AI skills 聚合层 (owned → superpowers → gstack → community) |
+
 ### Shell & 终端
 
 | 目录 | 说明 |
@@ -46,23 +55,14 @@ brew install --cask alacritty ghostty
 | [ghostty](ghostty/) | Ghostty 终端 |
 | [starship](starship/) | Starship 提示符主题 |
 | [fastfetch](fastfetch/) | 系统信息展示 |
+| [git](git/) | Git 全局配置 (diff-so-fancy, 别名, LFS) |
 
-### 编辑器 & IDE
+### 编辑器
 
 | 目录 | 说明 |
 |:-----|:-----|
 | [vim](vim/) | Vim 配置 |
-| [git](git/) | Git 全局配置 (diff-so-fancy, 别名, LFS) |
 | [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
-
-### AI 工具
-
-| 目录 | 说明 |
-|:-----|:-----|
-| [claude](claude/) | Claude Code CLI 配置 + 自定义 Statusline |
-| [opencode](opencode/) | Opencode AI 配置 |
-| [amp](amp/) | Amp CLI 配置 |
-| [skills-manager](skills-manager/) | 全局 AI skills 聚合层 (owned → superpowers → gstack → community) |
 
 ---
 
