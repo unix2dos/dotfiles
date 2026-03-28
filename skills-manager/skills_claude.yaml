@@ -6,10 +6,18 @@
 
 # 按 source 整体纳入
 include_sources:
-  - owned
+  # - owned
 
 # 按单个 skill 纳入（使用含 prefix 的完整名称）
 include:
+  - lw-code-refactor
+  - lw-code-simplifier
+  - lw-confidence-check
+  - lw-learn-tech
+  - lw-mermaid-generator
+  - lw-strategic-product-advisor
+  - lw-technical-content-optimizer
+  - lw-ui-ux-auditor
   - architecture-designer
   - asking-clarifying-questions
   - humanizer-zh
