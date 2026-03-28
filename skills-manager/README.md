@@ -8,6 +8,7 @@ Multi-AI-tool skills aggregation layer.
 
 ```bash
 bash ~/workspace/dotfiles/skills-manager/install.sh
+bash ~/workspace/dotfiles/skills-manager/install.sh --dry-run  # 仅预览
 ```
 
 
@@ -16,10 +17,21 @@ bash ~/workspace/dotfiles/skills-manager/install.sh
 
 | File | Purpose |
 |---|---|
-| `sources.yaml` | All config: sources, priorities, repos, consumers |
-| `install.sh` | All logic: clone → build → aggregate → link |
+| `skills_sources.yaml` | 所有配置：来源、优先级、仓库、消费者 |
+| `skills_claude.yaml` | Claude Code 白名单（可选，不存在则全量安装） |
+| `install.sh` | 所有逻辑：clean → clone → build → aggregate → link → claude |
 
-Edit `sources.yaml`, run `install.sh`.
+
+
+## Pipeline
+
+```
+Step 0  clean     清理旧的 install_dir / community_dir
+Step 1  clone     按 sources 克隆或拉取 Git 仓库
+Step 2  build     执行 build 命令 + 抓取社区零散 skills
+Step 3  link      聚合为 symlink → ~/.skills-installed，分发到各 consumer
+Step 4  claude    读取 skills_claude.yaml 白名单，过滤安装到 ~/.claude/skills
+```
 
 
 
@@ -29,10 +41,22 @@ Edit `sources.yaml`, run `install.sh`.
 |---|------|------|---------|
 | 1 | owned | unix2dos/skills | git clone |
 | 2 | superpowers | obra/superpowers | git clone |
-| 3 | gstack | garrytan/gstack | git clone + bun build |
-| 4 | community | multiple repos | clone + rsync extract |
+| 3 | minimalist-entrepreneur | slavingia/skills | git clone |
+| 4 | ljg-skills | lijigang/ljg-skills | git clone + npm build |
+| 5 | gstack | garrytan/gstack | git clone + bun build |
+| 6 | community | multiple repos | clone + rsync extract |
 
 Same-name skill → higher priority wins.
+
+
+
+## Claude Code 白名单 (`skills_claude.yaml`)
+
+Claude Code 的 skill 数量影响 system prompt 长度，因此通过白名单控制安装范围：
+
+- `include_sources` — 按 source 整体纳入
+- `include` — 按单个 skill 名称纳入（使用含 prefix 的完整名称）
+- 文件不存在时，安装全量 skills
 
 
 
