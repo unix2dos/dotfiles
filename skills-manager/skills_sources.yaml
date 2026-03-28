@@ -22,10 +22,10 @@ consumers:
   - ~/.agents/skills
   - ~/.claude/skills
   - ~/.codex/skills
+  - ~/.gemini/antigravity/skills
   - ~/.openclaw/skills
   - ~/.config/opencode/skills
   - ~/.config/alma/skills
-  - ~/.gemini/antigravity/skills
 
 # 来源（按优先级从高到低排列）
 # 可选字段：
