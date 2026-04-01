@@ -521,8 +521,8 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
 bind -n M-p run-shell "$POPUP_CMD"
 
 
-# Prefix + w: 查找所有运行 AI CLI (claude/codex/gemini/amp) 的 Pane，fzf 选择后跳转
-bind w display-popup -w 90% -h 80% -E '\
+# Option+q: 查找所有运行 AI CLI (claude/codex/gemini/amp) 的 Pane，fzf 选择后跳转
+bind -n M-q display-popup -w 90% -h 80% -E '\
   tmpf=$(mktemp); \
   tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"; \
   results=""; \
