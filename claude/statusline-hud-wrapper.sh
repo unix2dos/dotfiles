@@ -14,18 +14,22 @@ hud_output=$(echo "$input" | "$HOME/.bun/bin/bun" "${plugin_dir}src/index.ts" 2>
 cwd=$(echo "$input" | "$HOME/.bun/bin/bun" -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.cwd||d.workspace?.current_dir||'')" 2>/dev/null)
 [ -z "$cwd" ] && cwd=$(pwd)
 
-wt_label=""
+git_prefix=""
 if [ -d "$cwd" ]; then
   git_common=$(cd "$cwd" && git rev-parse --git-common-dir 2>/dev/null)
   git_dir=$(cd "$cwd" && git rev-parse --git-dir 2>/dev/null)
-  if [ -n "$git_common" ] && [ -n "$git_dir" ] && [ "$git_common" != "$git_dir" ]; then
-    wt_name=$(basename "$cwd")
-    wt_label=" │ 🌳 wt:${wt_name}"
+  if [ -n "$git_common" ] && [ -n "$git_dir" ]; then
+    if [ "$git_common" != "$git_dir" ]; then
+      wt_name=$(basename "$cwd")
+      git_prefix="🪴 wt:${wt_name}"
+    else
+      git_prefix="🤡"
+    fi
   fi
 fi
 
-if [ -n "$wt_label" ]; then
-  printf '%s │ %s' "🌳 wt:${wt_name}" "$hud_output"
+if [ -n "$git_prefix" ]; then
+  printf '%s │ %s' "$git_prefix" "$hud_output"
 else
   printf '%s' "$hud_output"
 fi
