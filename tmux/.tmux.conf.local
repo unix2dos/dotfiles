@@ -584,6 +584,14 @@ set-hook -g window-layout-changed 'run-shell "tmux #{@update_pane_status}"'
 set-hook -g window-pane-changed 'run-shell "tmux #{@update_pane_status}"'
 set-option -g pane-border-status off
 
+#### 7. Popup 快捷工具 ####
+# Prefix+g: 弹出 lazygit（不打断当前布局，用完自动关）
+bind g display-popup -E -w 90% -h 90% -d '#{pane_current_path}' 'lazygit'
+# Prefix+k: 弹出 cht.sh 速查（忘了命令语法时秒查）
+bind k display-popup -E -w 80% -h 70% -T ' 📖 cht.sh ' -S 'fg=yellow' 'read -p "cht.sh> " q; curl -s "cht.sh/$q" | less -R'
+# Prefix+?: 弹出自定义快捷键速查卡
+bind ? display-popup -E -w 70% -h 80% -T ' ⌨️  Shortcuts ' -S 'fg=cyan' "cat '$HOME/workspace/dotfiles/tmux/cheatsheet.txt' | less -R"
+
 ########## 搜索相关 ##########
 ## cmd + f 终端搜索
 ## alt + f:  tmux 内置搜索

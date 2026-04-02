@@ -1,0 +1,59 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                   ⌨️  TMUX 快捷键速查卡                         ║
+╚══════════════════════════════════════════════════════════════════╝
+
+  Prefix = Ctrl+a
+
+─── 🚀 Popup 浮动工具 (最常用) ───────────────────────────────────
+  M-p           浮动终端 (toggle)
+  M-q           AI Pane 切换 (claude/amp/codex/gemini)
+  M-w           全局 Pane 切换 (fzf)
+  Prefix+g      lazygit
+  Prefix+k      cht.sh 命令速查
+  Prefix+?      本速查卡
+
+─── 📋 Session 会话 ──────────────────────────────────────────────
+  Prefix+Tab    切回上一个 Session
+  Prefix+C-c    创建新 Session (会提示命名)
+  Prefix+$      重命名 Session
+  Prefix+s      列出所有 Session
+
+─── 🪟 Window 窗口 ──────────────────────────────────────────────
+  Prefix+c      新建窗口
+  Prefix+数字   跳转到指定窗口
+  Prefix+,      重命名窗口
+  C-S-Left      窗口左移
+  C-S-Right     窗口右移
+
+─── 📐 Pane 面板 ────────────────────────────────────────────────
+  Prefix+|      垂直分屏 (Oh My Tmux)
+  Prefix+-      水平分屏 (Oh My Tmux)
+  Prefix+q      显示 Pane 编号 → 按数字跳转
+  Prefix+z      Pane 全屏/取消全屏
+  双击 Pane     全屏/取消全屏
+  Prefix+x      关闭当前 Pane
+
+─── 🔍 搜索与复制 ───────────────────────────────────────────────
+  Cmd+f         终端搜索 (由终端模拟器提供)
+  M-f           tmux 内置搜索 (copy-mode)
+  Prefix+f      extrakto 智能提取 (fzf)
+  Prefix+/      copycat 正则搜索
+  Prefix+Enter  进入 copy-mode (vi键位)
+
+─── 🐭 其他 ─────────────────────────────────────────────────────
+  Prefix+m      鼠标模式 toggle
+  Prefix+r      重新加载配置
+  Prefix+:      命令模式
+  :setw synchronize-panes on   同步所有 Pane 输入
+
+─── 📌 状态栏图标含义 ───────────────────────────────────────────
+  🔥🔥🔥       Prefix 已按下
+  🐭            鼠标模式开启
+  💞            多客户端连接中
+  🦷            Pane 同步模式
+  Z             当前 Pane 已全屏
+
+─── 💾 Session 保存/恢复 (resurrect + continuum) ────────────────
+  Prefix+Ctrl-s   手动保存 Session
+  Prefix+Ctrl-r   手动恢复 Session
+  (continuum 每 15 分钟自动保存)
