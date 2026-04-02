@@ -121,7 +121,7 @@ disabled = true
 command = """
 wt_path=$(git rev-parse --git-dir 2>/dev/null)
 if [[ "$wt_path" == *".git/worktrees/"* ]]; then
-  echo "🌲 $(basename "$wt_path")"
+  echo "🪴 $(basename "$wt_path")"
 else
   echo "🤡"
 fi
