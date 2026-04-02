@@ -50,6 +50,11 @@ pane_id=$(echo "${pane}" | awk '{print $1}')
 if [[ -z "${pane_id}" ]]; then
   tmux switch-client -t "${current_pane}"
 elif tmux has-session -t "${pane_id}" 2>/dev/null; then
+  # 如果在 _popup session 内，先 detach 退出 popup，再切换
+  if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
+    tmux detach-client
+    sleep 0.1
+  fi
   tmux switch-client -t "${pane_id}"
 else
   tmux command-prompt -b -p "Press ENTER to create a new window in the current session [${pane}]" "new-window -n \"${pane}\""

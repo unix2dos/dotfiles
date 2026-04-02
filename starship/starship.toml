@@ -13,6 +13,7 @@ scan_timeout = 30       # 扫描文件系统的超时时间（默认值）
 format = """
 $directory\
 $git_branch\
+$custom\
 $git_state\
 $git_status\
 $line_break\
@@ -114,6 +115,20 @@ format = "[$duration](bold yellow) "
 # [AWS]
 [aws]
 disabled = true
+
+# [Git Worktree] - worktree 显示
+[custom.worktree]
+command = """
+wt_path=$(git rev-parse --git-dir 2>/dev/null)
+if [[ "$wt_path" == *".git/worktrees/"* ]]; then
+  echo "🌲 $(basename "$wt_path")"
+else
+  echo "🤡"
+fi
+"""
+when = "git rev-parse --is-inside-work-tree 2>/dev/null"
+format = " [($output)](bold magenta)  "
+shell = ["bash", "--noprofile", "--norc"]
 
 # [当前时间]
 [time]

@@ -71,5 +71,10 @@ selected=$(printf "$results" | \
 
 if [ -n "$selected" ]; then
   target=$(echo "$selected" | awk '{print $1}')
+  # 如果在 _popup session 内，先 detach 退出 popup，再切换
+  if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
+    tmux detach-client
+    sleep 0.1
+  fi
   tmux switch-client -t "$target"
 fi
