@@ -544,7 +544,7 @@ bind -n M-q display-popup -w 90% -h 80% -E '\
   if [ -z "$results" ]; then \
     echo "No AI CLI found."; read -r; exit 0; \
   fi; \
-  selected=$(printf "$results" | fzf --height=100% --prompt="AI Panes > " --no-sort --header="$(printf "%-20s %-15s %s" "PANE" "DIR" "CLI")" --preview="tmux capture-pane -e -p -t {1}" --preview-window=right:60%); \
+  selected=$(printf "$results" | fzf --height=100% --prompt="AI Panes > " --no-sort --bind "alt-q:abort" --header="$(printf "%-20s %-15s %s" "PANE" "DIR" "CLI")" --preview="tmux capture-pane -e -p -t {1}" --preview-window=right:60%); \
   if [ -n "$selected" ]; then \
     target=$(echo "$selected" | awk "{print \$1}"); \
     tmux switch-client -t "$target"; \
@@ -567,7 +567,7 @@ set -g @plugin 'tmux-plugins/tmux-resurrect'          # 手动保存/恢复 Tmux
 set -g @plugin 'tmux-plugins/tmux-continuum'          # 自动保存/恢复 Tmux 会话
 #set -g @plugin 'Morantron/tmux-fingers'              # 主要用来快速复制
 set -g @plugin 'laktak/extrakto'                      # 智能提取复制
-set -g @plugin 'kristijan/tmux-fzf-pane-switch'       # 使用 fzf 快速切换 Pane
+#set -g @plugin 'kristijan/tmux-fzf-pane-switch'       # 已用自定义 pane_switch_popup.sh 替代
 
 #### 5. 插件设置 ####
 set -g @continuum-restore 'on'                        # Tmux 启动时自动恢复上次保存的会话
@@ -580,9 +580,8 @@ set -g @continuum-restore 'on'                        # Tmux 启动时自动恢�
 #bind-key -n M-j run -b "#{@fingers-cli} start #{pane_id} --mode jump" # Alt + j: Fingers 跳转模式
 
 # 快速切换 panel 配置
-set -g @fzf_pane_switch_bind-key "abc"                    # 插件需要一个占位，不然覆盖 s
-set -g @fzf_pane_switch_list-panes-format "s/%//:pane_id session_name window_name" # fzf 列表显示格式
-bind -n M-w run-shell "'$HOME/.tmux/plugins/tmux-fzf-pane-switch/select_pane.sh' 'true' 'center,70%,80%' 'right,,,nowrap' \"s/%//:pane_id session_name window_name\""
+# 快速切换 pane（自定义脚本，支持 M-w toggle）
+bind -n M-w display-popup -E -w 80% -h 85% "bash '$HOME/workspace/dotfiles/tmux/pane_switch_popup.sh'"
 
 # 智能提取复制配置(按tab 开启一个弹窗操作，酷炫)
 set -g @extrakto_key "f"                         # Prefix + f : extrakto 模式
