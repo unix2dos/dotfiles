@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-# Wrapper for tmux-fzf-pane-switch inside display-popup (no --tmux, keeps all styling)
-# Used by M-w binding for toggle support
-
-source_dir="$HOME/.tmux/plugins/tmux-fzf-pane-switch"
-
-# Reuse vercomp from plugin
-source "$source_dir/select_pane.sh" 2>/dev/null <<< "" || true
+# 快速切换 pane（替代 tmux-fzf-pane-switch 插件，支持 display-popup toggle）
 
 vercomp() {
   local v1="$1" v2="$2"

@@ -522,34 +522,7 @@ bind -n M-p run-shell "$POPUP_CMD"
 
 
 # Option+q: 查找所有运行 AI CLI (claude/codex/gemini/amp) 的 Pane，fzf 选择后跳转
-bind -n M-q display-popup -w 90% -h 80% -E '\
-  tmpf=$(mktemp); \
-  tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"; \
-  results=""; \
-  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^\s*[0-9]+ (claude|codex|gemini|amp)" | /usr/bin/grep -v grep | awk "{print \$1}"); do \
-    cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed "s/^ *//"); \
-    pid=$cpid; \
-    while [ "$pid" != "1" ] && [ -n "$pid" ]; do \
-      line=$(/usr/bin/grep -m1 "^${pid} " "$tmpf"); \
-      if [ -n "$line" ]; then \
-        label=$(echo "$line" | awk "{print \$2}"); \
-        dir=$(basename "$(echo "$line" | awk "{print \$3}")"); \
-        results="${results}$(printf "%-20s %-15s %s" "$label" "$dir" "$cmd")\n"; \
-        break; \
-      fi; \
-      pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " "); \
-    done; \
-  done; \
-  rm -f "$tmpf"; \
-  if [ -z "$results" ]; then \
-    echo "No AI CLI found."; read -r; exit 0; \
-  fi; \
-  selected=$(printf "$results" | fzf --height=100% --prompt="AI Panes > " --no-sort --bind "alt-q:abort" --header="$(printf "%-20s %-15s %s" "PANE" "DIR" "CLI")" --preview="tmux capture-pane -e -p -t {1}" --preview-window=right:60%); \
-  if [ -n "$selected" ]; then \
-    target=$(echo "$selected" | awk "{print \$1}"); \
-    tmux switch-client -t "$target"; \
-  fi \
-'
+bind -n M-q display-popup -E -w 90% -h 80% "bash '$HOME/workspace/dotfiles/tmux/ai_pane_switch_popup.sh'"
 
 # Ctrl + Shift + Left/Right: 交换窗口位置并跟随焦点 (无需 Prefix)
 bind-key -n C-S-Left swap-window -t -1\; select-window -t -1
