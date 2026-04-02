@@ -20,7 +20,7 @@ fzf_version=$(fzf --version | awk '{print $1}')
 vercomp '0.58.0' "${fzf_version}"
 if [[ $? -ne 1 ]]; then
   border_styling+=" --input-border --input-label=' Search ' --info=inline-right"
-  border_styling+=" --list-border --list-label=' AI Panes '"
+  border_styling+=" --list-border --list-label=' 🤖 AI Panes '"
   border_styling+=" --preview-border --preview-label=' Preview '"
 fi
 
