@@ -75,7 +75,7 @@
     "typescript-lsp@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": false,
     "commit-commands@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true
   },
