@@ -49,7 +49,6 @@
         "markdown",
         "plaintext"
     ],
-    "cursor.general.disableHttp2": true,
     "amp.url": "https://ampcode.com/",
     "editor.wordBasedSuggestions": "off",
     "amp.tab.enabled": true,
