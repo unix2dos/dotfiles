@@ -82,6 +82,16 @@ link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statuslin
 link_file "$DOTFILES/claude/plugins/claude-hud/config.json" "$HOME/.claude/plugins/claude-hud/config.json"
 link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.json"
 
+# --- 定时任务 ---
+echo "⏰ 定时任务"
+CRON_JOB="0 9 * * * $DOTFILES/amp/amp-daily-hello.sh"
+if crontab -l 2>/dev/null | grep -qF "amp-daily-hello.sh"; then
+    echo -e "${GREEN}  ✓${NC} 已存在: amp-daily-hello"
+else
+    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+    echo -e "${GREEN}  ✓${NC} 添加: amp-daily-hello (每天 9:00)"
+fi
+
 echo ""
 echo -e "${GREEN}✅ 安装完成！${NC}"
 echo ""

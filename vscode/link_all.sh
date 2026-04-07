@@ -9,11 +9,11 @@ SOURCE_KEYBINDINGS="$SOURCE_DIR/keybindings.json"
 # 需要同步的目标目录列表
 # 注意：路径中的空格不需要转义，引号已经处理了
 TARGET_APPS_DIRS=(
-    "$HOME/Library/Application Support/Code/User"
+    #"$HOME/Library/Application Support/Code/User"
     "$HOME/Library/Application Support/Cursor/User"
     "$HOME/Library/Application Support/Antigravity/User"
-    "$HOME/Library/Application Support/Kiro/User"
-    "$HOME/Library/Application Support/Windsurf/User"
+    #"$HOME/Library/Application Support/Kiro/User"
+    #"$HOME/Library/Application Support/Windsurf/User"
 )
 # =========================================
 
