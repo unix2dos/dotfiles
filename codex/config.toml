@@ -8,3 +8,6 @@ command = "npx"
 
 [features]
 multi_agent = true
+
+[plugins."build-ios-apps@openai-curated"]
+enabled = true
