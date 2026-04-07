@@ -84,13 +84,20 @@ link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.
 
 # --- 定时任务 ---
 echo "⏰ 定时任务"
-CRON_JOB="0 9 * * * $DOTFILES/amp/amp-daily-hello.sh"
-if crontab -l 2>/dev/null | grep -qF "amp-daily-hello.sh"; then
-    echo -e "${GREEN}  ✓${NC} 已存在: amp-daily-hello"
-else
-    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
-    echo -e "${GREEN}  ✓${NC} 添加: amp-daily-hello (每天 9:00)"
-fi
+add_cron() {
+    local marker="$1"
+    local schedule="$2"
+    local script="$3"
+    local label="$4"
+    if crontab -l 2>/dev/null | grep -qF "$marker"; then
+        echo -e "${GREEN}  ✓${NC} 已存在: $label"
+    else
+        (crontab -l 2>/dev/null; echo "$schedule $script") | crontab -
+        echo -e "${GREEN}  ✓${NC} 添加: $label"
+    fi
+}
+add_cron "amp-daily-hello.sh"    "0 9 * * *"        "$DOTFILES/amp/amp-daily-hello.sh"       "amp-daily-hello (每天 9:00)"
+add_cron "claude-daily-hello.sh" "0 10,15,20 * * *" "$DOTFILES/claude/claude-daily-hello.sh" "claude-daily-hello (每天 10/15/20)"
 
 echo ""
 echo -e "${GREEN}✅ 安装完成！${NC}"
