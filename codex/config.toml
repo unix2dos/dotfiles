@@ -1,0 +1,10 @@
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+personality = "pragmatic"
+
+[mcp_servers.playwright]
+args = [ "@playwright/mcp@latest" ]
+command = "npx"
+
+[features]
+multi_agent = true

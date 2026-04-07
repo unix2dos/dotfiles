@@ -81,6 +81,7 @@ link_file "$DOTFILES/claude/CLAUDE.md"              "$HOME/.claude/CLAUDE.md"
 link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statusline-hud-wrapper.sh"
 link_file "$DOTFILES/claude/plugins/claude-hud/config.json" "$HOME/.claude/plugins/claude-hud/config.json"
 link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.json"
+link_file "$DOTFILES/codex/config.toml"             "$HOME/.codex/config.toml"
 
 # --- 定时任务 ---
 echo "⏰ 定时任务"
