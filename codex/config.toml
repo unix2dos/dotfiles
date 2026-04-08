@@ -6,6 +6,10 @@ personality = "pragmatic"
 args = [ "@playwright/mcp@latest" ]
 command = "npx"
 
+[mcp_servers.pencil]
+command = "/Users/liuwei/.pencil/mcp/antigravity/out/mcp-server-darwin-arm64"
+args = [ "--app", "antigravity" ]
+
 [features]
 multi_agent = true
 

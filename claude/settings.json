@@ -62,6 +62,7 @@
     "deny": [],
     "defaultMode": "bypassPermissions"
   },
+  "model": "opusplan",
   "statusLine": {
     "type": "command",
     "command": "bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/statusline-hud-wrapper.sh"
@@ -83,7 +84,7 @@
     "security-guidance@claude-plugins-official": false,
     "commit-commands@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": false
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
