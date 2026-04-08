@@ -98,7 +98,7 @@ add_cron() {
     fi
 }
 add_cron "amp-daily-hello.sh"    "0 16 * * *"        "$DOTFILES/amp/amp-daily-hello.sh"       "amp-daily-hello (每天 16:00)"
-add_cron "claude-daily-hello.sh" "0 10,15,20 * * *" "$DOTFILES/claude/claude-daily-hello.sh" "claude-daily-hello (每天 10/15/20)"
+add_cron "claude-daily-hello.sh" "0 9,14,19 * * *" "$DOTFILES/claude/claude-daily-hello.sh" "claude-daily-hello (每天 9/14/19)"
 
 echo ""
 echo -e "${GREEN}✅ 安装完成！${NC}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # claude code 每日定时唤醒脚本
-# 由 cron 每天 10:00 / 15:00 / 20:00 各执行一次
+# 由 cron 每天 09:00 / 14:00 / 19:00 各执行一次
 
 export PATH="/Users/liuwei/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
