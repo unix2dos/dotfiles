@@ -84,7 +84,7 @@
     "security-guidance@claude-plugins-official": false,
     "commit-commands@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "codex@openai-codex": false
+    "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
