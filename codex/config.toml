@@ -15,3 +15,6 @@ multi_agent = true
 
 [plugins."build-ios-apps@openai-curated"]
 enabled = true
+
+[projects."/Users/liuwei/go/src/vibelive"]
+trust_level = "trusted"

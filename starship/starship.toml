@@ -123,7 +123,7 @@ wt_path=$(git rev-parse --git-dir 2>/dev/null)
 if [[ "$wt_path" == *".git/worktrees/"* ]]; then
   echo "🪴 $(basename "$wt_path")"
 else
-  echo "🥶 🚨 no tree 🤡 🚧"
+  echo "🦷 🚨 no tree 🤡 🚧"
 fi
 """
 when = "git rev-parse --is-inside-work-tree 2>/dev/null"
