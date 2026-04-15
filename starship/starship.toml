@@ -103,9 +103,7 @@ format = "[$symbol]($style)"
 
 # [Docker]
 [docker_context]
-symbol = " "
-format = "[$symbol$context](blue bold) "
-only_with_files = true
+disabled = true
 
 # [命令执行耗时]
 [cmd_duration]
@@ -116,14 +114,14 @@ format = "[$duration](bold yellow) "
 [aws]
 disabled = true
 
-# [Git Worktree] - worktree 显示
+# [Git Worktree] - worktree 提示
 [custom.worktree]
 command = """
 wt_path=$(git rev-parse --git-dir 2>/dev/null)
 if [[ "$wt_path" == *".git/worktrees/"* ]]; then
   echo "🪴 $(basename "$wt_path")"
 else
-  echo "🦷 🚨 no tree 🤡 🚧"
+  echo "⛔ USE WORKTREE!"
 fi
 """
 when = "git rev-parse --is-inside-work-tree 2>/dev/null"
