@@ -585,10 +585,10 @@ set-hook -g window-pane-changed 'run-shell "tmux #{@update_pane_status}"'
 set-option -g pane-border-status off
 
 ########## 搜索相关 ##########
-## cmd + f 终端搜索
-## alt + f:  tmux 内置搜索
-## Prefix + f : extrakto 模式 fzf 搜索
-## Prefix + / : copycat 搜索
+## cmd + f 终端搜索，只是当前屏幕
+## alt + f:  tmux 内置搜索，可滚动
+## Prefix + f : extrakto 模式 新窗口 fzf 搜索复制，可滚动
+## Prefix + / : copycat 搜索, 可以被淘汰了
 
 ######################################## 自己自定义配置结束 ########################################
 
