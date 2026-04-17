@@ -2,8 +2,8 @@
 # ============================================
 # Skills 一键安装
 # ============================================
-# 读取 sources.yaml，完成：克隆 → 构建 → 聚合 → 分发。
-# 所有配置在 sources.yaml，本脚本只有逻辑。
+# 读取 skills_sources.yaml + skills_consumers.yaml，完成：
+#   clone → build → aggregate → 按 consumer 配置分发
 #
 # 用法:
 #   bash install.sh            # 安装/更新全部
@@ -13,9 +13,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CONFIG="$SCRIPT_DIR/skills_sources.yaml"
-CLAUDE_CONFIG="$SCRIPT_DIR/skills_claude.yaml"
-CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
+SOURCES_CONFIG="$SCRIPT_DIR/skills_sources.yaml"
+CONSUMERS_CONFIG="$SCRIPT_DIR/skills_consumers.yaml"
+
+INSTALL_DIR="$HOME/.skills-installed"
+COMMUNITY_DIR="$HOME/.skills-community"
+
 DRY_RUN=false
 TMPDIR_BASE=""
 
@@ -40,10 +43,8 @@ if ! command -v yq >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -f "$CONFIG" ]]; then
-  echo "ERROR: config not found: ${CONFIG}" >&2
-  exit 1
-fi
+[[ -f "$SOURCES_CONFIG" ]]   || { echo "ERROR: missing $SOURCES_CONFIG"   >&2; exit 1; }
+[[ -f "$CONSUMERS_CONFIG" ]] || { echo "ERROR: missing $CONSUMERS_CONFIG" >&2; exit 1; }
 
 # ─── colors & log ─────────────────────────────────────────────────
 
@@ -64,28 +65,73 @@ log_header()  { echo -e "\n${CYAN}--- $* ---${NC}"; }
 
 expand_path() { echo "${1/#\~/$HOME}"; }
 
-cfg() {
+# yq raw fetch from sources config; "" if null
+sq() {
   local val
-  val="$(yq -r "$1" "$CONFIG")"
-  [[ "$val" == "null" ]] && echo "" && return
-  expand_path "$val"
-}
-
-cfg_raw() {
-  local val
-  val="$(yq -r "$1" "$CONFIG")"
+  val="$(yq -r "$1" "$SOURCES_CONFIG")"
   [[ "$val" == "null" ]] && echo "" && return
   echo "$val"
 }
 
-is_skill_excluded() {
+# yq raw fetch from consumers config
+cq() {
+  local val
+  val="$(yq -r "$1" "$CONSUMERS_CONFIG")"
+  [[ "$val" == "null" ]] && echo "" && return
+  echo "$val"
+}
+
+# Derive source name (used for clone path and SKILL_SOURCE_MAP)
+# Priority: explicit name > prefix (if non-empty) > repo basename
+derive_source_name() {
+  local idx="$1"
+  local name prefix repo
+  name=$(sq ".repos[$idx].name")
+  prefix=$(sq ".repos[$idx].prefix")
+  repo=$(sq ".repos[$idx].repo")
+
+  if [[ -n "$name" ]]; then
+    echo "$name"
+  elif [[ -n "$prefix" ]]; then
+    echo "$prefix"
+  else
+    echo "${repo##*/}"
+  fi
+}
+
+# Derive clone path; explicit clone_to > ~/.skills-community/{derived_name}
+derive_clone_to() {
+  local idx="$1"
+  local clone_to
+  clone_to=$(sq ".repos[$idx].clone_to")
+  if [[ -n "$clone_to" ]]; then
+    expand_path "$clone_to"
+  else
+    echo "$COMMUNITY_DIR/$(derive_source_name "$idx")"
+  fi
+}
+
+# Derive skills scan root (where to look for SKILL.md dirs)
+derive_scan_root() {
+  local idx="$1"
+  local clone_to skills_dir
+  clone_to=$(derive_clone_to "$idx")
+  skills_dir=$(sq ".repos[$idx].skills_dir")
+  if [[ -z "$skills_dir" || "$skills_dir" == "." ]]; then
+    echo "$clone_to"
+  else
+    echo "$clone_to/$skills_dir"
+  fi
+}
+
+is_repo_skill_excluded() {
   local idx="$1" skill_name="$2"
   local exclude_count
-  exclude_count=$(yq ".sources[$idx].exclude | length" "$CONFIG" 2>/dev/null)
+  exclude_count=$(yq ".repos[$idx].exclude | length" "$SOURCES_CONFIG" 2>/dev/null)
   [[ "$exclude_count" == "0" || "$exclude_count" == "null" ]] && return 1
   for ((k = 0; k < exclude_count; k++)); do
     local excluded
-    excluded=$(cfg_raw ".sources[$idx].exclude[$k]")
+    excluded=$(sq ".repos[$idx].exclude[$k]")
     [[ "$excluded" == "$skill_name" ]] && return 0
   done
   return 1
@@ -94,7 +140,8 @@ is_skill_excluded() {
 get_skill_link_name() {
   local idx="$1" skill_name="$2"
   local prefix
-  prefix=$(cfg_raw ".sources[$idx].prefix")
+  prefix=$(sq ".repos[$idx].prefix")
+  # prefix may be empty string (intentional) or unset; both → no prefix
   if [[ -n "$prefix" ]]; then
     echo "${prefix}-${skill_name}"
   else
@@ -129,6 +176,7 @@ clone_or_pull() {
 
 discover_skill_dirs() {
   local root="$1"
+  [[ -d "$root" ]] || return 0
   find "$root" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print | sort
 }
 
@@ -138,17 +186,14 @@ cleanup() {
   fi
 }
 
-# ─── Step 0: clean ────────────────────────────────────────────────
+# ─── Step 0: clean stale aggregate dirs ───────────────────────────
+# Wipes INSTALL_DIR + COMMUNITY_DIR. Sources whose clone_to is OUTSIDE
+# COMMUNITY_DIR (e.g. owned: ~/workspace/skills) are NOT touched.
 
 step_clean() {
-  log_header "Step 0/5 — clean stale dirs"
+  log_header "Step 0/4 — clean stale dirs"
 
-  local community_dir install_dir
-  community_dir=$(cfg '.community_dir')
-  install_dir=$(cfg '.install_dir')
-
-  for dir in "$community_dir" "$install_dir"; do
-    if [[ -z "$dir" ]]; then continue; fi
+  for dir in "$COMMUNITY_DIR" "$INSTALL_DIR"; do
     if [[ "$DRY_RUN" == true ]]; then
       log_info "[DRY-RUN] would remove: ${dir}"
     elif [[ -e "$dir" || -L "$dir" ]]; then
@@ -158,387 +203,356 @@ step_clean() {
   done
 }
 
-# ─── Step 1: clone ────────────────────────────────────────────────
+# ─── Step 1: clone repos + fetch extracts + build ────────────────
 
-step_clone() {
-  log_header "Step 1/5 — clone repos"
+step_clone_and_build() {
+  log_header "Step 1/4 — clone + build"
 
-  local count
-  count=$(yq '.sources | length' "$CONFIG")
+  # ── repos ──
+  local repo_count
+  repo_count=$(yq '.repos | length' "$SOURCES_CONFIG")
 
-  for ((i = 0; i < count; i++)); do
-    local name repo clone_to branch
-    name=$(cfg_raw ".sources[$i].name")
-
-    repo=$(cfg_raw ".sources[$i].repo")
-    clone_to=$(cfg ".sources[$i].clone_to")
-    branch=$(cfg_raw ".sources[$i].branch")
+  for ((i = 0; i < repo_count; i++)); do
+    local sname repo_path repo_url clone_to branch build
+    sname=$(derive_source_name "$i")
+    repo_path=$(sq ".repos[$i].repo")
+    repo_url="https://github.com/${repo_path}.git"
+    clone_to=$(derive_clone_to "$i")
+    branch=$(sq ".repos[$i].branch")
     branch="${branch:-main}"
+    build=$(sq ".repos[$i].build")
 
-    [[ -z "$repo" ]] && continue
-
-    clone_or_pull "$name" "$repo" "$clone_to" "$branch"
-  done
-}
-
-# ─── Step 2: build + fetch community ─────────────────────────────
-
-step_build_and_fetch() {
-  log_header "Step 2/5 — build + fetch community"
-
-  local count
-  count=$(yq '.sources | length' "$CONFIG")
-
-  for ((i = 0; i < count; i++)); do
-    local name clone_to build
-    name=$(cfg_raw ".sources[$i].name")
-
-    clone_to=$(cfg ".sources[$i].clone_to")
-    build=$(cfg_raw ".sources[$i].build")
+    clone_or_pull "$sname" "$repo_url" "$clone_to" "$branch"
 
     # ── build ──
     if [[ -n "$build" ]]; then
-      log_info "${name}: building..."
+      log_info "${sname}: building..."
       if [[ "$DRY_RUN" == false ]]; then
         (cd "$clone_to" && eval "$build") || {
-          log_error "${name}: build failed"
+          log_error "${sname}: build failed"
           continue
         }
 
-        # runtime asset symlinks
+        # ── runtime asset symlinks (gstack-style) ──
         local assets_count
-        assets_count=$(yq ".sources[$i].runtime_assets | length" "$CONFIG")
-        if [[ "$assets_count" -gt 0 ]]; then
+        assets_count=$(yq ".repos[$i].runtime_assets | length" "$SOURCES_CONFIG")
+        if [[ "$assets_count" != "0" && "$assets_count" != "null" ]]; then
           local skills_dir
-          skills_dir=$(cfg_raw ".sources[$i].skills_dir")
-          local main_skill_dir="${clone_to}/${skills_dir}/${name}"
-          for ((j = 0; j < assets_count; j++)); do
-            local asset
-            asset=$(cfg_raw ".sources[$i].runtime_assets[$j]")
-            local src="${clone_to}/${asset}"
-            local dst="${main_skill_dir}/${asset}"
-            if [[ -d "$src" ]] && { [[ -L "$dst" ]] || [[ ! -e "$dst" ]]; }; then
-              ln -snf "$src" "$dst"
-            fi
-          done
+          skills_dir=$(sq ".repos[$i].skills_dir")
+          local main_skill_dir="${clone_to}/${skills_dir}/${sname}"
+          if [[ -d "$main_skill_dir" ]]; then
+            for ((j = 0; j < assets_count; j++)); do
+              local asset src dst
+              asset=$(sq ".repos[$i].runtime_assets[$j]")
+              src="${clone_to}/${asset}"
+              dst="${main_skill_dir}/${asset}"
+              if [[ -d "$src" ]] && { [[ -L "$dst" ]] || [[ ! -e "$dst" ]]; }; then
+                ln -snf "$src" "$dst"
+              fi
+            done
+          else
+            log_warn "${sname}: main skill dir not found for runtime_assets: ${main_skill_dir}"
+          fi
         fi
       else
         log_info "[DRY-RUN] skip build: ${build}"
       fi
-      log_success "${name}: build done"
+      log_success "${sname}: build done"
     fi
+  done
 
-    # ── fetch community skills (clone + rsync) ──
-    local skills_count
-    skills_count=$(yq ".sources[$i].skills | length" "$CONFIG" 2>/dev/null)
-    [[ "$skills_count" == "0" || "$skills_count" == "null" ]] && continue
-
-    log_info "${name}: fetching ${skills_count} skills..."
+  # ── extracts ──
+  local extract_count
+  extract_count=$(yq '.extracts | length' "$SOURCES_CONFIG" 2>/dev/null)
+  if [[ "$extract_count" != "0" && "$extract_count" != "null" ]]; then
+    log_info "fetching ${extract_count} extracts..."
 
     TMPDIR_BASE="$(mktemp -d)"
     trap cleanup EXIT
 
     local success=0 failed=0
 
-    for ((j = 0; j < skills_count; j++)); do
-      local skill_name skill_repo skill_subdir skill_branch
-      skill_name=$(cfg_raw ".sources[$i].skills[$j].name")
+    for ((j = 0; j < extract_count; j++)); do
+      local ename erepo esubdir ebranch
+      ename=$(sq ".extracts[$j].name")
+      erepo=$(sq ".extracts[$j].repo")
+      esubdir=$(sq ".extracts[$j].subdir")
+      esubdir="${esubdir:-.}"
+      ebranch=$(sq ".extracts[$j].branch")
+      ebranch="${ebranch:-main}"
 
-      # skip excluded community skill
-      if is_skill_excluded "$i" "$skill_name"; then
-        log_info "  exclude: ${skill_name}"
+      local local_dir="${COMMUNITY_DIR}/${ename}"
+      local clone_dir="${TMPDIR_BASE}/${ename}"
+      local repo_url="https://github.com/${erepo}.git"
+
+      log_info "  ${ename} <- ${erepo}"
+
+      if [[ "$DRY_RUN" == true ]]; then
+        log_info "  [DRY-RUN] would extract"
         continue
       fi
 
-      skill_repo=$(cfg_raw ".sources[$i].skills[$j].repo")
-      skill_subdir=$(cfg_raw ".sources[$i].skills[$j].subdir")
-      skill_branch=$(cfg_raw ".sources[$i].skills[$j].branch")
-      skill_branch="${skill_branch:-main}"
-      skill_subdir="${skill_subdir:-.}"
-
-      local local_dir="${clone_to}/${skill_name}"
-      local clone_dir="${TMPDIR_BASE}/${skill_name}"
-      local repo_url="https://github.com/${skill_repo}.git"
-
-      log_info "  ${skill_name} <- ${skill_repo}"
-
-      if ! git clone --depth 1 --branch "$skill_branch" --quiet "$repo_url" "$clone_dir" 2>/dev/null; then
-        log_error "  ${skill_name}: clone failed"
-        ((failed++))
+      if ! git clone --depth 1 --branch "$ebranch" --quiet "$repo_url" "$clone_dir" 2>/dev/null; then
+        log_error "  ${ename}: clone failed"
+        ((failed++)) || true
         continue
       fi
 
       local src_dir
-      if [[ "$skill_subdir" == "." ]]; then
+      if [[ "$esubdir" == "." ]]; then
         src_dir="$clone_dir"
       else
-        src_dir="${clone_dir}/${skill_subdir}"
+        src_dir="${clone_dir}/${esubdir}"
       fi
 
       if [[ ! -d "$src_dir" ]]; then
-        log_error "  ${skill_name}: subdir not found: ${skill_subdir}"
-        ((failed++))
+        log_error "  ${ename}: subdir not found: ${esubdir}"
+        ((failed++)) || true
         continue
       fi
 
       local rsync_excludes=("--exclude=.git")
-      if [[ "$skill_subdir" == "." ]]; then
+      if [[ "$esubdir" == "." ]]; then
         for excl in README.md README_CN.md LICENSE .gitignore .github; do
           rsync_excludes+=("--exclude=$excl")
         done
       fi
 
-      if [[ "$DRY_RUN" == false ]]; then
-        mkdir -p "$local_dir"
-        rsync -av --delete "${rsync_excludes[@]}" "$src_dir/" "$local_dir/" >/dev/null 2>&1
-        # patch: ensure SKILL.md name matches the configured skill_name
-        local skill_md="${local_dir}/SKILL.md"
-        if [[ -f "$skill_md" ]]; then
-          sed -i '' "s/^name: .*/name: ${skill_name}/" "$skill_md"
-        fi
+      mkdir -p "$local_dir"
+      rsync -av --delete "${rsync_excludes[@]}" "$src_dir/" "$local_dir/" >/dev/null 2>&1
+
+      # patch SKILL.md frontmatter name to match configured name
+      local skill_md="${local_dir}/SKILL.md"
+      if [[ -f "$skill_md" ]]; then
+        sed -i '' "s/^name: .*/name: ${ename}/" "$skill_md"
       fi
-      ((success++))
+      ((success++)) || true
     done
 
     cleanup
     TMPDIR_BASE=""
-    log_success "${name}: ${success} ok, ${failed} failed"
-
-    # ── prune stale community skill dirs ──
-    # collect configured skill names into a lookup string "|name1|name2|...|"
-    local configured="|"
-    for ((j = 0; j < skills_count; j++)); do
-      configured+="|$(cfg_raw ".sources[$i].skills[$j].name")|"
-    done
-    # remove any dir with SKILL.md whose name is not in the configured list
-    # skip git repos (dirs managed by other sources, e.g. gstack, superpowers)
-    local pruned=0
-    while IFS= read -r stale_dir; do
-      local sname
-      sname="$(basename "$stale_dir")"
-      if [[ -d "${stale_dir}/.git" ]]; then
-        continue
-      fi
-      if [[ "$configured" != *"|${sname}|"* ]]; then
-        log_warn "pruning stale skill: ${sname}"
-        if [[ "$DRY_RUN" == false ]]; then
-          rm -rf "$stale_dir"
-        fi
-        ((pruned++))
-      fi
-    done < <(discover_skill_dirs "$clone_to")
-    if [[ "$pruned" -gt 0 ]]; then
-      log_info "${name}: pruned ${pruned} stale skill(s)"
-    fi
-  done
+    log_success "extracts: ${success} ok, ${failed} failed"
+  fi
 }
 
-# ─── Step 3: aggregate + link ─────────────────────────────────────
+# ─── Step 2: aggregate to INSTALL_DIR ─────────────────────────────
 
-step_link() {
-  log_header "Step 3/5 — aggregate + link"
+step_aggregate() {
+  log_header "Step 2/4 — aggregate -> ${INSTALL_DIR}"
 
-  local install_dir
-  install_dir=$(cfg '.install_dir')
-
-  # ── aggregate ──
-  mkdir -p "$install_dir"
+  if [[ "$DRY_RUN" == false ]]; then
+    mkdir -p "$INSTALL_DIR"
+  fi
 
   local total_skills=0
-  local source_count
-  source_count=$(yq '.sources | length' "$CONFIG")
-  # Track claimed skill names for priority (first source wins)
   local claimed_skills="|"
 
-  for ((i = 0; i < source_count; i++)); do
-    local name clone_to skills_dir
-    name=$(cfg_raw ".sources[$i].name")
+  # ── repos ──
+  local repo_count
+  repo_count=$(yq '.repos | length' "$SOURCES_CONFIG")
+  for ((i = 0; i < repo_count; i++)); do
+    local sname scan_root
+    sname=$(derive_source_name "$i")
+    scan_root=$(derive_scan_root "$i")
 
-    clone_to=$(cfg ".sources[$i].clone_to")
-    skills_dir=$(cfg_raw ".sources[$i].skills_dir")
-
-    local scan_root
-    if [[ -n "$skills_dir" && "$skills_dir" != "." ]]; then
-      scan_root="${clone_to}/${skills_dir}"
-    else
-      scan_root="$clone_to"
-    fi
-
-    [[ ! -d "$scan_root" ]] && continue
+    [[ -d "$scan_root" ]] || continue
 
     local count=0
     while IFS= read -r skill_dir; do
       [[ -n "$skill_dir" ]] || continue
-      local sname
-      sname="$(basename "$skill_dir")"
+      local raw_name link_name
+      raw_name="$(basename "$skill_dir")"
 
-      # exclude check
-      if is_skill_excluded "$i" "$sname"; then
-        log_info "exclude ${sname} from ${name}"
+      if is_repo_skill_excluded "$i" "$raw_name"; then
+        log_info "exclude ${raw_name} from ${sname}"
         continue
       fi
 
-      # prefix
-      local link_name
-      link_name=$(get_skill_link_name "$i" "$sname")
+      link_name=$(get_skill_link_name "$i" "$raw_name")
 
-      # priority: first source to claim a name wins
       if [[ "$claimed_skills" == *"|${link_name}|"* ]]; then
-        log_warn "keep higher-priority ${link_name}, skip from ${name}"
+        log_warn "keep higher-priority ${link_name}, skip from ${sname}"
         continue
       fi
 
       claimed_skills="${claimed_skills}${link_name}|"
-      SKILL_SOURCE_MAP="${SKILL_SOURCE_MAP}${link_name}=${name}|"
+      SKILL_SOURCE_MAP="${SKILL_SOURCE_MAP}${link_name}=${sname}|"
 
-      local link_path="${install_dir}/${link_name}"
       if [[ "$DRY_RUN" == false ]]; then
-        ln -s "$skill_dir" "$link_path"
+        ln -s "$skill_dir" "${INSTALL_DIR}/${link_name}"
       fi
-      ((count++))
-      ((total_skills++))
+      ((count++)) || true
+      ((total_skills++)) || true
     done < <(discover_skill_dirs "$scan_root")
 
-    if [[ "$count" -gt 0 ]]; then
-      log_info "source [${name}]: ${count} skills"
-    fi
+    [[ "$count" -gt 0 ]] && log_info "source [${sname}]: ${count} skills"
   done
 
-  log_success "total: ${total_skills} skills -> ${install_dir}"
+  # ── extracts ──
+  local extract_count
+  extract_count=$(yq '.extracts | length' "$SOURCES_CONFIG" 2>/dev/null)
+  if [[ "$extract_count" != "0" && "$extract_count" != "null" ]]; then
+    local count=0
+    for ((j = 0; j < extract_count; j++)); do
+      local ename
+      ename=$(sq ".extracts[$j].name")
+      local skill_dir="${COMMUNITY_DIR}/${ename}"
+      [[ -d "$skill_dir" && -f "${skill_dir}/SKILL.md" ]] || continue
 
-  # ── link consumers ──
-  local consumer_count
-  consumer_count=$(yq '.consumers | length' "$CONFIG")
-  local linked=0
-
-  for ((i = 0; i < consumer_count; i++)); do
-    local consumer
-    consumer=$(cfg ".consumers[$i]")
-
-    # skip claude — handled separately in step_claude
-    if [[ "$consumer" == "$CLAUDE_SKILLS_DIR" ]]; then
-      continue
-    fi
-
-    mkdir -p "$(dirname "$consumer")"
-
-    if [[ -L "$consumer" && "$(readlink "$consumer")" == "$install_dir" ]]; then
-      ((linked++))
-      continue
-    fi
-
-    if [[ -e "$consumer" || -L "$consumer" ]]; then
-      mv "$consumer" "${consumer}.backup.$(date +%Y%m%d%H%M%S)"
-    fi
-
-    ln -s "$install_dir" "$consumer"
-    log_info "link: ${consumer} -> ${install_dir}"
-    ((linked++))
-  done
-
-  log_success "linked to ${linked} AI tools (Claude Code handled separately)"
-}
-
-# ─── Step 4: Claude Code filtered install ────────────────────────
-
-step_claude() {
-  log_header "Step 4/5 — Claude Code filtered install"
-
-  local install_dir
-  install_dir=$(cfg '.install_dir')
-
-  # ── load whitelist from sources_claude.yaml ──
-  # Store as "|name1|name2|..." for bash 3.x compatible lookup
-  local claude_include_sources="|"
-  local claude_include_skills="|"
-  local has_config=false
-
-  if [[ -f "$CLAUDE_CONFIG" ]]; then
-    has_config=true
-    log_info "loading sources_claude.yaml (whitelist mode)"
-
-    local is_count
-    is_count=$(yq '.include_sources | length' "$CLAUDE_CONFIG" 2>/dev/null)
-    if [[ "$is_count" != "0" && "$is_count" != "null" ]]; then
-      for ((i = 0; i < is_count; i++)); do
-        local src
-        src=$(yq -r ".include_sources[$i]" "$CLAUDE_CONFIG")
-        claude_include_sources="${claude_include_sources}${src}|"
-      done
-    fi
-
-    local ik_count
-    ik_count=$(yq '.include | length' "$CLAUDE_CONFIG" 2>/dev/null)
-    if [[ "$ik_count" != "0" && "$ik_count" != "null" ]]; then
-      for ((i = 0; i < ik_count; i++)); do
-        local sk
-        sk=$(yq -r ".include[$i]" "$CLAUDE_CONFIG")
-        claude_include_skills="${claude_include_skills}${sk}|"
-      done
-    fi
-
-    log_info "include_sources: ${claude_include_sources}"
-    log_info "include_skills:  ${claude_include_skills}"
-  else
-    log_info "sources_claude.yaml not found, installing all skills"
-  fi
-
-  # ── prepare ~/.claude/skills as physical directory ──
-  if [[ "$DRY_RUN" == false ]]; then
-    if [[ -L "$CLAUDE_SKILLS_DIR" ]]; then
-      rm -f "$CLAUDE_SKILLS_DIR"
-    elif [[ -d "$CLAUDE_SKILLS_DIR" ]]; then
-      rm -rf "$CLAUDE_SKILLS_DIR"
-    fi
-    mkdir -p "$CLAUDE_SKILLS_DIR"
-  fi
-
-  # ── create filtered symlinks ──
-  local included=0 skipped=0
-
-  for link_path in "$install_dir"/*; do
-    [[ -e "$link_path" || -L "$link_path" ]] || continue
-
-    local link_name
-    link_name="$(basename "$link_path")"
-
-    # if no config, install everything
-    if [[ "$has_config" == true ]]; then
-      # lookup source name from SKILL_SOURCE_MAP
-      local source_name="unknown"
-      if [[ "$SKILL_SOURCE_MAP" == *"|${link_name}="* ]]; then
-        source_name="${SKILL_SOURCE_MAP#*|${link_name}=}"
-        source_name="${source_name%%|*}"
-      fi
-
-      # whitelist: must match include_sources OR include
-      local allowed=false
-      if [[ "$claude_include_sources" == *"|${source_name}|"* ]]; then
-        allowed=true
-      elif [[ "$claude_include_skills" == *"|${link_name}|"* ]]; then
-        allowed=true
-      fi
-
-      if [[ "$allowed" == false ]]; then
-        log_info "  skip (not in whitelist): ${link_name}"
-        ((skipped++))
+      if [[ "$claimed_skills" == *"|${ename}|"* ]]; then
+        log_warn "keep higher-priority ${ename}, skip extract"
         continue
       fi
+
+      claimed_skills="${claimed_skills}${ename}|"
+      SKILL_SOURCE_MAP="${SKILL_SOURCE_MAP}${ename}=extract|"
+
+      if [[ "$DRY_RUN" == false ]]; then
+        ln -s "$skill_dir" "${INSTALL_DIR}/${ename}"
+      fi
+      ((count++)) || true
+      ((total_skills++)) || true
+    done
+    [[ "$count" -gt 0 ]] && log_info "extracts: ${count} skills"
+  fi
+
+  log_success "total: ${total_skills} skills aggregated"
+}
+
+# ─── Step 3: distribute to consumers ──────────────────────────────
+
+# Compute final skill list for a consumer (uniquified, order-preserving)
+# Args: consumer_path
+# Output: one skill name per line
+resolve_consumer_skills() {
+  local consumer_path="$1"
+  local only_count add_count
+
+  only_count=$(yq ".consumers[\"${consumer_path}\"].only | length" "$CONSUMERS_CONFIG" 2>/dev/null)
+  add_count=$(yq  ".consumers[\"${consumer_path}\"].add  | length" "$CONSUMERS_CONFIG" 2>/dev/null)
+
+  local -a result=()
+  local seen="|"
+
+  emit() {
+    local n="$1"
+    [[ -z "$n" || "$n" == "null" ]] && return
+    [[ "$seen" == *"|${n}|"* ]] && return
+    seen="${seen}${n}|"
+    result+=("$n")
+  }
+
+  if [[ "$only_count" != "0" && "$only_count" != "null" ]]; then
+    # only mode: use only list, ignore core
+    for ((k = 0; k < only_count; k++)); do
+      emit "$(yq -r ".consumers[\"${consumer_path}\"].only[$k]" "$CONSUMERS_CONFIG")"
+    done
+  else
+    # default mode: core + add
+    local core_count
+    core_count=$(yq ".core | length" "$CONSUMERS_CONFIG" 2>/dev/null)
+    if [[ "$core_count" != "0" && "$core_count" != "null" ]]; then
+      for ((k = 0; k < core_count; k++)); do
+        emit "$(yq -r ".core[$k]" "$CONSUMERS_CONFIG")"
+      done
+    fi
+    if [[ "$add_count" != "0" && "$add_count" != "null" ]]; then
+      for ((k = 0; k < add_count; k++)); do
+        emit "$(yq -r ".consumers[\"${consumer_path}\"].add[$k]" "$CONSUMERS_CONFIG")"
+      done
+    fi
+  fi
+
+  printf '%s\n' "${result[@]}"
+}
+
+# Wipe consumer dir safely:
+#   - if symlink → just rm
+#   - if dir with non-symlink contents → backup
+#   - if dir with only symlinks → safe rm
+prepare_consumer_dir() {
+  local path="$1"
+
+  if [[ -L "$path" ]]; then
+    if [[ "$DRY_RUN" == false ]]; then
+      rm -f "$path"
+    fi
+  elif [[ -d "$path" ]]; then
+    local non_link_count=0
+    local entry
+    while IFS= read -r entry; do
+      [[ -n "$entry" ]] && non_link_count=$((non_link_count + 1))
+    done < <(find "$path" -mindepth 1 -maxdepth 1 ! -type l 2>/dev/null)
+
+    if [[ "$non_link_count" -gt 0 ]]; then
+      local backup="${path}.backup.$(date +%Y%m%d%H%M%S)"
+      log_warn "${path}: contains ${non_link_count} non-symlink entr(ies), backing up to ${backup}"
+      if [[ "$DRY_RUN" == false ]]; then
+        mv "$path" "$backup"
+      fi
+    elif [[ "$DRY_RUN" == false ]]; then
+      rm -rf "$path"
+    fi
+  fi
+
+  if [[ "$DRY_RUN" == false ]]; then
+    mkdir -p "$path"
+  fi
+
+  return 0
+}
+
+step_link() {
+  log_header "Step 3/4 — distribute to consumers"
+
+  local consumer_count
+  consumer_count=$(yq '.consumers | length' "$CONSUMERS_CONFIG")
+
+  if [[ "$consumer_count" == "0" || "$consumer_count" == "null" ]]; then
+    log_warn "no consumers configured"
+    return
+  fi
+
+  local idx
+  for ((idx = 0; idx < consumer_count; idx++)); do
+    local raw_path consumer_path
+    raw_path=$(yq -r ".consumers | keys | .[$idx]" "$CONSUMERS_CONFIG")
+    consumer_path=$(expand_path "$raw_path")
+
+    if [[ "$DRY_RUN" == false ]]; then
+      mkdir -p "$(dirname "$consumer_path")"
     fi
 
-    # create symlink: ~/.claude/skills/xxx -> actual skill dir
-    local target
-    if [[ "$DRY_RUN" == true ]]; then
-      # in dry-run, resolve from SKILL_SOURCE_MAP context
-      ((included++))
+    prepare_consumer_dir "$consumer_path"
+
+    # resolve skills
+    local skills=()
+    while IFS= read -r s; do
+      [[ -n "$s" ]] && skills+=("$s")
+    done < <(resolve_consumer_skills "$raw_path")
+
+    local linked=0 missing=0
+    for skill in "${skills[@]}"; do
+      local target="${INSTALL_DIR}/${skill}"
+      if [[ -e "$target" || -L "$target" ]]; then
+        if [[ "$DRY_RUN" == false ]]; then
+          local resolved
+          resolved="$(readlink "$target")"
+          ln -s "$resolved" "${consumer_path}/${skill}"
+        fi
+        ((linked++)) || true
+      else
+        log_warn "${consumer_path}: skill not found: ${skill}"
+        ((missing++)) || true
+      fi
+    done
+
+    if [[ "$missing" -gt 0 ]]; then
+      log_info "${consumer_path}: ${linked} linked, ${missing} missing"
     else
-      target="$(readlink "$link_path")"
-      ln -s "$target" "${CLAUDE_SKILLS_DIR}/${link_name}"
-      ((included++))
+      log_success "${consumer_path}: ${linked} skills"
     fi
   done
-
-  log_success "Claude Code: ${included} skills installed, ${skipped} skipped"
 }
 
 # ─── main ─────────────────────────────────────────────────────────
@@ -548,15 +562,12 @@ main() {
   echo -e "${CYAN}║    Skills Installer                        ║${NC}"
   echo -e "${CYAN}╚════════════════════════════════════════════╝${NC}"
 
-  if [[ "$DRY_RUN" == true ]]; then
-    log_warn "DRY-RUN mode"
-  fi
+  [[ "$DRY_RUN" == true ]] && log_warn "DRY-RUN mode"
 
   step_clean
-  step_clone
-  step_build_and_fetch
+  step_clone_and_build
+  step_aggregate
   step_link
-  step_claude
 
   echo ""
   log_success "all done!"

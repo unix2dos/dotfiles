@@ -1,0 +1,56 @@
+# ============================================
+# Skills 消费者配置（谁装什么 skill）
+# ============================================
+# 规则（一句话）：
+#   默认装 core；写 add 加几个；写 only 完全自定义不要 core。
+#
+# 三种写法：
+#   {}                         → 装 core
+#   { add: [a, b] }            → core ∪ {a, b}
+#   { only: [a, b] }           → {a, b}（不要 core）
+#
+# add / only 互斥；都没写等价于 {}。
+# 出现在 consumers: 里 = 被 install.sh 管理；不写 = 完全不碰。
+
+# ─── 核心 skill 集 ────────────────────────────────────────────
+# 跨工具最常用的几个，所有 consumer 默认都装这套
+core:
+  - lw-code-refactor
+  - lw-code-simplifier
+  - lw-confidence-check
+  - architecture-designer
+  - asking-clarifying-questions
+  - humanizer-zh
+
+# ─── 各 AI 工具的 skill 集 ────────────────────────────────────
+consumers:
+  # Claude Code：写作 + 设计类增强
+  "~/.claude/skills":
+    add:
+      - lw-learn-tech
+      - lw-mermaid-generator
+      - lw-strategic-product-advisor
+      - lw-technical-content-optimizer
+      - lw-ui-ux-auditor
+      - lw-autoresearch
+
+  # Codex（OpenAI CLI）：默认核心集
+  "~/.codex/skills": {}
+
+  # Cursor IDE：默认核心集
+  "~/.cursor/skills": {}
+
+  # 通用 agents 入口：默认核心集
+  "~/.agents/skills": {}
+
+  # Gemini Antigravity：默认核心集
+  "~/.gemini/antigravity/skills": {}
+
+  # OpenClaw：默认核心集
+  "~/.openclaw/skills": {}
+
+  # OpenCode：默认核心集
+  "~/.config/opencode/skills": {}
+
+  # Alma：默认核心集
+  "~/.config/alma/skills": {}

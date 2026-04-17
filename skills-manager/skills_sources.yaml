@@ -1,103 +1,54 @@
 # ============================================
-# Skills 来源配置
+# Skills 下载器配置（从哪 git clone + 怎么 build）
 # ============================================
-# 顺序即优先级，靠前的优先级更高
-# 同名 skill 保留高优先级版本
+# 顺序即优先级，靠前的优先级更高（同名 skill 保留高优先级版本）
+#
+# repos:    整仓库 clone（一个 repo 含多个 skill）
+# extracts: 单 skill 提取（从大 repo 抠一个子目录）
+#
+# 字段说明：
+#   repo            (必填)  GitHub owner/repo
+#   prefix          (推荐)  skill 名前缀，避免撞名；显式空字符串 "" 表示不加前缀
+#   name            (可选)  source 名；不写则从 prefix 或 repo 推断；
+#                           runtime_assets 等需要按名引用时必填
+#   clone_to        (可选)  克隆目标；不写则 = ~/.skills-community/{prefix or name}
+#                           本地工作区类的源（如 owned）必须显式声明
+#   skills_dir      (可选)  skill 根目录；不写则自动扫描 SKILL.md 推断
+#   branch          (可选)  默认 main
+#   build           (可选)  克隆后执行的命令
+#   exclude         (可选)  跳过的 skill 名列表
+#   runtime_assets  (可选)  symlink 到主 skill 目录的资产（仅整仓 source）
 
-# 两层目录设计说明：
-#   community_dir  = git 仓库暂存区。一个仓库可能含多个 skill（如 superpowers 含几十个），
-#                    需要先 clone 到这里，再从中发现并提取各个 skill。
-#   install_dir    = 扁平聚合层，只存 symlink，每个 entry 对应一个 skill。
-#                    消费者（Claude/Codex 等）只需 symlink 到这一个目录即可。
-#   两层不可合并：仓库与 skill 是 1:N 关系，必须先 clone 再提取。
-
-# 聚合目录（symlink 层，消费者入口）
-install_dir: ~/.skills-installed
-
-# 社区 clone 根目录（仓库暂存区，安装前会整体清理）
-community_dir: ~/.skills-community
-
-# AI 工具消费入口（全部 symlink 到 install_dir）
-consumers:
-  - ~/.agents/skills
-  - ~/.claude/skills
-  - ~/.codex/skills
-  - ~/.gemini/antigravity/skills
-  - ~/.openclaw/skills
-  - ~/.config/opencode/skills
-  - ~/.config/alma/skills
-
-# 来源（按优先级从高到低排列）
-# 可选字段：
-#   prefix: xxx            — symlink 名变为 xxx-{skill_name}（prefix: "" 显式不加前缀）
-#   exclude: [a, b]        — 排除指定 skill
-sources:
-  - name: owned
-    desc: 自有 skills
-    repo: https://github.com/unix2dos/skills.git
-    clone_to: ~/workspace/skills
-    skills_dir: .
+repos:
+  - repo: unix2dos/skills
     prefix: lw
+    clone_to: ~/workspace/skills
 
-  - name: superpowers
-    desc: 工程流程框架：规划、执行、调试、TDD 等全套研发流程 skills
-    repo: https://github.com/obra/superpowers.git
-    clone_to: ~/.skills-community/superpowers
-    skills_dir: skills
+  - repo: obra/superpowers
     prefix: superpowers
-
-  - name: minimalist-entrepreneur
-    desc: 精益创业 skills：社区发现、验证创意、MVP、定价、增长等全流程
-    repo: https://github.com/slavingia/skills.git
-    clone_to: ~/.skills-community/minimalist-entrepreneur
     skills_dir: skills
+
+  - repo: slavingia/skills
     prefix: mini
-
-  - name: ljg-skills
-    desc: lijigang 自定义技能集：圆桌讨论、论文阅读、卡片写作、投资分析等
-    repo: https://github.com/lijigang/ljg-skills.git
-    clone_to: ~/.skills-community/ljg-skills
-    branch: master
     skills_dir: skills
-    build: cd skills/ljg-card && npm install --silent && npx playwright install chromium
+
+  - repo: lijigang/ljg-skills
+    prefix: ""
+    skills_dir: skills
+    branch: master
+    build: "cd skills/ljg-card && npm install --silent && npx playwright install chromium"
     exclude: [ljg-x-download, ljg-word, ljg-travel]
 
-  - name: gstack
-    desc: Garry Tan 工程团队 skills：代码审查、QA、浏览器自动化等
-    repo: https://github.com/garrytan/gstack.git
-    clone_to: ~/.skills-community/gstack
+  - repo: garrytan/gstack
+    name: gstack
+    prefix: ""
     skills_dir: .agents/skills
-    build: bun install --silent && bun run build
-    runtime_assets:
-      - bin
-      - browse
-      - review
-      - qa
+    build: "bun install --silent && bun run build"
+    runtime_assets: [bin, browse, review, qa]
 
-  - name: community
-    desc: 社区 skills（从各 GitHub 仓库提取子目录）
-    clone_to: ~/.skills-community
-    skills:
-      - name: skill-creator
-        desc: 创建、编辑、评估 AI skills
-        repo: anthropics/skills
-        subdir: skills/skill-creator
-
-      - name: find-skills
-        desc: 帮助发现和安装社区 skills
-        repo: vercel-labs/skills
-        subdir: skills/find-skills
-
-      - name: architecture-designer
-        desc: 系统架构设计、ADR 编写、技术选型评估
-        repo: Jeffallan/claude-skills
-        subdir: skills/architecture-designer
-
-      - name: asking-clarifying-questions
-        desc: 实现前澄清需求歧义，避免方向跑偏
-        repo: ed3dai/ed3d-plugins
-        subdir: plugins/ed3d-plan-and-execute/skills/asking-clarifying-questions
-
-      - name: humanizer-zh
-        desc: 去除中文文本的 AI 生成痕迹，使行文更自然
-        repo: op7418/Humanizer-zh
+extracts:
+  - { repo: anthropics/skills,       subdir: skills/skill-creator,                                                  name: skill-creator }
+  - { repo: vercel-labs/skills,      subdir: skills/find-skills,                                                    name: find-skills }
+  - { repo: Jeffallan/claude-skills, subdir: skills/architecture-designer,                                          name: architecture-designer }
+  - { repo: ed3dai/ed3d-plugins,     subdir: plugins/ed3d-plan-and-execute/skills/asking-clarifying-questions,      name: asking-clarifying-questions }
+  - { repo: op7418/Humanizer-zh,     subdir: .,                                                                     name: humanizer-zh }
