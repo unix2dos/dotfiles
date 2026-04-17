@@ -61,10 +61,22 @@ consumers:
 | `{ add: [a, b] }` | core ∪ {a, b} |
 | `{ only: [a, b] }`| {a, b}（不要 core） |
 
+**引用形式**（`core` / `add` / `only` 里通用）：
+
+| 形式 | 展开为 |
+|---|---|
+| `liuwei-code-refactor`  | 单个 skill |
+| `source:superpowers`    | 该 source 聚合后的所有 skill（整源一键加）|
+| `source:liuwei`         | `unix2dos/skills` 下全部 `liuwei-*` |
+| `source:extract`        | 所有 `extracts:` 条目 |
+
+`source:<name>` 里的 `<name>` = `skills_sources.yaml` 里的 `name` / `prefix` / repo basename（即 `derive_source_name` 结果）。新加的 skill 只要属于被引用的 source，**无需改 consumers 配置**自动跟着进来。
+
 **规则**：
 - 出现在 `consumers:` 里 = 被 install.sh 管理；不写 = 完全不碰
 - `add` 和 `only` 互斥
 - 配置里写了不存在的 skill 名 → `[WARN]` 跳过，不报错
+- `source:<name>` 没匹配到任何 skill → `[WARN]` 跳过
 
 ## Source 配置（`skills_sources.yaml`）
 

@@ -421,7 +421,33 @@ step_aggregate() {
 
 # ─── Step 3: distribute to consumers ──────────────────────────────
 
+# Expand `source:<name>` into the list of skill names that came from that source.
+# Relies on SKILL_SOURCE_MAP populated by step_aggregate. Output: one skill per line (sorted).
+expand_source_ref() {
+  local source_name="$1"
+  local map="${SKILL_SOURCE_MAP#|}"
+  local -a entries=()
+  IFS='|' read -ra entries <<< "$map"
+  local entry sk sn
+  {
+    for entry in ${entries[@]+"${entries[@]}"}; do
+      if [[ -n "$entry" ]]; then
+        sk="${entry%%=*}"
+        sn="${entry##*=}"
+        if [[ "$sn" == "$source_name" ]]; then
+          echo "$sk"
+        fi
+      fi
+    done
+  } | sort
+  return 0
+}
+
 # Compute final skill list for a consumer (uniquified, order-preserving)
+# Refs can be:
+#   - a plain skill name (e.g. "liuwei-code-refactor")
+#   - `source:<name>` — expands to all skills from that source (e.g. `source:superpowers`)
+#     valid source names = derive_source_name() for each repo, plus `extract` for extracts
 # Args: consumer_path
 # Output: one skill name per line
 resolve_consumer_skills() {
@@ -442,10 +468,31 @@ resolve_consumer_skills() {
     result+=("$n")
   }
 
+  emit_ref() {
+    local ref="$1"
+    [[ -z "$ref" || "$ref" == "null" ]] && return 0
+    if [[ "$ref" == source:* ]]; then
+      local src="${ref#source:}"
+      local expanded
+      expanded="$(expand_source_ref "$src")"
+      if [[ -z "$expanded" ]]; then
+        log_warn "${consumer_path}: unknown or empty source ref: source:${src}"
+        return 0
+      fi
+      local sk
+      while IFS= read -r sk; do
+        [[ -n "$sk" ]] && emit "$sk"
+      done <<< "$expanded"
+    else
+      emit "$ref"
+    fi
+    return 0
+  }
+
   if [[ "$only_count" != "0" && "$only_count" != "null" ]]; then
     # only mode: use only list, ignore core
     for ((k = 0; k < only_count; k++)); do
-      emit "$(yq -r ".consumers[\"${consumer_path}\"].only[$k]" "$CONSUMERS_CONFIG")"
+      emit_ref "$(yq -r ".consumers[\"${consumer_path}\"].only[$k]" "$CONSUMERS_CONFIG")"
     done
   else
     # default mode: core + add
@@ -453,12 +500,12 @@ resolve_consumer_skills() {
     core_count=$(yq ".core | length" "$CONSUMERS_CONFIG" 2>/dev/null)
     if [[ "$core_count" != "0" && "$core_count" != "null" ]]; then
       for ((k = 0; k < core_count; k++)); do
-        emit "$(yq -r ".core[$k]" "$CONSUMERS_CONFIG")"
+        emit_ref "$(yq -r ".core[$k]" "$CONSUMERS_CONFIG")"
       done
     fi
     if [[ "$add_count" != "0" && "$add_count" != "null" ]]; then
       for ((k = 0; k < add_count; k++)); do
-        emit "$(yq -r ".consumers[\"${consumer_path}\"].add[$k]" "$CONSUMERS_CONFIG")"
+        emit_ref "$(yq -r ".consumers[\"${consumer_path}\"].add[$k]" "$CONSUMERS_CONFIG")"
       done
     fi
   fi
@@ -532,7 +579,7 @@ step_link() {
     done < <(resolve_consumer_skills "$raw_path")
 
     local linked=0 missing=0
-    for skill in "${skills[@]}"; do
+    for skill in ${skills[@]+"${skills[@]}"}; do
       local target="${INSTALL_DIR}/${skill}"
       if [[ -e "$target" || -L "$target" ]]; then
         if [[ "$DRY_RUN" == false ]]; then
