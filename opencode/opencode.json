@@ -2,7 +2,7 @@
   "mcp": {
     "pencil": {
       "command": [
-        "/Users/liuwei/.pencil/mcp/antigravity/out/mcp-server-darwin-arm64",
+        "/Users/liuwei/.antigravity/extensions/highagency.pencildev-0.6.43-universal/out/mcp-server-darwin-arm64",
         "--app",
         "antigravity"
       ],
