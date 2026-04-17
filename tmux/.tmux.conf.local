@@ -590,6 +590,14 @@ set-option -g pane-border-status off
 ## Prefix + f : extrakto 模式 新窗口 fzf 搜索复制，可滚动
 ## Prefix + / : copycat 搜索, 可以被淘汰了
 
+
+# 3.6 新特性 只在复制模式显示滚动条(推荐)
+#set -g pane-scrollbars modal
+set -g pane-scrollbars off
+set -g pane-scrollbars-position right
+
+
+
 ######################################## 自己自定义配置结束 ########################################
 
 # -- custom variables ----------------------------------------------------------

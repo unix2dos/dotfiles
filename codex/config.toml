@@ -1,5 +1,5 @@
 model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 personality = "pragmatic"
 
 [mcp_servers.playwright]
@@ -21,3 +21,11 @@ trust_level = "trusted"
 
 [projects."/Users/liuwei/go/src/dreamtown/dream-town"]
 trust_level = "trusted"
+
+[projects."/Users/liuwei/go/src/runway"]
+trust_level = "trusted"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-04-17T04:25:58Z"
+source_type = "local"
+source = "/Users/liuwei/.codex/.tmp/bundled-marketplaces/openai-bundled"
