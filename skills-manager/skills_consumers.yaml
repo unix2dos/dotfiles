@@ -15,9 +15,9 @@
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具最常用的几个，所有 consumer 默认都装这套
 core:
-  - lw-code-refactor
-  - lw-code-simplifier
-  - lw-confidence-check
+  - liuwei-code-refactor
+  - liuwei-code-simplifier
+  - liuwei-confidence-check
   - architecture-designer
   - asking-clarifying-questions
   - humanizer-zh
@@ -27,12 +27,12 @@ consumers:
   # Claude Code：写作 + 设计类增强
   "~/.claude/skills":
     add:
-      - lw-learn-tech
-      - lw-mermaid-generator
-      - lw-strategic-product-advisor
-      - lw-technical-content-optimizer
-      - lw-ui-ux-auditor
-      - lw-autoresearch
+      - liuwei-learn-tech
+      - liuwei-mermaid-generator
+      - liuwei-strategic-product-advisor
+      - liuwei-technical-content-optimizer
+      - liuwei-ui-ux-auditor
+      - liuwei-autoresearch
 
   # Codex（OpenAI CLI）：默认核心集
   "~/.codex/skills": {}

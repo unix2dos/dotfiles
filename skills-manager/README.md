@@ -30,7 +30,7 @@ Step 3  distribute        按 consumers 配置创建各 AI 工具的 skill 集
 
 | # | Source | Repo | 备注 |
 |---|--------|------|------|
-| 1 | lw          | unix2dos/skills    | 自有，clone 到 `~/workspace/skills` |
+| 1 | liuwei      | unix2dos/skills    | 自有，clone 到 `~/workspace/skills` |
 | 2 | superpowers | obra/superpowers   | 工程流程框架 |
 | 3 | mini        | slavingia/skills   | 精益创业 |
 | 4 | ljg-skills  | lijigang/ljg-skills| npm build |
@@ -43,7 +43,7 @@ Step 3  distribute        按 consumers 配置创建各 AI 工具的 skill 集
 
 ```yaml
 core:
-  - lw-code-refactor
+  - liuwei-code-refactor
   - architecture-designer
   # ...
 
@@ -71,7 +71,7 @@ consumers:
 ```yaml
 repos:
   - { repo: owner/name, prefix: xxx }                          # 最简
-  - { repo: owner/name, prefix: lw, clone_to: ~/path }         # 本地工作区源
+  - { repo: owner/name, prefix: liuwei, clone_to: ~/path }     # 本地工作区源
   - { repo: owner/name, name: foo, prefix: "",                 # gstack 风格
       skills_dir: .agents/skills, build: "...",
       runtime_assets: [bin, browse] }
