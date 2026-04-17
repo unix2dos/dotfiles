@@ -15,24 +15,23 @@
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具最常用的几个，所有 consumer 默认都装这套
 core:
-  - liuwei-code-refactor
-  - liuwei-code-simplifier
-  - liuwei-confidence-check
-  - architecture-designer
-  - asking-clarifying-questions
-  - humanizer-zh
+  - liuwei-code-refactor  # 代码重构专家
+  - liuwei-code-simplifier # 代码简化专家
+  - liuwei-confidence-check # 前置信度检查
+  - liuwei-technical-content-optimizer # 技术内容优化专家
+  - liuwei-learn-tech # 学习新技术专家
+  - liuwei-mermaid-generator # 流程图生成专家
+  - liuwei-strategic-product-advisor # 战略产品顾问
+  - liuwei-ui-ux-auditor # UI/UX 审计专家
+  - liuwei-autoresearch # 自动研究专家
+  - architecture-designer # 架构设计师
+  - asking-clarifying-questions # 提问澄清专家
+  - humanizer-zh # 中文书写专家
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
-  # Claude Code：写作 + 设计类增强
-  "~/.claude/skills":
-    add:
-      - liuwei-learn-tech
-      - liuwei-mermaid-generator
-      - liuwei-strategic-product-advisor
-      - liuwei-technical-content-optimizer
-      - liuwei-ui-ux-auditor
-      - liuwei-autoresearch
+  # Claude Code：默认核心集
+  "~/.claude/skills": {}
 
   # Codex（OpenAI CLI）：默认核心集
   "~/.codex/skills": {}
