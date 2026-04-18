@@ -23,15 +23,16 @@
 # 跨工具最常用的几个，所有 consumer 默认都装这套
 core:
   - liuwei-ask-first # 先问后答专家
-  - asking-clarifying-questions # 提问澄清专家
-  - liuwei-learn-tech # 学习新技术专家
-  - liuwei-technical-content-optimizer # 技术内容优化专家
-  - liuwei-mermaid-generator # 流程图生成专家
-
   - liuwei-confidence-check # 前置信度检查
+  - asking-clarifying-questions # 提问澄清专家
+
   - liuwei-code-refactor  # 代码重构专家
   - liuwei-code-simplifier # 代码简化专家
   - architecture-designer # 架构设计师
+
+  - liuwei-learn-tech # 学习新技术专家
+  - liuwei-technical-content-optimizer # 技术内容优化专家
+  - liuwei-mermaid-generator # 流程图生成专家
 
   - liuwei-strategic-product-advisor # 战略产品规划专家
   - liuwei-ui-ux-auditor # UI/UX 设计专家
