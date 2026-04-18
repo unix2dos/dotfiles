@@ -22,6 +22,7 @@
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具最常用的几个，所有 consumer 默认都装这套
 core:
+  - liuwei-ask-first # 先问后答专家
   - asking-clarifying-questions # 提问澄清专家
   - liuwei-learn-tech # 学习新技术专家
   - liuwei-technical-content-optimizer # 技术内容优化专家
