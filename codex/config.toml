@@ -41,16 +41,15 @@ args = [ "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/
 enabled = true
 startup_timeout_sec = 5
 
-[mcp_servers.pencil]
-command = "/Users/liuwei/.pencil/mcp/antigravity/out/mcp-server-darwin-arm64"
-args = [ "--app", "antigravity" ]
-
 [features]
 multi_agent = true
 child_agents_md = true
 codex_hooks = true
 
 [plugins."build-ios-apps@openai-curated"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
 enabled = true
 
 [projects."/Users/liuwei/go/src/vibelive"]
@@ -69,7 +68,7 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-04-20T04:14:52Z"
+last_updated = "2026-04-20T04:35:36Z"
 source_type = "local"
 source = "/Users/liuwei/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
