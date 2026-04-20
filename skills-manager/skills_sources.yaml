@@ -21,7 +21,7 @@
 
 repos:
   - repo: unix2dos/skills
-    prefix: liuwei
+    prefix: ""
     clone_to: ~/workspace/skills
 
   - repo: obra/superpowers

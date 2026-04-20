@@ -445,7 +445,7 @@ expand_source_ref() {
 
 # Compute final skill list for a consumer (uniquified, order-preserving)
 # Refs can be:
-#   - a plain skill name (e.g. "liuwei-code-refactor")
+#   - a plain skill name (e.g. "code-refactor")
 #   - `source:<name>` — expands to all skills from that source (e.g. `source:superpowers`)
 #     valid source names = derive_source_name() for each repo, plus `extract` for extracts
 # Args: consumer_path

@@ -13,30 +13,30 @@
 # 出现在 consumers: 里 = 被 install.sh 管理；不写 = 完全不碰。
 #
 # 引用形式（在 core / add / only 里都通用）：
-#   - <skill-name>             具体 skill 名，例如 liuwei-code-refactor
+#   - <skill-name>             具体 skill 名，例如 code-refactor
 #   - source:<name>            展开为该 source 的所有 skill；<name> 取自
 #                              skills_sources.yaml 里的 name / prefix / repo basename
 #                              （即 derive_source_name 的结果）
-#                              例：source:superpowers / source:liuwei / source:extract
+#                              例：source:superpowers / source:skills / source:extract
 
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具最常用的几个，所有 consumer 默认都装这套
 core:
-  - liuwei-ask-first # 先问后答专家
-  - liuwei-confidence-check # 前置信度检查
+  - ask-first # 先问后答专家
+  - confidence-check # 前置信度检查
   - asking-clarifying-questions # 提问澄清专家
 
-  - liuwei-code-refactor  # 代码重构专家
-  - liuwei-code-simplifier # 代码简化专家
+  - code-refactor  # 代码重构专家
+  - code-simplifier # 代码简化专家
   - architecture-designer # 架构设计师
 
-  - liuwei-learn-tech # 学习新技术专家
-  - liuwei-technical-content-optimizer # 技术内容优化专家
-  - liuwei-mermaid-generator # 流程图生成专家
+  - learn-tech # 学习新技术专家
+  - technical-content-optimizer # 技术内容优化专家
+  - mermaid-generator # 流程图生成专家
 
-  - liuwei-strategic-product-advisor # 战略产品规划专家
-  - liuwei-ui-ux-auditor # UI/UX 设计专家
-  - liuwei-autoresearch # 优化 SKILLS 专家
+  - strategic-product-advisor # 战略产品规划专家
+  - ui-ux-auditor # UI/UX 设计专家
+  - autoresearch # 优化 SKILLS 专家
   - humanizer-zh # 中文书写专家
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
@@ -58,10 +58,10 @@ consumers:
   # Gemini Antigravity：默认核心集
   "~/.gemini/antigravity/skills": {}
 
-  # OpenClaw：核心集 + 全部 liuwei-* (unix2dos/skills 整源)
+  # OpenClaw：核心集 + unix2dos/skills 整源
   "~/.openclaw/skills":
     add:
-      - source:liuwei
+      - source:skills
 
   # OpenCode：默认核心集
   "~/.config/opencode/skills": {}

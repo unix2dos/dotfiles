@@ -30,7 +30,7 @@ Step 3  distribute        按 consumers 配置创建各 AI 工具的 skill 集
 
 | # | Source | Repo | 备注 |
 |---|--------|------|------|
-| 1 | liuwei      | unix2dos/skills    | 自有，clone 到 `~/workspace/skills` |
+| 1 | skills      | unix2dos/skills    | 自有，clone 到 `~/workspace/skills`，无前缀 |
 | 2 | superpowers | obra/superpowers   | 工程流程框架 |
 | 3 | mini        | slavingia/skills   | 精益创业 |
 | 4 | ljg-skills  | lijigang/ljg-skills| npm build |
@@ -43,7 +43,7 @@ Step 3  distribute        按 consumers 配置创建各 AI 工具的 skill 集
 
 ```yaml
 core:
-  - liuwei-code-refactor
+  - code-refactor
   - architecture-designer
   # ...
 
@@ -65,9 +65,9 @@ consumers:
 
 | 形式 | 展开为 |
 |---|---|
-| `liuwei-code-refactor`  | 单个 skill |
+| `code-refactor`         | 单个 skill |
 | `source:superpowers`    | 该 source 聚合后的所有 skill（整源一键加）|
-| `source:liuwei`         | `unix2dos/skills` 下全部 `liuwei-*` |
+| `source:skills`         | `unix2dos/skills` 下全部 skill |
 | `source:extract`        | 所有 `extracts:` 条目 |
 
 `source:<name>` 里的 `<name>` = `skills_sources.yaml` 里的 `name` / `prefix` / repo basename（即 `derive_source_name` 结果）。新加的 skill 只要属于被引用的 source，**无需改 consumers 配置**自动跟着进来。
@@ -83,7 +83,7 @@ consumers:
 ```yaml
 repos:
   - { repo: owner/name, prefix: xxx }                          # 最简
-  - { repo: owner/name, prefix: liuwei, clone_to: ~/path }     # 本地工作区源
+  - { repo: owner/name, prefix: "", clone_to: ~/path }          # 本地工作区源（无前缀）
   - { repo: owner/name, name: foo, prefix: "",                 # gstack 风格
       skills_dir: .agents/skills, build: "...",
       runtime_assets: [bin, browse] }
@@ -97,7 +97,7 @@ extracts:
 | 字段 | 必填 | 说明 |
 |---|---|---|
 | `repo`           | ✓ | GitHub `owner/name` |
-| `prefix`         | 推荐 | skill 名前缀防撞名；`""` 表示不加前缀 |
+| `prefix`         | 可选 | skill 名前缀防撞名；`""` 表示不加前缀 |
 | `name`           | 可选 | source 标识；不写则用 prefix 或 repo basename |
 | `clone_to`       | 可选 | 自定义 clone 路径；默认 `~/.skills-community/{name}` |
 | `skills_dir`     | 可选 | skill 根目录，默认 `.` |
