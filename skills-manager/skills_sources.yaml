@@ -28,23 +28,23 @@ repos:
     prefix: superpowers
     skills_dir: skills
 
-  - repo: slavingia/skills
-    prefix: mini
-    skills_dir: skills
+ # - repo: slavingia/skills
+ #   prefix: mini
+ #   skills_dir: skills
 
-  - repo: lijigang/ljg-skills
-    prefix: ""
-    skills_dir: skills
-    branch: master
-    build: "cd skills/ljg-card && npm install --silent && npx playwright install chromium"
-    exclude: [ljg-x-download, ljg-word, ljg-travel]
+ # - repo: lijigang/ljg-skills
+ #   prefix: ""
+ #   skills_dir: skills
+ #   branch: master
+ #   build: "cd skills/ljg-card && npm install --silent && npx playwright install chromium"
+ #   exclude: [ljg-x-download, ljg-word, ljg-travel]
 
-  - repo: garrytan/gstack
-    name: gstack
-    prefix: ""
-    skills_dir: .agents/skills
-    build: "bun install --silent && bun run build"
-    runtime_assets: [bin, browse, review, qa]
+ # - repo: garrytan/gstack
+ #   name: gstack
+ #   prefix: ""
+ #   skills_dir: .agents/skills
+ #   build: "bun install --silent && bun run build"
+ #   runtime_assets: [bin, browse, review, qa]
 
 extracts:
   - { repo: anthropics/skills,       subdir: skills/skill-creator,                                                  name: skill-creator }
