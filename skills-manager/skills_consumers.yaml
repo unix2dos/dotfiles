@@ -39,6 +39,8 @@ core:
   - autoresearch # 优化 SKILLS 专家
   - humanizer-zh # 中文书写专家
   - ljg-roundtable # 圆桌讨论
+  - ljg-plain # 白话文解释
+  - ljg-think # 追问很多层
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
