@@ -38,6 +38,7 @@ core:
   - ui-ux-auditor # UI/UX 设计专家
   - autoresearch # 优化 SKILLS 专家
   - humanizer-zh # 中文书写专家
+  - ljg-roundtable # 圆桌讨论
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
