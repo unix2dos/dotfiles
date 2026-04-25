@@ -50,6 +50,18 @@ codex_hooks = true
 [plugins."build-ios-apps@openai-curated"]
 enabled = true
 
+[plugins."browser-use@openai-bundled"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
 [projects."/Users/liuwei/go/src/vibelive"]
 trust_level = "trusted"
 
@@ -72,9 +84,14 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-04-24T06:42:19Z"
+last_updated = "2026-04-25T09:25:31Z"
 source_type = "local"
 source = "/Users/liuwei/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-04-25T09:34:53Z"
+source_type = "local"
+source = "/Users/liuwei/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [env]
 USE_OMX_EXPLORE_CMD = "1"
