@@ -83,13 +83,16 @@ trust_level = "trusted"
 [projects."/Users/liuwei/go/src/picplus/ifonly-server"]
 trust_level = "trusted"
 
+[projects."/Users/liuwei/go/src/movely/movely-server"]
+trust_level = "trusted"
+
 [marketplaces.openai-bundled]
-last_updated = "2026-04-25T09:25:31Z"
+last_updated = "2026-04-28T09:34:40Z"
 source_type = "local"
 source = "/Users/liuwei/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-04-25T09:34:53Z"
+last_updated = "2026-04-27T09:36:47Z"
 source_type = "local"
 source = "/Users/liuwei/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
