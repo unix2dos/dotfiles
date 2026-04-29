@@ -44,17 +44,27 @@ window-padding-x = 10
 window-padding-y = 5
 # 将终端网格无法整除窗口时产生的剩余空间均匀分布到四边，使内容居中
 window-padding-balance = true
-# 标题栏样式为标签页模式（将系统标签页整合进标题栏）
-macos-titlebar-style = tabs
 # 启用窗口阴影
 macos-window-shadow = true
 
 
-# ========== 其他优化 ==========
+
+# 标题栏样式为标签页模式（将系统标签页整合进标题栏）
+macos-titlebar-style = tabs
+# macos-titlebar-style = transparent
 # 背景透明度（1.0 为全不透明，越小越透明）
-background-opacity = 0.95
+background-blur = macos-glass-clear
 # 背景模糊半径（需配合 background-opacity < 1 使用）
-background-blur-radius = 10
+background-blur-radius = 10  
+background-opacity = 0.95 
+
+
+#background-opacity = 0.0
+#background-blur = macos-glass-clear
+#macos-titlebar-style = transparent
+
+
+# ========== 其他优化 ==========
 # 滚动缓冲区大小（单位：字节）
 scrollback-limit = 200000000
 # 在输入时隐藏鼠标
