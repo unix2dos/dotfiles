@@ -529,6 +529,12 @@ bind-key -n C-S-Left swap-window -t -1\; select-window -t -1
 bind-key -n C-S-Right swap-window -t +1\; select-window -t +1
 bind-key -n M-f copy-mode \; command-prompt -p "(search down)" "send-keys -X search-forward '%%'" # Alt + f: 自定义的原生搜索
 
+# Cmd+O 智能打开 Finder (配合 ghostty keybind = cmd+o=text:\x1b[1;9o)
+# tmux 在此截获该序列，先于内层 TUI(amp/vim/less...) 处理，
+# 把当前 pane_current_path（或剪贴板里的合法路径）丢给 macOS open
+set -s user-keys[0] "\e[1;9o"
+bind-key -n User0 run-shell -b "'$HOME/workspace/dotfiles/tmux/smart-open.sh' '#{pane_current_path}'"
+
 #### 4. 插件管理 ####
 tmux_conf_update_plugins_on_launch=false              # 不在启动时自动更新插件 (防止网络不稳定导致插件被清空，手动用 Prefix + u 更新)
 tmux_conf_update_plugins_on_reload=false              # 不在 Reload 配置时自动更新插件
