@@ -84,4 +84,5 @@ keybind = cmd+p=text:\x1bp
 # Cmd+o 发送自定义序列，由 tmux 截获 (见 .tmux.conf.local 中 user-keys[0])：
 # 剪贴板里若是合法路径则 open 该路径，否则 open 当前 pane_current_path
 keybind = cmd+o=text:\x1b[1;9o
+keybind = super+v=paste_from_clipboard
 
