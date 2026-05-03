@@ -30,7 +30,7 @@ core:
   - code-simplifier # 代码简化专家
   - architecture-designer # 架构设计师
 
-  - learn-tech # 学习新技术专家
+  - learn-map # 学习新东西专家
   - technical-content-optimizer # 技术内容优化专家
   - mermaid-generator # 流程图生成专家
 
