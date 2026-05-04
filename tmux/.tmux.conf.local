@@ -280,7 +280,7 @@ tmux_conf_theme_status_left_attr="bold,none,none"
 
 # status right style
 tmux_conf_theme_status_right_fg="$tmux_conf_theme_colour_12,$tmux_conf_theme_colour_13,$tmux_conf_theme_colour_14"
-tmux_conf_theme_status_right_bg="$tmux_conf_theme_colour_15,$tmux_conf_theme_colour_16,$tmux_conf_theme_colour_17"
+tmux_conf_theme_status_right_bg="$tmux_conf_theme_colour_15,$tmux_conf_theme_colour_15,$tmux_conf_theme_colour_17"  # 把红色槽改为 dark, 让网速段干净显示彩色徽章
 tmux_conf_theme_status_right_attr="none,none,bold"
 
 # pairing indicator
@@ -464,7 +464,7 @@ tmux_conf_theme_window_status_current_format="#{circled_window_index} #{?#{m:ssh
 tmux_conf_theme_window_status_format="#I #{?#{m:ssh*,#{pane_current_command}},#(echo '#{pane_title}' | sed 's/^[^@]*@\\([^:]*\\).*/@\\1/'),#W}"
 tmux_conf_theme_status_left=" ❐ #S"                   # 状态栏左侧内容: 会话名称
 # 状态栏右侧内容: 指示器(前缀/鼠标等) | IP地址 | 周数 | 模式指示器
-tmux_conf_theme_status_right='#{prefix}#{mouse}#{pairing}#{synchronized} #(~/workspace/dotfiles/tmux/net_speed.sh) |  #(ipconfig getifaddr en0)| 🌻W#(date +%V) |#{tmux_mode_indicator}'
+tmux_conf_theme_status_right='#{prefix}#{mouse}#{pairing}#{synchronized}| #(~/workspace/dotfiles/tmux/net_speed.sh) |  #(ipconfig getifaddr en0)| 🌻W#(date +%V) |#{tmux_mode_indicator}'
 tmux_conf_theme_mouse="🐭"                            # 鼠标开启状态图标, prefix + m
 tmux_conf_theme_pairing="💞"                          # 多客户端配对, tmux list-clients 查看，tmux自动连接, attach 的最小单位是 Session
 tmux_conf_theme_synchronized="🦷"                     # 面板同步模式图标, :setw synchronize-panes on

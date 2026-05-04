@@ -46,7 +46,7 @@ human4() {
 # 颜色经过挑选，跟 gpakosz 主题的圆角分隔符尽量协调
 style_for() {
     local n=$1
-    if   (( n <  10 * 1024 ));      then echo "💤 #3a3a3a #8a8a8a"   # 闲：暗灰，低对比，不抢眼
+    if   (( n <  10 * 1024 ));      then echo "💤 #5f5f5f #d0d0d0"   # 闲：中灰，存在感更强
     elif (( n < 500 * 1024 ));      then echo "🌊 #005f87 #ffffff"   # 浏览：深蓝
     elif (( n <   5 * 1024*1024 )); then echo "🚀 #d78700 #000000"   # 下载：橙色 + 黑字
     else                                 echo "⚡ #d70000 #ffffff"   # 大流量：红
@@ -54,7 +54,7 @@ style_for() {
 }
 
 # 异常 / 首次：占位但保持定宽 + 用 idle 颜色
-IDLE_BG="#3a3a3a"; IDLE_FG="#8a8a8a"
+IDLE_BG="#5f5f5f"; IDLE_FG="#d0d0d0"
 if [[ -z "${RX:-}" || -z "${TX:-}" ]]; then
     printf '#[bg=%s,fg=%s] 💤 ↓   -- ↑   -- #[default]\n' "$IDLE_BG" "$IDLE_FG"
     exit 0
