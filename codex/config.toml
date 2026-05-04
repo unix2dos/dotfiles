@@ -87,12 +87,12 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-05-02T06:15:40Z"
+last_updated = "2026-05-03T13:03:06Z"
 source_type = "local"
 source = "/Users/liuwei/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-04-27T09:36:47Z"
+last_updated = "2026-05-03T13:33:59Z"
 source_type = "local"
 source = "/Users/liuwei/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 

@@ -37,6 +37,7 @@ core:
   - strategic-product-advisor # 战略产品规划专家
   - ui-ux-auditor # UI/UX 设计专家
   - autoresearch # 优化 SKILLS 专家
+  - find-skills # 跨 skill 检索专家
   - humanizer-zh # 中文书写专家
   - ljg-roundtable # 圆桌讨论
   - ljg-plain # 白话文解释
