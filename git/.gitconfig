@@ -39,7 +39,7 @@
 	defaultBranch = main
 
 [pull]
-	rebase = false
+	rebase = true
 
 
 # ============================================================================
@@ -98,3 +98,5 @@
 	clean = git-lfs clean -- %f
 	# 涂抹过滤器：检出时将指针文件还原为实际文件
 	smudge = git-lfs smudge -- %f
+[rebase]
+	autoStash = true
