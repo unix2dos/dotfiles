@@ -41,11 +41,11 @@ brew install --cask alacritty ghostty
 
 | 目录 | 说明 |
 |:-----|:-----|
-| [claude](claude/) | Claude Code CLI 配置 (settings + CLAUDE.md + claude-hud 插件 + daily-hello 定时任务) |
-| [amp](amp/) | Amp CLI 配置 + daily-hello 定时任务 |
-| [codex](codex/) | Codex CLI 配置 (config.toml + AGENTS.md) |
+| [claude](claude/) | Claude Code CLI 配置 |
+| [amp](amp/) | Amp CLI 配置 |
+| [codex](codex/) | Codex CLI 配置 |
 | [opencode](opencode/) | Opencode AI 配置 |
-| [skills-manager](skills-manager/) | 全局 AI skills 聚合层 (owned → superpowers → gstack → community) |
+| [skills-manager](skills-manager/) | 全局 AI skills 聚合层 |
 
 ### Shell & 终端
 
