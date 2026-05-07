@@ -19,6 +19,7 @@
 git clone https://github.com/unix2dos/dotfiles.git ~/workspace/dotfiles
 
 # 2. 符号链接配置文件（已有文件自动备份为 *.backup.{timestamp}）
+#    注意: 此步骤会自动写入 2 条 crontab 任务（见下方"定时任务"章节）
 cd ~/workspace/dotfiles && ./install.sh
 
 # 3. 安装全局 AI skills（可选，详见 skills-manager/README.md）
@@ -40,8 +41,9 @@ brew install --cask alacritty ghostty
 
 | 目录 | 说明 |
 |:-----|:-----|
-| [claude](claude/) | Claude Code CLI 配置 + 自定义 Statusline |
-| [amp](amp/) | Amp CLI 配置 |
+| [claude](claude/) | Claude Code CLI 配置 (settings + CLAUDE.md + claude-hud 插件 + daily-hello 定时任务) |
+| [amp](amp/) | Amp CLI 配置 + daily-hello 定时任务 |
+| [codex](codex/) | Codex CLI 配置 (config.toml + AGENTS.md) |
 | [opencode](opencode/) | Opencode AI 配置 |
 | [skills-manager](skills-manager/) | 全局 AI skills 聚合层 (owned → superpowers → gstack → community) |
 
@@ -63,6 +65,24 @@ brew install --cask alacritty ghostty
 |:-----|:-----|
 | [vim](vim/) | Vim 配置 |
 | [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
+
+---
+
+## 定时任务
+
+`install.sh` 末尾会自动写入 2 条 crontab（已存在则跳过）：
+
+| 计划 | 任务 |
+|:-----|:-----|
+| `0 16 * * *` | [amp/amp-daily-hello.sh](amp/amp-daily-hello.sh) |
+| `0 9,14,19 * * *` | [claude/claude-daily-hello.sh](claude/claude-daily-hello.sh) |
+
+每条任务执行后都会调用 [schedule-next-wake.sh](schedule-next-wake.sh)，通过 `sudo pmset schedule wake` 预约下一个整点（08:59 / 13:59 / 15:59 / 18:59）唤醒，确保 Mac 在睡眠时也能按时触发。
+
+> ⚠️ `pmset` 需要 sudo 权限，建议在 `/etc/sudoers.d/` 配置 `pmset` 免密，否则任务无法静默执行。
+> 日志输出到 `~/.local/log/wake-schedule.log`。
+
+如不需要这些定时任务，安装后执行 `crontab -e` 删除对应行即可。
 
 ---
 
