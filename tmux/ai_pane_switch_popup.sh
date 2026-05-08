@@ -38,15 +38,16 @@ tmpf=$(mktemp)
 tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"
 
 results=""
-for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^\s*[0-9]+ (claude|codex|gemini|amp)" | /usr/bin/grep -v grep | awk '{print $1}'); do
+for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^[[:space:]]*[0-9]+ (\S*/)?(claude|codex|gemini|amp|agent)([[:space:]]|$)" | /usr/bin/grep -v grep | awk '{print $1}' | sort -rn); do
   cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed 's/^ *//')
+  cmd=$(basename "$(echo "$cmd" | awk '{print $1}')")
   pid=$cpid
   while [ "$pid" != "1" ] && [ -n "$pid" ]; do
     line=$(/usr/bin/grep -m1 "^${pid} " "$tmpf")
     if [ -n "$line" ]; then
       label=$(echo "$line" | awk '{print $2}')
       dir=$(basename "$(echo "$line" | awk '{print $3}')")
-      results="${results}$(printf "%-20s %-15s %s" "$label" "$dir" "$cmd")\n"
+      results="${results}$(printf "%-20s %-10s %s" "$dir" "$cmd" "$label")\n"
       break
     fi
     pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " ")
@@ -61,16 +62,26 @@ if [ -z "$results" ]; then
 fi
 
 # fzf 选择
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+summary_cmd="${script_dir}/ai_pane_summary.sh {-1}"
+raw_cmd='tmux capture-pane -e -p -t {-1}'
+
+header_line=$(printf "%-20s %-10s %s" "DIR" "CLI" "PANE")
+header_hint='?: AI 总结  |  /: 还原原始'
+
 selected=$(printf "$results" | \
   eval fzf --exit-0 --reverse --no-sort \
     --bind "'alt-q:abort'" \
-    --header="'"$(printf "%-20s %-15s %s" "PANE" "DIR" "CLI")"'" \
-    --preview="'tmux capture-pane -e -p -t {1}'" \
+    --bind "'?:change-preview(${summary_cmd})+change-preview-label( 🤖 AI Summary )'" \
+    --bind "'/:change-preview(${raw_cmd})+change-preview-label( Preview )'" \
+    --header="'${header_line}
+${header_hint}'" \
+    --preview="'${raw_cmd}'" \
     --preview-window=right:60%,nowrap \
     "${border_styling}")
 
 if [ -n "$selected" ]; then
-  target=$(echo "$selected" | awk '{print $1}')
+  target=$(echo "$selected" | awk '{print $NF}')
   # 如果在 _popup session 内，先 detach 退出 popup，再切换
   if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
     tmux detach-client

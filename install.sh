@@ -82,6 +82,26 @@ link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statuslin
 link_file "$DOTFILES/claude/plugins/claude-hud/config.json" "$HOME/.claude/plugins/claude-hud/config.json"
 link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.json"
 link_file "$DOTFILES/codex/config.toml"             "$HOME/.codex/config.toml"
+if [ -f "$DOTFILES/cursor/statusline.sh" ]; then
+  link_file "$DOTFILES/cursor/statusline.sh" "$HOME/.cursor/statusline.sh"
+  chmod +x "$DOTFILES/cursor/statusline.sh"
+fi
+if [ -f "$DOTFILES/cursor/cli-config.base.json" ]; then
+  if ! command -v jq >/dev/null 2>&1; then
+    echo -e "${YELLOW}  ⚠ 跳过 Cursor cli-config merge（jq 未安装）${NC}"
+  else
+    mkdir -p "$HOME/.cursor"
+    if [ ! -f "$HOME/.cursor/cli-config.json" ]; then
+      cp "$DOTFILES/cursor/cli-config.base.json" "$HOME/.cursor/cli-config.json"
+      echo -e "${GREEN}  ✓${NC} Cursor cli-config 已初始化"
+    else
+      tmp_config="$(mktemp)"
+      jq -s '.[0] * .[1]' "$HOME/.cursor/cli-config.json" "$DOTFILES/cursor/cli-config.base.json" > "$tmp_config"
+      mv "$tmp_config" "$HOME/.cursor/cli-config.json"
+      echo -e "${GREEN}  ✓${NC} Cursor cli-config 已合并"
+    fi
+  fi
+fi
 
 # --- 定时任务 ---
 echo "⏰ 定时任务"

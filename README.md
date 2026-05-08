@@ -44,6 +44,7 @@ brew install --cask alacritty ghostty
 | [claude](claude/) | Claude Code CLI 配置 |
 | [amp](amp/) | Amp CLI 配置 |
 | [codex](codex/) | Codex CLI 配置 |
+| [cursor](cursor/) | Cursor CLI 配置 |
 | [opencode](opencode/) | Opencode AI 配置 |
 | [skills-manager](skills-manager/) | 全局 AI skills 聚合层 |
 
@@ -65,6 +66,26 @@ brew install --cask alacritty ghostty
 |:-----|:-----|
 | [vim](vim/) | Vim 配置 |
 | [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
+
+---
+
+## Cursor Status Line
+
+```bash
+# Install everything (includes Cursor setup)
+cd ~/workspace/dotfiles && ./install.sh
+```
+
+`install.sh` will:
+
+- symlink `cursor/statusline.sh` to `~/.cursor/statusline.sh`
+- merge `cursor/cli-config.base.json` into `~/.cursor/cli-config.json`
+
+The status line shows:
+
+- current model name (and model params / MAX mode when available)
+- context usage (`total_input_tokens/context_window_size` + percentage)
+- usage bar, remaining percentage, current project directory/worktree
 
 ---
 
