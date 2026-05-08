@@ -1,4 +1,10 @@
 {
   "amp.permissions": [],
-  "amp.dangerouslyAllowAll": true
+  "amp.dangerouslyAllowAll": true,
+  "amp.mcpServers": {
+    "ww": {
+      "command": "ww-helper",
+      "args": ["mcp", "serve"]
+    }
+  }
 }
