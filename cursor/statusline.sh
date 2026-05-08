@@ -1,63 +1,76 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-payload=$(cat)
+payload="$(cat)"
 
-model_name=$(printf '%s' "$payload" | jq -r '.model.display_name // .model.id // "unknown"')
-model_param=$(printf '%s' "$payload" | jq -r '.model.param_summary // ""')
-max_mode=$(printf '%s' "$payload" | jq -r '.model.max_mode // false')
+cwd="$(echo "$payload" | jq -r '.workspace.current_dir // .cwd // ""')"
+dir_name="$(basename "$cwd")"
 
-used_pct=$(printf '%s' "$payload" | jq -r '.context_window.used_percentage // 0')
-remaining_pct=$(printf '%s' "$payload" | jq -r '.context_window.remaining_percentage // 0')
-window_size=$(printf '%s' "$payload" | jq -r '.context_window.context_window_size // 0')
-input_tokens=$(printf '%s' "$payload" | jq -r '.context_window.total_input_tokens // 0')
-output_tokens=$(printf '%s' "$payload" | jq -r '.context_window.total_output_tokens // 0')
+model="$(echo "$payload" | jq -r '.model.display_name // .model.id // "unknown-model"')"
+ctx_used_raw="$(echo "$payload" | jq -r '.context_window.used_percentage // 0')"
+ctx_rem_raw="$(echo "$payload" | jq -r '.context_window.remaining_percentage // 0')"
 
-cwd=$(printf '%s' "$payload" | jq -r '.workspace.current_dir // .cwd // ""')
-worktree_name=$(printf '%s' "$payload" | jq -r '.worktree.name // ""')
+to_int() {
+  local n="$1"
+  printf "%.0f" "$n" 2>/dev/null || echo "0"
+}
 
-used_int=$(printf '%.0f' "$used_pct")
-remaining_int=$(printf '%.0f' "$remaining_pct")
-percent_label="${used_int}%"
+ctx_used="$(to_int "$ctx_used_raw")"
+ctx_rem="$(to_int "$ctx_rem_raw")"
 
-bar_width=12
-filled=$(( used_int * bar_width / 100 ))
-if [ "$filled" -lt 0 ]; then
+wt_name="$(echo "$payload" | jq -r '.worktree.name // ""')"
+if [[ "$wt_name" == "null" ]]; then
+  wt_name=""
+fi
+
+branch=""
+if git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  branch="$(git -C "$cwd" branch --show-current 2>/dev/null || true)"
+  if [[ -z "$wt_name" ]]; then
+    wt_name="$(basename "$cwd")"
+  fi
+fi
+
+bar_width=20
+filled=$((ctx_used * bar_width / 100))
+if (( filled < 0 )); then
   filled=0
 fi
-if [ "$filled" -gt "$bar_width" ]; then
+if (( filled > bar_width )); then
   filled=$bar_width
 fi
-empty=$(( bar_width - filled ))
+empty=$((bar_width - filled))
 
-bar=""
-if [ "$filled" -gt 0 ]; then
-  printf -v fill_block "%${filled}s" ""
-  bar="${fill_block// /#}"
-fi
-if [ "$empty" -gt 0 ]; then
-  printf -v empty_block "%${empty}s" ""
-  bar="${bar}${empty_block// /-}"
-fi
+fill="$(printf '%*s' "$filled" '' | tr ' ' '=')"
+pad="$(printf '%*s' "$empty" '' | tr ' ' '-')"
 
-model_label="$model_name"
-if [ -n "$model_param" ]; then
-  model_label="$model_label $model_param"
-fi
-if [ "$max_mode" = "true" ]; then
-  model_label="$model_label MAX"
-fi
+CLR_RESET=$'\033[0m'
+CLR_DIM=$'\033[2m'
+CLR_CYAN=$'\033[36m'
+CLR_BLUE=$'\033[34m'
+CLR_GREEN=$'\033[32m'
+CLR_YELLOW=$'\033[33m'
+CLR_MAGENTA=$'\033[35m'
+CLR_GRAY=$'\033[90m'
 
-token_usage="${input_tokens}/${window_size}"
-if [ "$output_tokens" != "0" ] && [ "$output_tokens" != "null" ]; then
-  token_usage="${token_usage} (+${output_tokens} out)"
+ctx_color="$CLR_GREEN"
+if (( ctx_used >= 70 )); then
+  ctx_color="$CLR_YELLOW"
+fi
+if (( ctx_used >= 90 )); then
+  ctx_color="$CLR_MAGENTA"
 fi
 
-dir_label="${cwd##*/}"
-if [ -n "$worktree_name" ]; then
-  dir_label="${dir_label} @${worktree_name}"
+line1="${CLR_CYAN}📁 ${dir_name}${CLR_RESET}"
+if [[ -n "$branch" ]]; then
+  line1+=" ${CLR_BLUE}🌿 ${branch}${CLR_RESET}"
+fi
+if [[ -n "$wt_name" ]]; then
+  line1+=" ${CLR_GRAY}│ 🧩 ${wt_name}${CLR_RESET}"
 fi
 
-printf "\033[36mModel:\033[0m %s  \033[35mContext:\033[0m %s (%s)\n" "$model_label" "$token_usage" "$percent_label"
-printf "\033[90m[%s] used %s%% | remaining %s%% | %s\033[0m\n" "$bar" "$used_int" "$remaining_int" "$dir_label"
+line2="${CLR_DIM}🤖${CLR_RESET} ${CLR_GREEN}${model}${CLR_RESET} ${CLR_GRAY}│${CLR_RESET} "
+line2+="${CLR_DIM}🧠${CLR_RESET} ${ctx_color}${fill}${CLR_GRAY}${pad}${CLR_RESET} "
+line2+="${ctx_color}${ctx_used}%${CLR_RESET} ${CLR_GRAY}(♻️ ${ctx_rem}% left)${CLR_RESET}"
+
+printf "%b\n%b\n" "$line1" "$line2"
