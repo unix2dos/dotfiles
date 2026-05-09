@@ -1,52 +1,23 @@
-model_reasoning_effort = "high"
-developer_instructions = "You have oh-my-codex installed. AGENTS.md is your orchestration brain and the main orchestration surface. Use skill/keyword routing like $name plus spawned role-specialized subagents for specialized work. Codex native subagents are available via .codex/agents and may be used for independent parallel subtasks within a single session or team pane. Skills are loaded from installed SKILL.md files under .codex/skills, not from native agent TOMLs. Use workflow skills via $name when explicitly invoked or clearly routed by AGENTS.md. Treat installed prompts as narrower internal execution surfaces under AGENTS.md authority, even when user-facing docs prefer $name keywords."
+# oh-my-codex top-level settings (must be before any [table])
+notify = ["node", "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/scripts/notify-dispatcher.js", "--metadata", "/Users/liuwei/.codex/.omx/notify-dispatch.json"]
+model_reasoning_effort = "medium"
+developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
+
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 model = "gpt-5.5"
 personality = "pragmatic"
 
-notify = ["/Users/liuwei/.codex/plugins/cache/openai-bundled/computer-use/1.0.755/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended", "--previous-notify", "[\"node\",\"\\/Users\\/liuwei\\/.nvm\\/versions\\/node\\/v24.6.0\\/lib\\/node_modules\\/oh-my-codex\\/dist\\/scripts\\/notify-hook.js\"]"]
-
 [mcp_servers.playwright]
 args = [ "@playwright/mcp@latest" ]
 command = "npx"
 startup_timeout_sec = 15
-
-[mcp_servers.omx_state]
-command = "node"
-args = [ "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/state-server.js" ]
-enabled = true
-startup_timeout_sec = 5
-
-[mcp_servers.omx_memory]
-command = "node"
-args = [ "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/memory-server.js" ]
-enabled = true
-startup_timeout_sec = 5
-
-[mcp_servers.omx_code_intel]
-command = "node"
-args = [ "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/code-intel-server.js" ]
-enabled = true
-startup_timeout_sec = 10
-
-[mcp_servers.omx_trace]
-command = "node"
-args = [ "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/trace-server.js" ]
-enabled = true
-startup_timeout_sec = 5
-
-[mcp_servers.omx_wiki]
-command = "node"
-args = [ "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/wiki-server.js" ]
-enabled = true
-startup_timeout_sec = 5
-
 [features]
 multi_agent = true
 child_agents_md = true
 codex_hooks = true
 
+goals = true
 [plugins."build-ios-apps@openai-curated"]
 enabled = true
 
@@ -102,26 +73,86 @@ last_updated = "2026-05-06T03:34:36Z"
 source_type = "local"
 source = "/Users/liuwei/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
-[env]
-USE_OMX_EXPLORE_CMD = "1"
-
 [agents]
 max_threads = 6
 max_depth = 2
 
 [hooks.state]
 
+[shell_environment_policy.set]
+USE_OMX_EXPLORE_CMD = "1"
+
+# ============================================================
+# oh-my-codex (OMX) Configuration
+# Managed by omx setup - manual edits preserved on next setup
+# ============================================================
+
+# OMX State Management MCP Server
+[mcp_servers.omx_state]
+command = "/Users/liuwei/.nvm/versions/node/v24.6.0/bin/node"
+args = ["/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/state-server.js"]
+enabled = true
+startup_timeout_sec = 5
+
+# OMX Project Memory MCP Server
+[mcp_servers.omx_memory]
+command = "/Users/liuwei/.nvm/versions/node/v24.6.0/bin/node"
+args = ["/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/memory-server.js"]
+enabled = true
+startup_timeout_sec = 5
+
+# OMX Code Intelligence MCP Server (LSP diagnostics, AST search)
+[mcp_servers.omx_code_intel]
+command = "/Users/liuwei/.nvm/versions/node/v24.6.0/bin/node"
+args = ["/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/code-intel-server.js"]
+enabled = true
+startup_timeout_sec = 10
+
+# OMX Trace MCP Server (agent flow timeline & statistics)
+[mcp_servers.omx_trace]
+command = "/Users/liuwei/.nvm/versions/node/v24.6.0/bin/node"
+args = ["/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/trace-server.js"]
+enabled = true
+startup_timeout_sec = 5
+
+# OMX Wiki MCP Server (persistent project knowledge base)
+[mcp_servers.omx_wiki]
+command = "/Users/liuwei/.nvm/versions/node/v24.6.0/bin/node"
+args = ["/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/wiki-server.js"]
+enabled = true
+startup_timeout_sec = 5
+
+# OMX-owned Codex hook trust state
+# Trusts only setup-managed codex-native-hook.js wrappers.
+[hooks.state."/Users/liuwei/.codex/hooks.json:post_compact:0:0"]
+trusted_hash = "sha256:2986dd92e7e03aa3bb7d50a0e89afe20521c10274aa40913f69167edb90f5db8"
+
 [hooks.state."/Users/liuwei/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:1c21fc7bc438a83ac02ea601c4da72863b1f68b919dc32039494e2f4de8d8d46"
+trusted_hash = "sha256:5f59f057ed6f8931ed2b1579b49f5dcf9b7a66575c0de527caf1576b61fc22f3"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:pre_compact:0:0"]
+trusted_hash = "sha256:d7dff2631231d8d85eba1cebbdc025ca2198f8ccc1ccfdb63e6f945dcf64f35a"
 
 [hooks.state."/Users/liuwei/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:7a63d1e006ea836ef6ffe1c74a681c3a309077264c1b59ebeca0ba08adc97dd4"
+trusted_hash = "sha256:6125596ea2a28ba788f51dc577985d4b0c36beb6253fbfb01390603ceb01dd6b"
 
 [hooks.state."/Users/liuwei/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:286aacfe1cb29cfb53521bdee2e023bda8b1d109284840f2a5479349ccd3f887"
+trusted_hash = "sha256:2204d30cb4126dc671c9bb69b8c93afe4dfecab4aa4abbecbaeec0e83b8d3d29"
 
 [hooks.state."/Users/liuwei/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:0159520c1d7731f6589307018d92127f31e7d384c97cd98170aba9874988c641"
+trusted_hash = "sha256:4139d46f7b767e5e0daa8d937d10db3020653c04b904b9ce8c70224534f554b4"
 
 [hooks.state."/Users/liuwei/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:5d842985756438cdd2d3d8ed0c78101a6388ee132502eefafc3e4cba034e8015"
+trusted_hash = "sha256:dcfa70a8b4e367452b225b47aeddb8a6ed3148a7ac520348621a8127d03f5b1c"
+# End OMX-owned Codex hook trust state
+
+# OMX TUI StatusLine (Codex CLI v0.101.0+)
+[tui]
+# omx:managed-status-line
+status_line = ["model-with-reasoning", "git-branch", "context-remaining", "total-input-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit"]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 3
+
+# ============================================================
+# End oh-my-codex
