@@ -493,6 +493,10 @@ unbind p
 unbind C-f
 unbind-key -T copy-mode f
 unbind-key -T copy-mode-vi f
+unbind-key -T copy-mode t
+unbind-key -T copy-mode T
+unbind-key -T copy-mode-vi t
+unbind-key -T copy-mode-vi T
 
 bind Tab switch-client -l                             # Prefix + Tab: 切换回上一个会话
 bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消全屏 (注意要点击非交互区域)

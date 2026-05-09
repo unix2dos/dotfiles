@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
-# Toggle a persistent popup session and route it to the caller's pane directory.
+# Cmd+p / M-p persistent project popup terminal.
+#
+# Behavior:
+#   - Toggle the single "_popup" session.
+#   - Reuse one window per source pane directory.
+#   - Create a new directory window when no match exists.
+#   - Keep a soft cap of TMUX_POPUP_MAX_WINDOWS windows, default 5.
+#   - Only trim old non-active shell windows when the cap is reached.
+#   - After selecting a shell window, clear the screen and run git status.
+#
+# Safety:
+#   - Does not blindly type "cd" into existing prompts.
+#   - Does not send keys to non-shell windows such as nvim/claude/codex/top.
 
 set -euo pipefail
 

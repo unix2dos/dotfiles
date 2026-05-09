@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# 快速切换 pane（替代 tmux-fzf-pane-switch 插件，支持 display-popup toggle）
+# M-w global pane switcher.
+#
+# Lists all panes in an fzf popup with a live capture preview, then switches to
+# the selected pane. If invoked from the _popup session, it detaches first so the
+# target pane becomes visible.
 
 vercomp() {
   local v1="$1" v2="$2"

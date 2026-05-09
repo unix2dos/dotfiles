@@ -43,7 +43,7 @@ brew install --cask alacritty ghostty
 | [claude](claude/) | Claude Code CLI 配置 |
 | [amp](amp/) | Amp CLI 配置 |
 | [codex](codex/) | Codex CLI 配置 |
-| [cursor](cursor/) | Cursor CLI 配置 |
+| [cursor](cursor/) | Cursor CLI 配置和 status line |
 | [opencode](opencode/) | Opencode AI 配置 |
 | [skills-manager](skills-manager/) | 全局 AI skills 聚合层 |
 
@@ -52,12 +52,23 @@ brew install --cask alacritty ghostty
 | 目录 | 说明 |
 |:-----|:-----|
 | [zsh](zsh/) | Zsh 配置 (Antidote + Starship) |
-| [tmux](tmux/) | Tmux 配置 (基于 gpakosz/.tmux) |
+| [tmux](tmux/) | Tmux 配置 (基于 gpakosz/.tmux，含 popup / pane switcher / 状态栏脚本) |
 | [alacritty](alacritty/) | Alacritty 终端 + 主题 |
 | [ghostty](ghostty/) | Ghostty 终端 |
 | [starship](starship/) | Starship 提示符主题 |
 | [fastfetch](fastfetch/) | 系统信息展示 |
 | [git](git/) | Git 全局配置 (diff-so-fancy, 别名, LFS) |
+
+#### Tmux 快捷入口
+
+详见 [tmux/README.md](tmux/README.md) 和 [tmux/cheatsheet.txt](tmux/cheatsheet.txt)。
+
+| 快捷键 | 功能 |
+|:-------|:-----|
+| `Cmd+p` / `M-p` | 项目浮动终端：按当前 pane 目录复用 `_popup` window，并自动 `git status` |
+| `M-q` | AI pane 切换：查找 `claude` / `codex` / `gemini` / `amp` 等运行中的 pane |
+| `M-w` | 全局 pane 切换：fzf 预览并跳转所有 tmux pane |
+| `Cmd+o` | 智能打开：优先打开剪贴板路径，否则打开当前 pane 目录 |
 
 ### 编辑器
 
@@ -65,26 +76,6 @@ brew install --cask alacritty ghostty
 |:-----|:-----|
 | [vim](vim/) | Vim 配置 |
 | [vscode](vscode/) | VS Code / Cursor / Windsurf / Antigravity / Kiro 设置 + 快捷键 |
-
----
-
-## Cursor Status Line
-
-```bash
-# Install everything (includes Cursor setup)
-cd ~/workspace/dotfiles && ./install.sh
-```
-
-`install.sh` will:
-
-- symlink `cursor/statusline.sh` to `~/.cursor/statusline.sh`
-- merge `cursor/cli-config.base.json` into `~/.cursor/cli-config.json`
-
-The status line shows:
-
-- current model name (and model params / MAX mode when available)
-- context usage (`total_input_tokens/context_window_size` + percentage)
-- usage bar, remaining percentage, current project directory/worktree
 
 ---
 

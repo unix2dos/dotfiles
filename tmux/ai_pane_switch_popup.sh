@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# 快速切换 AI CLI pane（支持 display-popup toggle）
+# M-q AI CLI pane switcher.
+#
+# Finds panes running AI CLIs such as claude/codex/gemini/amp/agent/droid,
+# shows them in an fzf popup, and switches to the selected pane. Preview
+# content is provided by ai_pane_summary.sh; M-r refreshes, M-t toggles preview.
 
 vercomp() {
   local v1="$1" v2="$2"
