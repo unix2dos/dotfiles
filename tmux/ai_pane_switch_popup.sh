@@ -35,28 +35,66 @@ fi
 
 # 收集 AI CLI pane
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-tmpf=$(mktemp)
-tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"
 
-results=""
-for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^[[:space:]]*[0-9]+ (\S*/)?(claude|codex|gemini|amp|agent|droid)([[:space:]]|$)" | /usr/bin/grep -v grep | awk '{print $1}' | sort -rn); do
-  cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed 's/^ *//')
-  cmd=$(basename "$(echo "$cmd" | awk '{print $1}')")
-  pid=$cpid
-  while [ "$pid" != "1" ] && [ -n "$pid" ]; do
-    line=$(/usr/bin/grep -m1 "^${pid} " "$tmpf")
-    if [ -n "$line" ]; then
-      label=$(echo "$line" | awk '{print $2}')
-      dir=$(basename "$(echo "$line" | awk '{print $3}')")
-      summary=$("${script_dir}/ai_pane_summary.sh" --cached-summary "$label")
-      printf -v row '%s\t%s\t%s\t%s' "$dir" "$cmd" "$label" "$summary"
-      results="${results}${row}"$'\n'
-      break
-    fi
-    pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " ")
+collect_results() {
+  local tmpf results cpid cmd pid line label dir summary row
+  tmpf=$(mktemp)
+  tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"
+
+  results=""
+  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^[[:space:]]*[0-9]+ (\S*/)?(claude|codex|gemini|amp|agent|droid)([[:space:]]|$)" | /usr/bin/grep -v grep | awk '{print $1}' | sort -rn); do
+    cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed 's/^ *//')
+    cmd=$(basename "$(echo "$cmd" | awk '{print $1}')")
+    pid=$cpid
+    while [ "$pid" != "1" ] && [ -n "$pid" ]; do
+      line=$(/usr/bin/grep -m1 "^${pid} " "$tmpf")
+      if [ -n "$line" ]; then
+        label=$(echo "$line" | awk '{print $2}')
+        dir=$(basename "$(echo "$line" | awk '{print $3}')")
+        summary=$("${script_dir}/ai_pane_summary.sh" --cached-summary "$label")
+        printf -v row '%s\t%s\t%s\t%s' "$dir" "$cmd" "$label" "$summary"
+        results="${results}${row}"$'\n'
+        break
+      fi
+      pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " ")
+    done
   done
-done
-rm -f "$tmpf"
+  rm -f "$tmpf"
+  printf '%s' "$results"
+}
+
+format_header() {
+  printf '%-10s  %-8s  %-18s  %s\t%s\n' "DIR" "CLI" "PANE" "SUMMARY" "__pane"
+}
+
+format_results() {
+  awk -F '\t' '
+    function fit(s, w) {
+      return length(s) > w ? substr(s, 1, w - 1) "~" : s
+    }
+    {
+      summary = $4
+      for (i = 5; i <= NF; i++) {
+        summary = summary " " $i
+      }
+      printf "%-10s  %-8s  %-18s  %s\t%s\n", fit($1, 10), fit($2, 8), fit($3, 18), summary, $3
+    }
+  '
+}
+
+case "${1:-}" in
+  --list)
+    collect_results
+    exit 0
+    ;;
+  --list-with-header)
+    format_header
+    collect_results | format_results
+    exit 0
+    ;;
+esac
+
+results=$(collect_results)
 
 if [ -z "$results" ]; then
   echo "No AI CLI found."
@@ -65,28 +103,28 @@ if [ -z "$results" ]; then
 fi
 
 # fzf 选择
-summary_cmd="${script_dir}/ai_pane_summary.sh --refresh {3}"
-raw_cmd="${script_dir}/ai_pane_summary.sh --raw-preview {3}"
+summary_cmd="${script_dir}/ai_pane_summary.sh --refresh {2}"
+raw_cmd="${script_dir}/ai_pane_summary.sh --raw-preview {2}"
+reload_cmd="${script_dir}/ai_pane_switch_popup.sh --list-with-header"
 
 printf '%s' "$results" | awk -F '\t' '{print $3}' | "${script_dir}/ai_pane_summary.sh" --prewarm >/dev/null 2>&1 &
 
-header_line=$(printf "%-20s %-10s %-14s %s" "DIR" "CLI" "PANE" "SUMMARY")
+list_input=$(printf '%s' "$results" | { format_header; format_results; })
 
-selected=$(printf '%s' "$results" | \
+selected=$(printf '%s' "$list_input" | \
   eval fzf --exit-0 --reverse --no-sort \
     --delimiter="'	'" \
-    --with-nth="'1,2,3,4'" \
+    --with-nth="'1'" \
+    --header-lines=1 \
     --bind "'alt-q:abort'" \
-    --bind "'?:change-preview(${summary_cmd})+change-preview-label( 🤖 AI Summary )'" \
     --bind "'tab:toggle-preview'" \
-    --bind "'/:toggle-preview'" \
-    --header="'${header_line}'" \
+    --bind "'/:execute-silent(${summary_cmd})+reload(${reload_cmd})+change-preview(${raw_cmd})+change-preview-label( Preview )'" \
     --preview="'${raw_cmd}'" \
     --preview-window=down:55%,nowrap \
     "${border_styling}")
 
 if [ -n "$selected" ]; then
-  target=$(echo "$selected" | awk -F '\t' '{print $3}')
+  target=$(echo "$selected" | awk -F '\t' '{print $2}')
   # 如果在 _popup session 内，先 detach 退出 popup，再切换
   if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
     tmux detach-client

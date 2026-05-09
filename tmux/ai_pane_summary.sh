@@ -7,7 +7,7 @@
 #   ai_pane_summary.sh --cached-summary <pane_target> # 单行缓存摘要，未就绪则后台预热
 #   ai_pane_summary.sh --raw-preview <pane_target> # 原始内容预览，去掉开头空行
 # 输出: "🤖 AI 总结 ... \n\n📺 原始内容 ..."
-# 注: 按内容 hash 缓存，避免重复调用 OpenRouter
+# 注: 按 pane 缓存，避免重复调用 OpenRouter；--refresh 会强制更新当前 pane 缓存
 
 set -u
 
@@ -18,7 +18,7 @@ case "${1:-}" in
     shift
     ;;
   --refresh)
-    mode="show"
+    mode="refresh"
     shift
     ;;
 esac
@@ -53,12 +53,15 @@ cache_path_for() {
 
 warm_one() {
   local target="$1"
+  local force="${2:-0}"
   local plain cache_file lock_dir summary
   plain=$(capture_plain "$target")
   [ -n "$plain" ] || return 0
 
   cache_file=$(cache_path_for "$target")
-  [ -s "$cache_file" ] && return 0
+  if [ "$force" != "1" ] && [ -s "$cache_file" ]; then
+    return 0
+  fi
 
   lock_dir="${cache_file}.lock"
   if mkdir "$lock_dir" 2>/dev/null; then
@@ -66,6 +69,8 @@ warm_one() {
       printf '%s' "$summary" > "$cache_file"
     fi
     rmdir "$lock_dir" 2>/dev/null || true
+  else
+    wait_for_cache "$cache_file"
   fi
 }
 
@@ -132,6 +137,22 @@ wait_for_cache() {
   done
 }
 
+cache_time_label() {
+  local cache_file="$1"
+  local epoch
+
+  if epoch=$(stat -f '%m' "$cache_file" 2>/dev/null); then
+    :
+  elif epoch=$(stat -c '%Y' "$cache_file" 2>/dev/null); then
+    :
+  else
+    printf '--:--'
+    return 0
+  fi
+
+  date -r "$epoch" '+%H:%M' 2>/dev/null || date -d "@$epoch" '+%H:%M' 2>/dev/null || printf '--:--'
+}
+
 preview_one() {
   local target="$1"
   local raw cache_file summary
@@ -166,14 +187,31 @@ show_one() {
   printf '═══ 🤖 AI 总结 ═══\n%s\n\n═══ 📺 原始内容 ═══\n%s\n' "$summary" "$raw"
 }
 
-cached_summary_one() {
+refresh_one() {
   local target="$1"
   local cache_file summary
   cache_file=$(cache_path_for "$target")
 
+  warm_one "$target" 1
+  wait_for_cache "$cache_file"
+
+  summary=$(cat "$cache_file" 2>/dev/null || true)
+  if [ -z "$summary" ]; then
+    summary="OpenRouter 总结不可用。请确认 OPENROUTER_API_KEY 已设置，且 curl/jq/网络可用。"
+  fi
+  printf '%s' "$summary"
+}
+
+cached_summary_one() {
+  local target="$1"
+  local cache_file summary summarized_at
+  cache_file=$(cache_path_for "$target")
+
   if [ -s "$cache_file" ]; then
     summary=$(cat "$cache_file")
-    printf '%s' "$summary" | tr '\n\t' '  ' | tr -s ' ' | cut -c "1-${list_summary_chars}"
+    summarized_at=$(cache_time_label "$cache_file")
+    summary=$(printf '%s' "$summary" | tr '\n\t' '  ' | tr -s ' ' | cut -c "1-${list_summary_chars}")
+    printf '[%s] %s' "$summarized_at" "$summary"
   else
     ( warm_one "$target" ) >/dev/null 2>&1 &
     printf '…'
@@ -213,5 +251,6 @@ case "$mode" in
   prewarm) prewarm_many "$@" ;;
   cached-summary) cached_summary_one "$1" ;;
   raw-preview) raw_preview_one "$1" ;;
+  refresh) refresh_one "$1" ;;
   *) show_one "$1" ;;
 esac
