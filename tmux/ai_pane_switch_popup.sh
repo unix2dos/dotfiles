@@ -16,12 +16,13 @@ vercomp() {
 # Border styling（与 pane_switch_popup.sh 统一）
 border_styling=""
 fzf_version=$(fzf --version | awk '{print $1}')
+preview_label=" Preview "
 
 vercomp '0.58.0' "${fzf_version}"
 if [[ $? -ne 1 ]]; then
   border_styling+=" --input-border --input-label=' Search ' --info=inline-right"
-  border_styling+=" --list-border --list-label=' 🤖 AI Panes '"
-  border_styling+=" --preview-border --preview-label=' Preview '"
+  border_styling+=" --list-border"
+  border_styling+=" --preview-border --preview-label='${preview_label}'"
 fi
 
 vercomp '0.61.0' "${fzf_version}"
@@ -106,6 +107,7 @@ fi
 summary_cmd="${script_dir}/ai_pane_summary.sh --refresh {2}"
 raw_cmd="${script_dir}/ai_pane_summary.sh --raw-preview {2}"
 reload_cmd="${script_dir}/ai_pane_switch_popup.sh --list-with-header"
+refresh_reload_cmd="${summary_cmd} >/dev/null; ${reload_cmd}"
 
 printf '%s' "$results" | awk -F '\t' '{print $3}' | "${script_dir}/ai_pane_summary.sh" --prewarm >/dev/null 2>&1 &
 
@@ -117,8 +119,9 @@ selected=$(printf '%s' "$list_input" | \
     --with-nth="'1'" \
     --header-lines=1 \
     --bind "'alt-q:abort'" \
-    --bind "'ctrl-t:toggle-preview'" \
-    --bind "'ctrl-r:execute-silent(${summary_cmd})+reload(${reload_cmd})+change-preview(${raw_cmd})+change-preview-label( Preview )'" \
+    --bind "'alt-t:toggle-preview'" \
+    --bind "'load:change-prompt(> )'" \
+    --bind "'alt-r:change-prompt(刷新中> )+reload(${refresh_reload_cmd})+change-preview(${raw_cmd})'" \
     --preview="'${raw_cmd}'" \
     --preview-window=down:55%,nowrap \
     "${border_styling}")
