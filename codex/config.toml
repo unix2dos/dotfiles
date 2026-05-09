@@ -7,6 +7,7 @@ model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 model = "gpt-5.5"
 personality = "pragmatic"
+suppress_unstable_features_warning = true
 
 [mcp_servers.playwright]
 args = [ "@playwright/mcp@latest" ]
@@ -15,8 +16,7 @@ startup_timeout_sec = 15
 [features]
 multi_agent = true
 child_agents_md = true
-codex_hooks = true
-
+hooks = true
 goals = true
 [plugins."build-ios-apps@openai-curated"]
 enabled = true
@@ -152,7 +152,7 @@ trusted_hash = "sha256:dcfa70a8b4e367452b225b47aeddb8a6ed3148a7ac520348621a8127d
 status_line = ["model-with-reasoning", "git-branch", "context-remaining", "total-input-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit"]
 
 [tui.model_availability_nux]
-"gpt-5.5" = 3
+"gpt-5.5" = 4
 
 # ============================================================
 # End oh-my-codex
