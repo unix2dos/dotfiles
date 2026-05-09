@@ -149,7 +149,8 @@ trusted_hash = "sha256:dcfa70a8b4e367452b225b47aeddb8a6ed3148a7ac520348621a8127d
 # OMX TUI StatusLine (Codex CLI v0.101.0+)
 [tui]
 # omx:managed-status-line
-status_line = ["model-with-reasoning", "git-branch", "context-remaining", "total-input-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit"]
+status_line = ["model-with-reasoning", "git-branch", "total-input-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit", "current-dir", "branch-changes", "run-state", "context-used"]
+status_line_use_colors = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
