@@ -73,3 +73,6 @@ consumers:
 
   # Alma：默认核心集
   "~/.config/alma/skills": {}
+
+  # Factory（Droid）：默认核心集
+  "~/.factory/skills": {}
