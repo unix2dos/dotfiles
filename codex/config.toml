@@ -1,6 +1,6 @@
 # oh-my-codex top-level settings (must be before any [table])
 notify = ["node", "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/scripts/notify-dispatcher.js", "--metadata", "/Users/liuwei/.codex/.omx/notify-dispatch.json"]
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
 
 model_context_window = 1000000
@@ -61,6 +61,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/liuwei/go/src/movely/movely-server"]
+trust_level = "trusted"
+
+[projects."/Users/liuwei/workspace/blog-liuvv"]
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]
@@ -149,7 +152,7 @@ trusted_hash = "sha256:dcfa70a8b4e367452b225b47aeddb8a6ed3148a7ac520348621a8127d
 # OMX TUI StatusLine (Codex CLI v0.101.0+)
 [tui]
 # omx:managed-status-line
-status_line = ["model-with-reasoning", "git-branch", "total-input-tokens", "total-output-tokens", "five-hour-limit", "weekly-limit", "current-dir", "branch-changes", "run-state", "context-used"]
+status_line = ["model-with-reasoning", "git-branch", "five-hour-limit", "weekly-limit", "current-dir", "branch-changes", "run-state", "context-used"]
 status_line_use_colors = true
 
 [tui.model_availability_nux]

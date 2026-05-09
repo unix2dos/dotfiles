@@ -34,6 +34,7 @@ if [[ -z "${border_styling}" ]]; then
 fi
 
 # 收集 AI CLI pane
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 tmpf=$(mktemp)
 tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"
 
@@ -47,7 +48,9 @@ for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^[[:space:]]*[0-9]+ (\S*/)?
     if [ -n "$line" ]; then
       label=$(echo "$line" | awk '{print $2}')
       dir=$(basename "$(echo "$line" | awk '{print $3}')")
-      results="${results}$(printf "%-20s %-10s %s" "$dir" "$cmd" "$label")\n"
+      summary=$("${script_dir}/ai_pane_summary.sh" --cached-summary "$label")
+      printf -v row '%s\t%s\t%s\t%s' "$dir" "$cmd" "$label" "$summary"
+      results="${results}${row}"$'\n'
       break
     fi
     pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " ")
@@ -62,26 +65,28 @@ if [ -z "$results" ]; then
 fi
 
 # fzf 选择
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-summary_cmd="${script_dir}/ai_pane_summary.sh {-1}"
-raw_cmd='tmux capture-pane -e -p -t {-1}'
+summary_cmd="${script_dir}/ai_pane_summary.sh --refresh {3}"
+raw_cmd="${script_dir}/ai_pane_summary.sh --raw-preview {3}"
 
-header_line=$(printf "%-20s %-10s %s" "DIR" "CLI" "PANE")
-header_hint='?: AI 总结  |  /: 还原原始'
+printf '%s' "$results" | awk -F '\t' '{print $3}' | "${script_dir}/ai_pane_summary.sh" --prewarm >/dev/null 2>&1 &
 
-selected=$(printf "$results" | \
+header_line=$(printf "%-20s %-10s %-14s %s" "DIR" "CLI" "PANE" "SUMMARY")
+
+selected=$(printf '%s' "$results" | \
   eval fzf --exit-0 --reverse --no-sort \
+    --delimiter="'	'" \
+    --with-nth="'1,2,3,4'" \
     --bind "'alt-q:abort'" \
     --bind "'?:change-preview(${summary_cmd})+change-preview-label( 🤖 AI Summary )'" \
-    --bind "'/:change-preview(${raw_cmd})+change-preview-label( Preview )'" \
-    --header="'${header_line}
-${header_hint}'" \
+    --bind "'tab:toggle-preview'" \
+    --bind "'/:toggle-preview'" \
+    --header="'${header_line}'" \
     --preview="'${raw_cmd}'" \
-    --preview-window=right:60%,nowrap \
+    --preview-window=down:55%,nowrap \
     "${border_styling}")
 
 if [ -n "$selected" ]; then
-  target=$(echo "$selected" | awk '{print $NF}')
+  target=$(echo "$selected" | awk -F '\t' '{print $3}')
   # 如果在 _popup session 内，先 detach 退出 popup，再切换
   if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
     tmux detach-client
