@@ -498,28 +498,10 @@ bind Tab switch-client -l                             # Prefix + Tab: 切换回�
 bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消全屏 (注意要点击非交互区域)
 # ─── Popup 浮动终端 ─────────────────────────────────────────────────────────
 #   ① 若当前已在 _popup session：detach 收起浮窗
-#   ② 若 _popup session 存在但不在里面：同步路径后 attach，用 popup 浮窗打开
-#   ③ 若 _popup session 不存在：新建 session，用 popup 浮窗打开
-#
-%hidden POPUP_CMD='\
-    s="_popup"; p="#{pane_current_path}"; \
-    if [ "$(tmux display-message -p "#S")" = "$s" ]; then \
-        tmux detach-client; \
-    elif tmux has-session -t $s 2>/dev/null; then \
-        cmd=$(tmux list-panes -t $s -F "##{pane_current_command}" | head -1); \
-        case "$cmd" in \
-            *bash|*zsh|*fish|*sh) \
-                tmux send-keys -t ${s}: "cd \"$p\"" Enter; \
-                sleep 0.15; \
-            ;; \
-        esac; \
-        tmux popup -w 90% -h 90% -b heavy -S "fg=#00afff" -T " 🚀 Popup Terminal " -E "tmux attach-session -t $s"; \
-    else \
-        tmux popup -d "$p" -w 90% -h 90% -b heavy -S "fg=#00afff" -T " 🚀 Popup Terminal " -E "tmux new-session -s $s"; \
-    fi \
-'
+#   ② 若 _popup session 存在：切到当前目录对应 window；没有则创建
+#   ③ 最多保留 TMUX_POPUP_MAX_WINDOWS 个目录 window，默认 5；只清理非活跃 shell window
 # Option+p：触发 popup 切换，不需要 prefix
-bind -n M-p run-shell "$POPUP_CMD"
+bind -n M-p run-shell -b "$HOME/workspace/dotfiles/tmux/popup_terminal.sh"
 
 
 # Option+q: 查找所有运行 AI CLI (claude/codex/gemini/amp) 的 Pane，fzf 选择后跳转
