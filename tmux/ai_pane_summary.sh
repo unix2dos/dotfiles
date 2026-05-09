@@ -40,7 +40,7 @@ system_prompt="你是一个终端 pane 状态摘要器。用简洁中文输出 1
 
 capture_plain() {
   local target="$1"
-  tmux capture-pane -p -S - -t "$target" 2>/dev/null | sed -n "1,${capture_lines}p" | head -c "$max_input_chars" || true
+  tmux capture-pane -p -S - -t "$target" 2>/dev/null | tail -n "$capture_lines" | head -c "$max_input_chars" || true
 }
 
 cache_path_for() {

@@ -117,8 +117,8 @@ selected=$(printf '%s' "$list_input" | \
     --with-nth="'1'" \
     --header-lines=1 \
     --bind "'alt-q:abort'" \
-    --bind "'tab:toggle-preview'" \
-    --bind "'/:execute-silent(${summary_cmd})+reload(${reload_cmd})+change-preview(${raw_cmd})+change-preview-label( Preview )'" \
+    --bind "'ctrl-t:toggle-preview'" \
+    --bind "'ctrl-r:execute-silent(${summary_cmd})+reload(${reload_cmd})+change-preview(${raw_cmd})+change-preview-label( Preview )'" \
     --preview="'${raw_cmd}'" \
     --preview-window=down:55%,nowrap \
     "${border_styling}")
