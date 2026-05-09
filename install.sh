@@ -103,23 +103,6 @@ if [ -f "$DOTFILES/cursor/cli-config.base.json" ]; then
   fi
 fi
 
-# --- 定时任务 ---
-echo "⏰ 定时任务"
-add_cron() {
-    local marker="$1"
-    local schedule="$2"
-    local script="$3"
-    local label="$4"
-    if crontab -l 2>/dev/null | grep -qF "$marker"; then
-        echo -e "${GREEN}  ✓${NC} 已存在: $label"
-    else
-        (crontab -l 2>/dev/null; echo "$schedule $script") | crontab -
-        echo -e "${GREEN}  ✓${NC} 添加: $label"
-    fi
-}
-add_cron "amp-daily-hello.sh"    "0 16 * * *"        "$DOTFILES/amp/amp-daily-hello.sh; $DOTFILES/schedule-next-wake.sh"       "amp-daily-hello (每天 16:00)"
-add_cron "claude-daily-hello.sh" "0 9,14,19 * * *" "$DOTFILES/claude/claude-daily-hello.sh; $DOTFILES/schedule-next-wake.sh" "claude-daily-hello (每天 9/14/19)"
-
 echo ""
 echo -e "${GREEN}✅ 安装完成！${NC}"
 echo ""

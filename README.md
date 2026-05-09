@@ -19,7 +19,6 @@
 git clone https://github.com/unix2dos/dotfiles.git ~/workspace/dotfiles
 
 # 2. 符号链接配置文件（已有文件自动备份为 *.backup.{timestamp}）
-#    注意: 此步骤会自动写入 2 条 crontab 任务（见下方"定时任务"章节）
 cd ~/workspace/dotfiles && ./install.sh
 
 # 3. 安装全局 AI skills（可选，详见 skills-manager/README.md）
@@ -86,24 +85,6 @@ The status line shows:
 - current model name (and model params / MAX mode when available)
 - context usage (`total_input_tokens/context_window_size` + percentage)
 - usage bar, remaining percentage, current project directory/worktree
-
----
-
-## 定时任务
-
-`install.sh` 末尾会自动写入 2 条 crontab（已存在则跳过）：
-
-| 计划 | 任务 |
-|:-----|:-----|
-| `0 16 * * *` | [amp/amp-daily-hello.sh](amp/amp-daily-hello.sh) |
-| `0 9,14,19 * * *` | [claude/claude-daily-hello.sh](claude/claude-daily-hello.sh) |
-
-每条任务执行后都会调用 [schedule-next-wake.sh](schedule-next-wake.sh)，通过 `sudo pmset schedule wake` 预约下一个整点（08:59 / 13:59 / 15:59 / 18:59）唤醒，确保 Mac 在睡眠时也能按时触发。
-
-> ⚠️ `pmset` 需要 sudo 权限，建议在 `/etc/sudoers.d/` 配置 `pmset` 免密，否则任务无法静默执行。
-> 日志输出到 `~/.local/log/wake-schedule.log`。
-
-如不需要这些定时任务，安装后执行 `crontab -e` 删除对应行即可。
 
 ---
 
