@@ -105,8 +105,11 @@ AI pane 预览 helper。
 
 - 捕获目标 pane 内容。
 - 为 `ai_pane_switch_popup.sh` 生成带缓存的摘要。
+- 打开 AI pane 列表时懒刷新过期或内容变化的缓存；不做常驻后台轮询。
+- 打开 AI pane 列表时只懒刷新缺失或超过 TTL 的缓存；不因内容变化立即刷新。
 - 支持 raw preview，不需要模型摘要时直接显示原始内容。
 - 缓存目录是 `${TMPDIR:-/tmp}/ai_pane_summary_cache`。
+- 摘要 TTL 默认 300 秒，可用 `AI_PANE_SUMMARY_TTL` 调整。
 
 ### `pane_switch_popup.sh`
 

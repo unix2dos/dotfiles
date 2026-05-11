@@ -170,5 +170,8 @@ status_line_use_colors = true
 [tui.model_availability_nux]
 "gpt-5.5" = 4
 
+[notice]
+hide_rate_limit_model_nudge = true
+
 # ============================================================
 # End oh-my-codex

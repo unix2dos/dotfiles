@@ -97,6 +97,17 @@ case "${1:-}" in
     collect_results | format_results
     exit 0
     ;;
+  --prewarm-list)
+    collect_results | awk -F '\t' '{print $3}' | "${script_dir}/ai_pane_summary.sh" --prewarm >/dev/null 2>&1
+    exit 0
+    ;;
+  --auto-refresh-and-reload)
+    "${script_dir}/ai_pane_switch_popup.sh" --prewarm-list
+    if [ -n "${FZF_PORT:-}" ] && command -v curl >/dev/null 2>&1; then
+      curl -sS -XPOST "localhost:${FZF_PORT}" -d "reload(${script_dir}/ai_pane_switch_popup.sh --list-with-header)" >/dev/null 2>&1 || true
+    fi
+    exit 0
+    ;;
 esac
 
 results=$(collect_results)
@@ -111,6 +122,7 @@ fi
 summary_cmd="${script_dir}/ai_pane_summary.sh --refresh {2}"
 raw_cmd="${script_dir}/ai_pane_summary.sh --raw-preview {2}"
 reload_cmd="${script_dir}/ai_pane_switch_popup.sh --list-with-header"
+auto_refresh_cmd="${script_dir}/ai_pane_switch_popup.sh --auto-refresh-and-reload"
 refresh_reload_cmd="${summary_cmd} >/dev/null; ${reload_cmd}"
 
 printf '%s' "$results" | awk -F '\t' '{print $3}' | "${script_dir}/ai_pane_summary.sh" --prewarm >/dev/null 2>&1 &
@@ -119,11 +131,13 @@ list_input=$(printf '%s' "$results" | { format_header; format_results; })
 
 selected=$(printf '%s' "$list_input" | \
   eval fzf --exit-0 --reverse --no-sort \
+    --listen \
     --delimiter="'	'" \
     --with-nth="'1'" \
     --header-lines=1 \
     --bind "'alt-q:abort'" \
     --bind "'alt-t:toggle-preview'" \
+    --bind "'start:execute-silent(${auto_refresh_cmd} &)'" \
     --bind "'load:change-prompt(> )'" \
     --bind "'alt-r:change-prompt(刷新中> )+reload(${refresh_reload_cmd})+change-preview(${raw_cmd})'" \
     --preview="'${raw_cmd}'" \
