@@ -146,9 +146,17 @@ selected=$(printf '%s' "$list_input" | \
 
 if [ -n "$selected" ]; then
   target=$(echo "$selected" | awk -F '\t' '{print $2}')
-  # 如果在 _popup session 内，先 detach 退出 popup，再切换
-  if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
-    tmux detach-client
+  client_flags="$(tmux display-message -p '#{client_flags}')"
+  # If selecting another _popup pane from inside _popup, stay in the popup.
+  if [[ "$(tmux display-message -p '#S')" == "_popup" && "$target" == _popup:* ]]; then
+    tmux select-window -t "$target"
+    tmux select-pane -t "$target"
+    exit 0
+  fi
+  # 如果从 popup 浮窗 client 切到外部 session，先 detach 让目标 pane 可见。
+  # 如果是直接 attach 到 _popup 的一级 session，则不 detach，直接 switch-client。
+  if [[ "$(tmux display-message -p '#S')" == "_popup" && "$client_flags" == *active-pane* && "$client_flags" == *ignore-size* ]]; then
+    tmux detach-client -E true
     sleep 0.1
   fi
   tmux switch-client -t "$target"

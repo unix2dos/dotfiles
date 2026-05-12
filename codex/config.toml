@@ -1,5 +1,4 @@
 # oh-my-codex top-level settings (must be before any [table])
-notify = ["node", "/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/scripts/notify-dispatcher.js", "--metadata", "/Users/liuwei/.codex/.omx/notify-dispatch.json"]
 model_reasoning_effort = "high"
 developer_instructions = "You have oh-my-codex installed. AGENTS.md is the orchestration brain and main control surface. Follow AGENTS.md for skill/keyword routing, $name workflow invocation, and role-specialized subagents. Use outcome-first, concise progress updates: state the target result, constraints, validation evidence, and stop condition before adding process detail. Native subagents live in .codex/agents and may handle independent parallel subtasks within one Codex session or team pane. Skills load from .codex/skills, not native-agent TOMLs. Treat installed prompts as narrower execution surfaces under AGENTS.md authority."
 
@@ -8,6 +7,8 @@ model_auto_compact_token_limit = 900000
 model = "gpt-5.5"
 personality = "pragmatic"
 suppress_unstable_features_warning = true
+
+notify = ["/Users/liuwei/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended", "--previous-notify", "[\"node\",\"\\/Users\\/liuwei\\/.nvm\\/versions\\/node\\/v24.6.0\\/lib\\/node_modules\\/oh-my-codex\\/dist\\/scripts\\/notify-dispatcher.js\",\"--metadata\",\"\\/Users\\/liuwei\\/.codex\\/.omx\\/notify-dispatch.json\"]"]
 
 [mcp_servers.playwright]
 args = [ "@playwright/mcp@latest" ]
@@ -76,6 +77,15 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/liuwei/go/src/cuptool"]
+trust_level = "trusted"
+
+[projects."/Users/liuwei/workspace/ww"]
+trust_level = "trusted"
+
+[projects."/Users/liuwei/go/src/bunnie/bunnie-web"]
+trust_level = "trusted"
+
+[projects."/Users/liuwei/go/src/bunnie/bunnie-server"]
 trust_level = "trusted"
 
 [marketplaces.openai-bundled]

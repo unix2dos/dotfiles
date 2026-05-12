@@ -37,7 +37,7 @@ open_popup() {
     -b heavy \
     -S "$popup_style" \
     -T "$popup_title" \
-    -E "tmux attach-session -t $popup_session"
+    -E "tmux attach-session -f active-pane,ignore-size -t $popup_session"
 }
 
 touch_window() {
@@ -119,7 +119,12 @@ select_or_create_window_for_source_path() {
 }
 
 if [[ "$current_session" == "$popup_session" ]]; then
-  tmux detach-client
+  client_flags="$(tmux display-message -p '#{client_flags}')"
+  if [[ "$client_flags" == *active-pane* && "$client_flags" == *ignore-size* ]]; then
+    tmux detach-client -E true
+  else
+    tmux display-message "Already in _popup session; Cmd+p opens popup only from another session"
+  fi
   exit 0
 fi
 

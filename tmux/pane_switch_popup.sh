@@ -2,8 +2,8 @@
 # M-w global pane switcher.
 #
 # Lists all panes in an fzf popup with a live capture preview, then switches to
-# the selected pane. If invoked from the _popup session, it detaches first so the
-# target pane becomes visible.
+# the selected pane. If invoked from the _popup popup client, it detaches first
+# so the target pane becomes visible.
 
 vercomp() {
   local v1="$1" v2="$2"
@@ -54,9 +54,11 @@ pane_id=$(echo "${pane}" | awk '{print $1}')
 if [[ -z "${pane_id}" ]]; then
   tmux switch-client -t "${current_pane}"
 elif tmux has-session -t "${pane_id}" 2>/dev/null; then
-  # 如果在 _popup session 内，先 detach 退出 popup，再切换
-  if [[ "$(tmux display-message -p '#S')" == "_popup" ]]; then
-    tmux detach-client
+  client_flags="$(tmux display-message -p '#{client_flags}')"
+  # 如果从 popup 浮窗 client 切到外部 pane，先 detach 让目标 pane 可见。
+  # 如果是直接 attach 到 _popup 的一级 session，则不 detach，直接 switch-client。
+  if [[ "$(tmux display-message -p '#S')" == "_popup" && "$client_flags" == *active-pane* && "$client_flags" == *ignore-size* ]]; then
+    tmux detach-client -E true
     sleep 0.1
   fi
   tmux switch-client -t "${pane_id}"
