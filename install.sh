@@ -86,6 +86,7 @@ if [ -f "$DOTFILES/cursor/statusline.sh" ]; then
   link_file "$DOTFILES/cursor/statusline.sh" "$HOME/.cursor/statusline.sh"
   chmod +x "$DOTFILES/cursor/statusline.sh"
 fi
+link_file "$DOTFILES/cursor/mcp.json"               "$HOME/.cursor/mcp.json"
 if [ -f "$DOTFILES/cursor/cli-config.base.json" ]; then
   if ! command -v jq >/dev/null 2>&1; then
     echo -e "${YELLOW}  ⚠ 跳过 Cursor cli-config merge（jq 未安装）${NC}"
