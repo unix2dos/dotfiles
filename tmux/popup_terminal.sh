@@ -123,7 +123,7 @@ if [[ "$current_session" == "$popup_session" ]]; then
   if [[ "$client_flags" == *active-pane* && "$client_flags" == *ignore-size* ]]; then
     tmux detach-client -E true
   else
-    tmux display-message "Already in _popup session; Cmd+p opens popup only from another session"
+    open_popup
   fi
   exit 0
 fi
