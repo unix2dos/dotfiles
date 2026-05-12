@@ -24,11 +24,24 @@ if [[ "$wt_name" == "null" ]]; then
 fi
 
 branch=""
+git_added=0
+git_modified=0
+git_deleted=0
 if git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   branch="$(git -C "$cwd" branch --show-current 2>/dev/null || true)"
   if [[ -z "$wt_name" ]]; then
     wt_name="$(basename "$cwd")"
   fi
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    code="${line:0:2}"
+    case "$code" in
+      "??") git_added=$((git_added + 1)) ;;
+      A?|?A) git_added=$((git_added + 1)) ;;
+      *M*) git_modified=$((git_modified + 1)) ;;
+      *D*) git_deleted=$((git_deleted + 1)) ;;
+    esac
+  done < <(git -C "$cwd" status --porcelain=v1 2>/dev/null || true)
 fi
 
 bar_width=20
@@ -64,6 +77,13 @@ fi
 line1="${CLR_CYAN}📁 ${dir_name}${CLR_RESET}"
 if [[ -n "$branch" ]]; then
   line1+=" ${CLR_BLUE}🌿 ${branch}${CLR_RESET}"
+fi
+if (( git_added > 0 || git_modified > 0 || git_deleted > 0 )); then
+  git_parts=""
+  (( git_added > 0 )) && git_parts+=" ${CLR_GREEN}✚${git_added}${CLR_RESET}"
+  (( git_modified > 0 )) && git_parts+=" ${CLR_YELLOW}✱${git_modified}${CLR_RESET}"
+  (( git_deleted > 0 )) && git_parts+=" ${CLR_MAGENTA}✖${git_deleted}${CLR_RESET}"
+  line1+="${git_parts}"
 fi
 if [[ -n "$wt_name" ]]; then
   line1+=" ${CLR_GRAY}│ 🧩 ${wt_name}${CLR_RESET}"
