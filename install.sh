@@ -43,6 +43,47 @@ link_file() {
     echo -e "${GREEN}  ✓${NC} 链接: $(basename "$dst")"
 }
 
+# Merge ~/.cursor/mcp.json from repo cursor/mcp.json + optional ~/.cursor/mcp.local.json
+# (local wins on duplicate server names). If mcp.local.json is absent, symlink repo file.
+install_cursor_mcp() {
+    local base="$DOTFILES/cursor/mcp.json"
+    local local_mcp="$HOME/.cursor/mcp.local.json"
+    local dst="$HOME/.cursor/mcp.json"
+
+    if [ ! -f "$base" ]; then
+        echo -e "${YELLOW}  ⚠ 跳过 Cursor mcp（源文件不存在）: $base${NC}"
+        return
+    fi
+
+    mkdir -p "$HOME/.cursor"
+
+    if [ -f "$local_mcp" ]; then
+        if ! command -v jq >/dev/null 2>&1; then
+            echo -e "${YELLOW}  ⚠ 发现 mcp.local.json 但 jq 未安装：无法合并，改用仓库目录的软链接${NC}"
+            link_file "$base" "$dst"
+            return
+        fi
+        local tmp
+        tmp="$(mktemp)"
+        jq -s '.[0] as $a | .[1] as $b | { mcpServers: (($a.mcpServers // {}) * ($b.mcpServers // {})) }' \
+            "$base" "$local_mcp" > "$tmp"
+        if { [ -f "$dst" ] || [ -L "$dst" ]; } && cmp -s "$tmp" "$dst"; then
+            rm -f "$tmp"
+            echo -e "${GREEN}  ✓${NC} Cursor mcp.json（合并）无变化"
+            return
+        fi
+        if [ -e "$dst" ] || [ -L "$dst" ]; then
+            local backup="${dst}.backup.$(date +%Y%m%d%H%M%S)"
+            mv "$dst" "$backup"
+            echo -e "${YELLOW}  ⚠ 已备份: $(basename "$dst") → $(basename "$backup")${NC}"
+        fi
+        mv "$tmp" "$dst"
+        echo -e "${GREEN}  ✓${NC} Cursor mcp.json 已合并（仓库 + ~/.cursor/mcp.local.json）"
+    else
+        link_file "$base" "$dst"
+    fi
+}
+
 echo "🔗 安装 dotfiles..."
 echo "   源: $DOTFILES"
 echo ""
@@ -86,7 +127,7 @@ if [ -f "$DOTFILES/cursor/statusline.sh" ]; then
   link_file "$DOTFILES/cursor/statusline.sh" "$HOME/.cursor/statusline.sh"
   chmod +x "$DOTFILES/cursor/statusline.sh"
 fi
-link_file "$DOTFILES/cursor/mcp.json"               "$HOME/.cursor/mcp.json"
+install_cursor_mcp
 if [ -f "$DOTFILES/cursor/cli-config.base.json" ]; then
   if ! command -v jq >/dev/null 2>&1; then
     echo -e "${YELLOW}  ⚠ 跳过 Cursor cli-config merge（jq 未安装）${NC}"
@@ -95,12 +136,20 @@ if [ -f "$DOTFILES/cursor/cli-config.base.json" ]; then
     if [ ! -f "$HOME/.cursor/cli-config.json" ]; then
       cp "$DOTFILES/cursor/cli-config.base.json" "$HOME/.cursor/cli-config.json"
       echo -e "${GREEN}  ✓${NC} Cursor cli-config 已初始化"
-    else
-      tmp_config="$(mktemp)"
-      jq -s '.[0] * .[1]' "$HOME/.cursor/cli-config.json" "$DOTFILES/cursor/cli-config.base.json" > "$tmp_config"
-      mv "$tmp_config" "$HOME/.cursor/cli-config.json"
-      echo -e "${GREEN}  ✓${NC} Cursor cli-config 已合并"
     fi
+    tmp_config="$(mktemp)"
+    if [ -f "$HOME/.cursor/cli-config.local.json" ]; then
+      jq -s '.[0] * .[1] * .[2]' \
+        "$HOME/.cursor/cli-config.json" \
+        "$DOTFILES/cursor/cli-config.base.json" \
+        "$HOME/.cursor/cli-config.local.json" > "$tmp_config"
+    else
+      jq -s '.[0] * .[1]' \
+        "$HOME/.cursor/cli-config.json" \
+        "$DOTFILES/cursor/cli-config.base.json" > "$tmp_config"
+    fi
+    mv "$tmp_config" "$HOME/.cursor/cli-config.json"
+    echo -e "${GREEN}  ✓${NC} Cursor cli-config 已合并"
   fi
 fi
 

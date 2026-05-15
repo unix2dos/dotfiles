@@ -8,7 +8,9 @@
 |:-----|:-----|
 | `statusline.sh` | Cursor status line 调用的命令。 |
 | `cli-config.base.json` | 合并到 `~/.cursor/cli-config.json` 的基础 Cursor CLI 配置。 |
-| `mcp.json` | 软链接到 `~/.cursor/mcp.json`，声明所有 MCP server。 |
+| `mcp.json` | 默认软链接到 `~/.cursor/mcp.json`；若存在 `~/.cursor/mcp.local.json` 则改为“仓库 + 本地”合并生成。 |
+| `mcp.local.json.example` | 复制为 `~/.cursor/mcp.local.json` 的模板（仅存本机，不进 git）。 |
+| `cli-config.local.json.example` | 复制为 `~/.cursor/cli-config.local.json` 的模板（仅存本机，不进 git）。 |
 
 ## 安装行为
 
@@ -22,12 +24,21 @@ cd ~/workspace/dotfiles && ./install.sh
 
 - 将 `cursor/statusline.sh` 软链接到 `~/.cursor/statusline.sh`
 - 给 `cursor/statusline.sh` 添加可执行权限
-- 将 `cursor/mcp.json` 软链接到 `~/.cursor/mcp.json`
-- 如果 `~/.cursor/cli-config.json` 不存在，用 `cursor/cli-config.base.json` 初始化
-- 如果 `~/.cursor/cli-config.json` 已存在，把 `cursor/cli-config.base.json` 合并进去
+- **MCP**：若 **没有** `~/.cursor/mcp.local.json`，将 `cursor/mcp.json` **软链接**到 `~/.cursor/mcp.json`。若 **有** `mcp.local.json` 且已安装 `jq`，则把仓库的 `mcp.json` 与 `~/.cursor/mcp.local.json` 合并写入 `~/.cursor/mcp.json`（同名 `mcpServers` 以本地为准）。
+- **CLI 配置**：如果 `~/.cursor/cli-config.json` 不存在，用 `cursor/cli-config.base.json` 初始化；然后始终做合并：当前 `cli-config.json` × 仓库 `cli-config.base.json` ×（可选）`~/.cursor/cli-config.local.json`，后者覆盖前者同名字段。
+- 合并依赖 `jq`。若未安装 `jq`：跳过 CLI 合并；MCP 在有 `mcp.local.json` 时会回退为仅软链接仓库（并提示无法合并），其它配置链接不受影响。
 
-配置合并依赖 `jq`。如果没有安装 `jq`，安装脚本只会跳过 Cursor CLI config
-merge，不影响其它配置链接。
+## 本机覆盖文件（勿提交密钥）
+
+将示例复制到 `$HOME/.cursor/`（不要放进仓库目录 `cursor/` 下的同名文件，以免误操作）：
+
+```bash
+cp cursor/mcp.local.json.example ~/.cursor/mcp.local.json
+# optional:
+# cp cursor/cli-config.local.json.example ~/.cursor/cli-config.local.json
+```
+
+编辑后重新执行 `./install.sh`。不要把 token 明文写进 git 里的 `mcp.json`；用环境变量或只写在 `~/.cursor/mcp.local.json`。
 
 ## Status Line
 
@@ -57,13 +68,11 @@ Cursor 专属的 status line 细节放在这里，不放根目录 README。
 
 ## MCP
 
-`mcp.json` 直接软链接到 `~/.cursor/mcp.json`，Cursor IDE 和 Cursor CLI
-(`cursor-agent`) 共享同一份配置。
+无 `~/.cursor/mcp.local.json` 时：`mcp.json` 直接软链接到 `~/.cursor/mcp.json`，Cursor IDE 和 Cursor CLI (`cursor-agent`) 共享同一份配置。
+
+启用 `mcp.local.json` 后：合并结果写在真实的 `~/.cursor/mcp.json`，**下一次运行 `install.sh` 会按「仓库 + local」重新生成该文件**；在 Cursor GUI 里临时添加的 MCP 若未同步进仓库或 `mcp.local.json`，可能在下次安装时被覆盖。改完 `cursor/mcp.json` 或 `~/.cursor/mcp.local.json` 后执行 `./install.sh`，改 GUI 后记得 `git diff`（仅在使用软链接模式且写回仓库时）。
 
 注意事项：
 
-- 在 Cursor GUI 里点 "Add MCP" 会写入这个文件——也就是写到 dotfiles 里。改完
-  记得 `git status` 看一眼，需要的话 commit。
-- 如果某个 MCP server 需要 token，**不要**把明文写进这里。用 `${ENV_VAR}` 引
-  用环境变量，或者把这一条移到 `~/.cursor/mcp.local.json`（不进 git）并改用
-  merge 策略。
+- 在 Cursor GUI 里点 "Add MCP" 会直接写 `~/.cursor/mcp.json`；在 **软链接模式** 下即写到 dotfiles 仓库里的 `cursor/mcp.json`，改完记得 `git status`。
+- 需要 token 的 server 请用 `${ENV_VAR}` 引用环境变量，或只写在 `~/.cursor/mcp.local.json`。

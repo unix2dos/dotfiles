@@ -13,4 +13,8 @@
 **/ssh/
 **/known_hosts
 
+# Cursor local overrides (never commit real secrets)
+cursor/mcp.local.json
+cursor/cli-config.local.json
+
 .worktrees/
