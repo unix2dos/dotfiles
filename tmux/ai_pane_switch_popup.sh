@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # M-q AI CLI pane switcher.
 #
-# Finds panes running AI CLIs such as claude/codex/gemini/amp/agent/droid,
+# Finds panes running AI CLIs such as claude/codex/gemini/amp/pi/agent/droid,
 # shows them in an fzf popup, and switches to the selected pane. Preview
 # content is provided by ai_pane_summary.sh; M-r refreshes, M-t toggles preview.
 
@@ -41,20 +41,89 @@ fi
 # 收集 AI CLI pane
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+path_base() {
+  local path="${1%/}"
+  printf '%s' "${path##*/}"
+}
+
+detect_ai_cli() {
+  local command="$1" first base word lower
+  first=$(printf '%s' "$command" | awk '{print $1}')
+  base=$(path_base "$first")
+
+  # Ignore desktop app helper processes; this switcher is for terminal CLIs.
+  case "$(printf '%s' "$first" | tr '[:upper:]' '[:lower:]')" in
+    /applications/codex.app/*|/applications/claude.app/*|/applications/gemini.app/*)
+      return 1
+      ;;
+  esac
+
+  # Native binaries and CLIs that exec with argv[0] set to the tool name.
+  case "$base" in
+    claude|codex|gemini|amp|agent|droid|pi)
+      printf '%s' "$base"
+      return 0
+      ;;
+  esac
+
+  # Node/npm/bun wrappers often show up as one of:
+  #   node /path/to/bin/pi
+  #   node .../@anthropic-ai/claude-code/cli.js
+  #   npm exec claude
+  # Match known CLI tokens/paths anywhere in the command line. Keep "agent"
+  # path-only because many macOS services have a generic "agent" argument.
+  for word in $command; do
+    lower=$(printf '%s' "$word" | tr '[:upper:]' '[:lower:]')
+    case "$lower" in
+      claude|codex|gemini|amp|droid|pi|*/claude|*/codex|*/gemini|*/amp|*/droid|*/pi)
+        path_base "$lower"
+        return 0
+        ;;
+      */agent)
+        printf 'agent'
+        return 0
+        ;;
+      *@anthropic-ai/claude-code*|*claude-code*)
+        printf 'claude'
+        return 0
+        ;;
+      *@openai/codex*|*openai-codex*|*codex-darwin-*|*/codex/codex)
+        printf 'codex'
+        return 0
+        ;;
+      *@google/gemini-cli*|*google-gemini*|*gemini-cli*)
+        printf 'gemini'
+        return 0
+        ;;
+      *@earendil-works/pi-coding-agent*|*pi-coding-agent*)
+        printf 'pi'
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
 collect_results() {
-  local tmpf results cpid cmd pid line label dir summary row
+  local tmpf results cpid command cmd pid line label dir summary row seen_panes
   tmpf=$(mktemp)
   tmux list-panes -a -F "#{pane_pid} #{session_name}:#{window_index}.#{pane_index} #{pane_current_path} #{pane_title}" > "$tmpf"
 
   results=""
-  for cpid in $(ps -eo pid,command | /usr/bin/grep -E "^[[:space:]]*[0-9]+ (\S*/)?(claude|codex|gemini|amp|agent|droid)([[:space:]]|$)" | /usr/bin/grep -v grep | awk '{print $1}' | sort -rn); do
-    cmd=$(ps -o command= -p "$cpid" 2>/dev/null | sed 's/^ *//')
-    cmd=$(basename "$(echo "$cmd" | awk '{print $1}')")
+  seen_panes=""
+  while read -r cpid command; do
+    [ -n "${cpid:-}" ] || continue
+    cmd=$(detect_ai_cli "$command") || continue
     pid=$cpid
     while [ "$pid" != "1" ] && [ -n "$pid" ]; do
       line=$(/usr/bin/grep -m1 "^${pid} " "$tmpf")
       if [ -n "$line" ]; then
         label=$(echo "$line" | awk '{print $2}')
+        case " $seen_panes " in
+          *" $label "*) break ;;
+        esac
+        seen_panes="${seen_panes} ${label}"
         dir=$(basename "$(echo "$line" | awk '{print $3}')")
         summary=$("${script_dir}/ai_pane_summary.sh" --cached-summary "$label")
         printf -v row '%s\t%s\t%s\t%s' "$dir" "$cmd" "$label" "$summary"
@@ -63,7 +132,12 @@ collect_results() {
       fi
       pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d " ")
     done
-  done
+  done < <(
+    ps -eo pid=,command= |
+      /usr/bin/grep -Ei '(^|[[:space:]/])(claude|codex|gemini|amp|droid|pi)([[:space:]/.]|$)|(^|[[:space:]/])agent([[:space:]/.]|$)|claude-code|openai-codex|@openai/codex|gemini-cli|pi-coding-agent|@anthropic-ai/claude-code|@google/gemini-cli' |
+      /usr/bin/grep -Ev 'grep -Ei|ai_pane_switch_popup\.sh' |
+      sort -rn
+  )
   rm -f "$tmpf"
   printf '%s' "$results"
 }
@@ -125,8 +199,6 @@ reload_cmd="${script_dir}/ai_pane_switch_popup.sh --list-with-header"
 auto_refresh_cmd="${script_dir}/ai_pane_switch_popup.sh --auto-refresh-and-reload"
 refresh_reload_cmd="${summary_cmd} >/dev/null; ${reload_cmd}"
 
-printf '%s' "$results" | awk -F '\t' '{print $3}' | "${script_dir}/ai_pane_summary.sh" --prewarm >/dev/null 2>&1 &
-
 list_input=$(printf '%s' "$results" | { format_header; format_results; })
 
 selected=$(printf '%s' "$list_input" | \
@@ -137,8 +209,7 @@ selected=$(printf '%s' "$list_input" | \
     --header-lines=1 \
     --bind "'alt-q:abort'" \
     --bind "'alt-t:toggle-preview'" \
-    --bind "'start:execute-silent(${auto_refresh_cmd} &)'" \
-    --bind "'load:change-prompt(> )'" \
+    --bind "'load:change-prompt(> )+execute-silent(${auto_refresh_cmd} &)'" \
     --bind "'alt-r:change-prompt(刷新中> )+reload(${refresh_reload_cmd})+change-preview(${raw_cmd})'" \
     --preview="'${raw_cmd}'" \
     --preview-window=down:55%,nowrap \

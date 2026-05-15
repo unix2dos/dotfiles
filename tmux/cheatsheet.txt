@@ -6,7 +6,7 @@
 
 ─── 🚀 Popup 浮动工具 (最常用) ───────────────────────────────────
   M-p           项目浮动终端 (Cmd+p 同效，按目录复用 window)
-  M-q           AI Pane 切换 (claude/amp/codex/gemini/droid)
+  M-q           AI Pane 切换 (claude/amp/codex/gemini/pi/droid)
   M-w           全局 Pane 切换 (fzf)
   Prefix+g      lazygit
   Prefix+k      cht.sh 命令速查

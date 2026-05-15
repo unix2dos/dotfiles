@@ -343,13 +343,12 @@ refresh_one() {
 
 cached_summary_one() {
   local target="$1"
-  local plain cache_file summary summarized_at label
-  plain=$(capture_plain "$target")
+  local cache_file summary summarized_at label
   cache_file=$(cache_path_for "$target")
 
   if [ -s "$cache_file" ]; then
     label=""
-    if ! cache_is_fresh "$cache_file" "$plain"; then
+    if ! cache_is_fresh "$cache_file" ""; then
       label="stale "
     fi
     summary=$(cat "$cache_file")

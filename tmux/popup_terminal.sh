@@ -5,7 +5,7 @@
 #   - Toggle the single "_popup" session.
 #   - Reuse one window per source pane directory.
 #   - Create a new directory window when no match exists.
-#   - Keep a soft cap of TMUX_POPUP_MAX_WINDOWS windows, default 5.
+#   - Keep a soft cap of TMUX_POPUP_MAX_WINDOWS windows, default 3.
 #   - Only trim old non-active shell windows when the cap is reached.
 #   - After selecting a shell window, clear the screen and run git status.
 #
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 popup_session="_popup"
-max_windows="${TMUX_POPUP_MAX_WINDOWS:-5}"
+max_windows="${TMUX_POPUP_MAX_WINDOWS:-3}"
 popup_title=" 🚀 Popup Terminal "
 popup_style="fg=#00afff"
 
