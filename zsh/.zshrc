@@ -220,7 +220,7 @@ alias gdh='git diff HEAD'                      # Git diff HEAD
 alias gt="git tag -ln9999 --sort=-version:refname"  # 显示所有 Git 标签
 alias gwl='git worktree list'
 alias cc='claude'
-alias ca='opencode -m opencode/minimax-m2.5-free run "提交全部代码"'
+alias ca="cursor-agent"
 
 # --- 7.2 文件操作别名 ---
 alias ls='eza -h --hyperlink'                   # 更好的 ls (使用 eza)
@@ -230,9 +230,7 @@ alias open="open -R"                           # 在 Finder 中显示
 # --- 7.3 工具别名 ---
 alias grep="rg"                                # 使用 ripgrep 代替 grep
 alias t="tmux"                                 # Tmux 快捷方式
-alias r="rustc"                                # Rust 编译器
-alias ac="czg"                                 # Commitizen
-alias c="cluade"
+alias ac="cz"                                 # 也是 git diff ai commit，可以使用 czg
 
 # --- 7.4 网络和代理 ---
 alias ssh='AUTOSSH_GATETIME=0 autossh -M 0'    # 使用 AutoSSH
@@ -286,7 +284,24 @@ function gitmsg() {
 # --- 8.3 智能提交函数 (cz) ---
 # 功能: 分析 git diff HEAD，生成提交消息，支持确认/编辑/取消
 function cz() {
-	local message=$(gitmsg "$1" <<< "$(git diff HEAD)")
+	local diff_content=$(git diff HEAD)
+
+	if [ -z "$diff_content" ]; then
+		echo "Error: No changes to commit." >&2
+		return 1
+	fi
+
+	local line_count=$(echo "$diff_content" | wc -l | tr -d ' ')
+
+	# Diff 截断：超过 1200 行只保留前 800 行 + 文件统计
+	if [ "$line_count" -gt 1200 ]; then
+		echo "⚠️  Diff 较长（${line_count} 行），已截取前 800 行 + 文件统计" >&2
+		local head_diff=$(echo "$diff_content" | head -n 800)
+		local stat=$(git diff --stat HEAD)
+		diff_content="${head_diff}\n\n... [Diff 过长已截断：共 ${line_count} 行，完整统计如下]\n\n${stat}"
+	fi
+
+	local message=$(gitmsg "$1" <<< "$diff_content")
 
     if [ -z "$message" ]; then
         echo "Error: Failed to generate commit message." >&2
@@ -427,3 +442,7 @@ alias claude-mem='bun "/Users/liuwei/.claude/plugins/marketplaces/thedotmack/plu
 # >>> grok installer >>>
 export PATH="$HOME/.grok/bin:$PATH"
 # <<< grok installer <<<
+# ww shell wrapper begin
+WW_HELPER_BIN="/Users/liuwei/.local/bin/ww-helper"
+source "/Users/liuwei/.local/bin/ww.sh"
+# ww shell wrapper end
