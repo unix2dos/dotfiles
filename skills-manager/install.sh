@@ -292,8 +292,8 @@ step_clone_and_build() {
         continue
       fi
 
-      if ! git clone --depth 1 --branch "$ebranch" --quiet "$repo_url" "$clone_dir" 2>/dev/null; then
-        log_error "  ${ename}: clone failed"
+      if ! git clone --depth 1 --branch "$ebranch" --quiet "$repo_url" "$clone_dir"; then
+        log_error "  ${ename}: clone failed (repo: ${erepo}, branch: ${ebranch})"
         ((failed++)) || true
         continue
       fi

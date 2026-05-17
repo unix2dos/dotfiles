@@ -423,3 +423,7 @@ alias see="open"
 eval "$("/opt/homebrew/opt/ww/bin/ww-helper" init zsh)"
 
 alias claude-mem='bun "/Users/liuwei/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+
+# >>> grok installer >>>
+export PATH="$HOME/.grok/bin:$PATH"
+# <<< grok installer <<<
