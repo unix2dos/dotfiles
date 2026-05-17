@@ -535,9 +535,9 @@ set -g @plugin 'tmux-plugins/tmux-cpu'                # CPU 和内存使用率�
 set -g @plugin 'MunifTanjim/tmux-mode-indicator'      # 状态栏右侧的模式指示器
 set -g @plugin 'tmux-plugins/tmux-resurrect'          # 手动保存/恢复 Tmux 会话环境
 set -g @plugin 'tmux-plugins/tmux-continuum'          # 自动保存/恢复 Tmux 会话
-#set -g @plugin 'Morantron/tmux-fingers'              # 主要用来快速复制
 set -g @plugin 'laktak/extrakto'                      # 智能提取复制
-#set -g @plugin 'kristijan/tmux-fzf-pane-switch'       # 已用自定义 pane_switch_popup.sh 替代
+set -g @plugin 'Ataraxy-Labs/opensessions'
+#set -g @plugin 'Morantron/tmux-fingers'              # 主要用来快速复制
 
 #### 5. 插件设置 ####
 set -g @continuum-restore 'on'                        # Tmux 启动时自动恢复上次保存的会话
