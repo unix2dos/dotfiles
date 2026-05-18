@@ -273,89 +273,127 @@ function rgf {
 }
 
 # --- 8.2 AI Git 提交辅助函数 ---
+function _ac_now_ms() {
+    zmodload zsh/datetime 2>/dev/null || {
+        date +%s000
+        return
+    }
+    printf '%.0f\n' "$(( EPOCHREALTIME * 1000 ))"
+}
+
+function _ac_trace() {
+    [[ -n "${AC_AI_TRACE:-}" ]] || return 0
+    local label="$1"
+    local start_ms="$2"
+    local now_ms=$(_ac_now_ms)
+    echo "ac ai trace: ${label} $(( now_ms - start_ms ))ms" >&2
+}
+
 function gitmsg() {
-   local lang_desc="中文"
-   if [[ "$1" == "ai" ]]; then
-       lang_desc="English"
-   fi
-   sgpt "你是一位资深的软件工程师，擅长编写清晰、规范的 Git 提交信息。根据我提供的内容，生成一条符合「约定式提交规范」的${lang_desc} Git 提交信息。要求: 1.  格式: 严格遵循 \`<类型>(<范围>): <主题>\` 的格式。常用类型: \`feat\`(新功能), \`fix\`(修复), \`refactor\`(重构), \`style\`(格式), \`docs\`(文档), \`perf\`(性能), \`ci\`(持续集成), \`chore\`(杂务)。2.内容: 用言简意赅的${lang_desc}进行描述。只描述核心的、用户可感知或对开发者重要的变更。省略不重要的细节，如修改变量名、调整缩进等（除非是\`style\`类型的提交）。3. 输出:不要添加任何前言、解释或思考过程,直接输出最终的提交信息，且仅输出一条。"
+    local lang_desc="中文"
+    if [[ "$1" == "ai" ]]; then
+        lang_desc="English"
+    fi
+    local model="${AC_AI_MODEL:-deepseek-v4-flash}"
+    sgpt --model "$model" --no-md "Generate exactly one Conventional Commit message in ${lang_desc} from the git diff on stdin. Format: <type>(<scope>): <subject>. Use feat, fix, refactor, style, docs, perf, ci, or chore. Describe only the meaningful change. Output only the commit message, no explanation."
 }
 
 # --- 8.3 智能提交函数 (cz) ---
 # 功能: 分析 git diff HEAD，生成提交消息，支持确认/编辑/取消
 function cz() {
-	local diff_content=$(git diff HEAD)
+    local diff_file=""
+    local prompt_file=""
+    {
+        local diff_start=$(_ac_now_ms)
+        diff_file=$(mktemp "${TMPDIR:-/tmp}/ac-ai-diff.XXXXXX") || return 1
+        git diff --no-ext-diff --no-color HEAD >| "$diff_file"
+        _ac_trace "git diff" "$diff_start"
 
-	if [ -z "$diff_content" ]; then
-		echo "Error: No changes to commit." >&2
-		return 1
-	fi
-
-	local line_count=$(echo "$diff_content" | wc -l | tr -d ' ')
-
-	# Diff 截断：超过 1200 行只保留前 800 行 + 文件统计
-	if [ "$line_count" -gt 1200 ]; then
-		echo "⚠️  Diff 较长（${line_count} 行），已截取前 800 行 + 文件统计" >&2
-		local head_diff=$(echo "$diff_content" | head -n 800)
-		local stat=$(git diff --stat HEAD)
-		diff_content="${head_diff}\n\n... [Diff 过长已截断：共 ${line_count} 行，完整统计如下]\n\n${stat}"
-	fi
-
-	local message=$(gitmsg "$1" <<< "$diff_content")
-
-    if [ -z "$message" ]; then
-        echo "Error: Failed to generate commit message." >&2
-        return 1
-    fi
-
-    echo "Generated commit message:"
-    echo "  $message"
-    echo
-
-    # 询问用户是否确认使用该提交信息
-    echo -n "Use git diff HEAD, Do you want to use this commit message? [Y/n/e] "
-
-    # 兼容 bash 和 zsh 的读取方式
-    if [ -n "$ZSH_VERSION" ]; then
-		read -k 1 choice < /dev/tty
-    else
-	    read -n 1 choice < /dev/tty
-    fi
-    echo  # 换行
-
-    case "$choice" in
-        [nN])
-            echo "Commit cancelled."
+        if [ ! -s "$diff_file" ]; then
+            echo "Error: No changes to commit." >&2
             return 1
-            ;;
-        [eE])
-            # 允许用户编辑提交信息
-            local temp_file=$(mktemp)
-            echo "$message" > "$temp_file"
-            ${EDITOR:-vi} "$temp_file"
-            message=$(cat "$temp_file")
-            rm -f "$temp_file"
+        fi
 
-            if [ -z "$message" ]; then
-                echo "Error: Empty commit message after editing." >&2
+        local prepare_start=$(_ac_now_ms)
+        local line_count=$(wc -l < "$diff_file" | tr -d ' ')
+        local max_lines="${AC_AI_MAX_DIFF_LINES:-800}"
+        [[ "$max_lines" == <-> ]] || max_lines=800
+        prompt_file="$diff_file"
+
+        # Diff 截断：超过 1200 行只保留前 800 行 + 文件统计
+        if [ "$line_count" -gt 1200 ]; then
+            echo "⚠️  Diff 较长（${line_count} 行），已截取前 ${max_lines} 行 + 文件统计" >&2
+            prompt_file=$(mktemp "${TMPDIR:-/tmp}/ac-ai-prompt.XXXXXX") || return 1
+            head -n "$max_lines" "$diff_file" >| "$prompt_file"
+            {
+                echo
+                echo "... [Diff 过长已截断：共 ${line_count} 行，完整统计如下]"
+                echo
+                git diff --stat --no-ext-diff --no-color HEAD
+            } >> "$prompt_file"
+        fi
+        _ac_trace "prepare diff (${line_count} lines)" "$prepare_start"
+
+        local ai_start=$(_ac_now_ms)
+        local message=$(gitmsg "$1" < "$prompt_file")
+        _ac_trace "sgpt model=${AC_AI_MODEL:-deepseek-v4-flash}" "$ai_start"
+
+        if [ -z "$message" ]; then
+            echo "Error: Failed to generate commit message." >&2
+            return 1
+        fi
+
+        echo "Generated commit message:"
+        echo "  $message"
+        echo
+
+        # 询问用户是否确认使用该提交信息
+        echo -n "Use git diff HEAD, Do you want to use this commit message? [Y/n/e] "
+
+        # 兼容 bash 和 zsh 的读取方式
+        if [ -n "$ZSH_VERSION" ]; then
+            read -k 1 choice < /dev/tty
+        else
+            read -n 1 choice < /dev/tty
+        fi
+        echo  # 换行
+
+        case "$choice" in
+            [nN])
+                echo "Commit cancelled."
                 return 1
-            fi
-            ;;
-        *)
-            # 默认情况下（Y或直接回车）使用生成的信息
-            ;;
-    esac
+                ;;
+            [eE])
+                # 允许用户编辑提交信息
+                local temp_file=$(mktemp)
+                echo "$message" > "$temp_file"
+                ${EDITOR:-vi} "$temp_file"
+                message=$(cat "$temp_file")
+                command rm -f "$temp_file"
 
+                if [ -z "$message" ]; then
+                    echo "Error: Empty commit message after editing." >&2
+                    return 1
+                fi
+                ;;
+            *)
+                # 默认情况下（Y或直接回车）使用生成的信息
+                ;;
+        esac
 
-    # 执行 git commit
-    git commit -m "$message"
-    local exit_code=$?
-    if [ $exit_code -eq 0 ]; then
-        echo "✓ Commit successful!"
-    else
-        echo "✗ Commit failed with exit code: $exit_code" >&2
-        return $exit_code
-    fi
+        # 执行 git commit
+        git commit -m "$message"
+        local exit_code=$?
+        if [ $exit_code -eq 0 ]; then
+            echo "✓ Commit successful!"
+        else
+            echo "✗ Commit failed with exit code: $exit_code" >&2
+            return $exit_code
+        fi
+    } always {
+        [[ -n "$diff_file" ]] && command rm -f "$diff_file"
+        [[ -n "$prompt_file" && "$prompt_file" != "$diff_file" ]] && command rm -f "$prompt_file"
+    }
 }
 
 # --- 8.4 智能 Git Tag 函数 ---

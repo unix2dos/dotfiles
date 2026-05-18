@@ -536,7 +536,7 @@ set -g @plugin 'MunifTanjim/tmux-mode-indicator'      # 状态栏右侧的模式
 set -g @plugin 'tmux-plugins/tmux-resurrect'          # 手动保存/恢复 Tmux 会话环境
 set -g @plugin 'tmux-plugins/tmux-continuum'          # 自动保存/恢复 Tmux 会话
 set -g @plugin 'laktak/extrakto'                      # 智能提取复制
-set -g @plugin 'Ataraxy-Labs/opensessions'
+#set -g @plugin 'Ataraxy-Labs/opensessions'
 #set -g @plugin 'Morantron/tmux-fingers'              # 主要用来快速复制
 
 #### 5. 插件设置 ####
