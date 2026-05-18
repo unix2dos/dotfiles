@@ -240,7 +240,7 @@ alias disproxy='unset http_proxy https_proxy all_proxy'  # 关闭代理
 alias myip='curl ifconfig.co/json'             # 查看公网 IP
 
 # --- 7.5 快捷路径 ---
-alias lw="cd ~/go/src/picplus"                 # 快速进入项目目录
+alias lw="cd ~/go/src"                 # 快速进入项目目录
 
 
 # ============================================
@@ -289,13 +289,91 @@ function _ac_trace() {
     echo "ac ai trace: ${label} $(( now_ms - start_ms ))ms" >&2
 }
 
+function _ac_sgpt_config_value() {
+    local key="$1"
+    local config="${SHELL_GPT_CONFIG_PATH:-$HOME/.config/shell_gpt/.sgptrc}"
+    [[ -r "$config" ]] || return 1
+    awk -F= -v key="$key" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' "$config"
+}
+
+function _ac_extract_commit_message() {
+    awk '
+        /^[[:space:]]*```/ { next }
+        {
+            line = $0
+            sub(/^[[:space:]]+/, "", line)
+            sub(/[[:space:]]+$/, "", line)
+            if (line ~ /^(feat|fix|refactor|style|docs|perf|ci|chore|test|build)(\([^)]+\))?!?: /) {
+                print line
+                found = 1
+                exit
+            }
+            if (!first && length(line) > 0) {
+                first = line
+            }
+        }
+        END {
+            if (!found && first) {
+                print first
+            } else if (!found) {
+                exit 1
+            }
+        }
+    '
+}
+
+function _ac_gitmsg_sgpt() {
+    local lang_desc="$1"
+    local model="${AC_AI_MODEL:-minimax-m2.5}"
+    sgpt --model "$model" --no-md "Generate exactly one Conventional Commit message in ${lang_desc} from the git diff on stdin. Format: <type>(<scope>): <subject>. Use feat, fix, refactor, style, docs, perf, ci, or chore. Describe only the meaningful change. Output only the commit message, no explanation."
+}
+
+function _ac_gitmsg_direct() {
+    local lang_desc="$1"
+    local diff_content="$2"
+    local model="${AC_AI_MODEL:-mimo-v2-pro}"
+    local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
+    local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
+    local timeout="${AC_AI_TIMEOUT:-35}"
+
+    [[ -n "$api_base" && -n "$api_key" ]] || return 1
+    command -v curl >/dev/null 2>&1 || return 1
+    command -v jq >/dev/null 2>&1 || return 1
+
+    local content="Git diff:
+${diff_content}
+
+Return exactly one Conventional Commit message in ${lang_desc} and nothing else. Use <type>(<scope>): <subject>."
+    local payload response
+    payload=$(jq -n --arg model "$model" --arg content "$content" \
+        '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false}') || return 1
+
+    response=$(curl --silent --show-error --fail --max-time "$timeout" \
+        -H "Authorization: Bearer ${api_key}" \
+        -H "Content-Type: application/json" \
+        -d "$payload" \
+        "${api_base%/}/chat/completions") || return 1
+
+    printf '%s' "$response" |
+        jq -r '.choices[0].message.content // .choices[0].text // empty' |
+        _ac_extract_commit_message
+}
+
 function gitmsg() {
     local lang_desc="中文"
     if [[ "$1" == "ai" ]]; then
         lang_desc="English"
     fi
-    local model="${AC_AI_MODEL:-deepseek-v4-flash}"
-    sgpt --model "$model" --no-md "Generate exactly one Conventional Commit message in ${lang_desc} from the git diff on stdin. Format: <type>(<scope>): <subject>. Use feat, fix, refactor, style, docs, perf, ci, or chore. Describe only the meaningful change. Output only the commit message, no explanation."
+    local diff_content
+    diff_content=$(cat)
+
+    if [[ "${AC_AI_BACKEND:-direct}" == "sgpt" ]]; then
+        _ac_gitmsg_sgpt "$lang_desc" <<< "$diff_content"
+        return
+    fi
+
+    _ac_gitmsg_direct "$lang_desc" "$diff_content" ||
+        _ac_gitmsg_sgpt "$lang_desc" <<< "$diff_content"
 }
 
 # --- 8.3 智能提交函数 (cz) ---
@@ -336,7 +414,7 @@ function cz() {
 
         local ai_start=$(_ac_now_ms)
         local message=$(gitmsg "$1" < "$prompt_file")
-        _ac_trace "sgpt model=${AC_AI_MODEL:-deepseek-v4-flash}" "$ai_start"
+        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-mimo-v2-pro}" "$ai_start"
 
         if [ -z "$message" ]; then
             echo "Error: Failed to generate commit message." >&2
