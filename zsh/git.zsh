@@ -1,4 +1,22 @@
 # Git aliases and helpers.
+#
+# AI commit 快速用法：
+#   ac                            # 默认直连 API，生成中文 Conventional Commit
+#   ac ai                         # 默认直连 API，生成英文 Conventional Commit
+#   AC_AI_TRACE=1 ac ai           # 打印 git diff / diff 准备 / AI 请求分段耗时
+#   AC_AI_BACKEND=sgpt ac ai      # 强制走 ShellGPT 包装层
+#   AC_AI_MODEL=qwen3.5-plus ac ai # 临时覆盖本次使用的模型
+#
+# 默认后端：
+#   - 直连 direct 是默认后端，不需要额外设置环境变量。
+#   - 直连会复用 ~/.config/shell_gpt/.sgptrc 里的 API_BASE_URL 和 OPENAI_API_KEY。
+#   - 也可以用 AC_AI_API_BASE_URL / AC_AI_API_KEY 临时覆盖。
+#   - 直连失败时会自动 fallback 到 sgpt。
+#
+# 默认模型为什么不同：
+#   - direct 默认用 mimo-v2-pro：直连重复测试更稳，约 6-7s 能返回可用提交信息。
+#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 mimo-v2-pro 更适合 ShellGPT 包装层。
+#   - AC_AI_MODEL 会同时覆盖 direct 和 sgpt 的默认模型。
 
 alias gs='git status'                          # Git 状态
 alias gd='git diff'                            # Git diff
