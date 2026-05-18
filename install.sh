@@ -116,7 +116,7 @@ link_file "$DOTFILES/fastfetch/config.jsonc"    "$HOME/.config/fastfetch/config.
 # --- AI 工具 ---
 echo "🤖 AI 工具"
 link_file "$DOTFILES/opencode/opencode.json"        "$HOME/.config/opencode/opencode.json"
-link_file "$DOTFILES/opencode/oh-my-opencode.json"  "$HOME/.config/opencode/oh-my-opencode.json"
+link_file "$DOTFILES/opencode/oh-my-openagent.json"  "$HOME/.config/opencode/oh-my-openagent.json"
 link_file "$DOTFILES/claude/settings.json"          "$HOME/.claude/settings.json"
 link_file "$DOTFILES/claude/CLAUDE.md"              "$HOME/.claude/CLAUDE.md"
 link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statusline-hud-wrapper.sh"

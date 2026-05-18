@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 用 OpenRouter 快速模型总结指定 tmux pane 当前内容
+# 通过本机 `opencode run` 用 opencode-go 订阅快速总结指定 tmux pane 当前内容
 # 用法:
 #   ai_pane_summary.sh <pane_target>            # 同步总结
 #   ai_pane_summary.sh --preview <pane_target>  # 非阻塞预览，缓存未就绪时后台预热
@@ -7,8 +7,9 @@
 #   ai_pane_summary.sh --cached-summary <pane_target> # 单行缓存摘要，未就绪则后台预热
 #   ai_pane_summary.sh --raw-preview <pane_target> # 原始内容预览，去掉开头空行
 # 输出: "🤖 AI 总结 ... \n\n📺 原始内容 ..."
-# 注: 按 pane 缓存，避免重复调用 OpenRouter；--refresh 会强制更新当前 pane 缓存。
+# 注: 按 pane 缓存，避免重复调用 opencode；--refresh 会强制更新当前 pane 缓存。
 #      列表模式只在打开时懒刷新过期/内容变化的缓存，不做常驻后台轮询。
+#      失败时错误会写入缓存目录的 .error 文件，并显示在 SUMMARY 列。
 
 set -u
 
@@ -31,9 +32,8 @@ fi
 
 cache_dir="${TMPDIR:-/tmp}/ai_pane_summary_cache"
 mkdir -p "$cache_dir"
-summary_model="${AI_PANE_SUMMARY_MODEL:-google/gemini-2.5-flash}"
-openrouter_url="${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1/chat/completions}"
-request_timeout="${AI_PANE_SUMMARY_TIMEOUT:-12}"
+summary_model="${AI_PANE_SUMMARY_MODEL:-opencode-go/mimo-v2.5}"
+request_timeout="${AI_PANE_SUMMARY_TIMEOUT:-30}"
 capture_lines="${AI_PANE_SUMMARY_LINES:-160}"
 max_input_chars="${AI_PANE_SUMMARY_MAX_CHARS:-12000}"
 list_summary_chars="${AI_PANE_SUMMARY_LIST_CHARS:-80}"
@@ -52,17 +52,6 @@ case "$summary_ttl" in
   ''|*[!0-9]*) summary_ttl=300 ;;
 esac
 system_prompt="你是一个终端 pane 状态摘要器。用简洁中文输出 1-2 句，直接说这个 pane 当前正在做什么、是否有阻塞/报错。不要前缀，不要解释。"
-
-load_openrouter_key_from_tmux() {
-  local line
-
-  [ -z "${OPENROUTER_API_KEY:-}" ] || return 0
-  command -v tmux >/dev/null 2>&1 || return 0
-  line=$(tmux show-environment -g OPENROUTER_API_KEY 2>/dev/null || true)
-  case "$line" in
-    OPENROUTER_API_KEY=*) OPENROUTER_API_KEY="${line#OPENROUTER_API_KEY=}" ;;
-  esac
-}
 
 capture_plain() {
   local target="$1"
@@ -185,10 +174,12 @@ warm_one() {
   lock_dir="${cache_file}.lock"
   if acquire_lock "$lock_dir"; then
     status=0
-    summary=$(summarize_with_openrouter "$plain") || status=$?
+    summary=$(summarize_with_opencode "$plain") || status=$?
     if [ "$status" -eq 0 ] && [ -n "$summary" ]; then
       write_cache "$cache_file" "$summary" "$plain"
-    elif [ "$force" = "1" ] || [ ! -s "$cache_file" ]; then
+      rm -f "${cache_file}.error" 2>/dev/null || true
+    else
+      [ -n "$summary" ] || summary="opencode 调用失败但未输出错误信息"
       printf '%s' "$summary" > "${cache_file}.error"
     fi
     rm -f "${lock_dir}/pid" "${lock_dir}/started_at" 2>/dev/null || true
@@ -198,54 +189,42 @@ warm_one() {
   fi
 }
 
-summarize_with_openrouter() {
+summarize_with_opencode() {
   local plain="$1"
-  local body response summary
+  local prompt output status summary
 
-  load_openrouter_key_from_tmux
-  if [ -z "${OPENROUTER_API_KEY:-}" ]; then
-    printf 'OPENROUTER_API_KEY 未设置，无法调用 OpenRouter。'
-    return 1
-  fi
-  if ! command -v curl >/dev/null 2>&1; then
-    printf '找不到 curl，无法调用 OpenRouter。'
-    return 1
-  fi
-  if ! command -v jq >/dev/null 2>&1; then
-    printf '找不到 jq，无法生成/解析 OpenRouter JSON。'
+  if ! command -v opencode >/dev/null 2>&1; then
+    printf '找不到 opencode，无法调用 opencode-go 订阅。请确认 PATH。'
     return 1
   fi
 
-  body=$(jq -n \
-    --arg model "$summary_model" \
-    --arg system "$system_prompt" \
-    --arg content "$plain" \
-    '{
-      model: $model,
-      messages: [
-        {role: "system", content: $system},
-        {role: "user", content: $content}
-      ],
-      temperature: 0.1,
-      max_tokens: 80,
-      provider: {sort: "latency"},
-      reasoning: {effort: "minimal"}
-    }')
+  prompt=$(printf '%s\n\n终端内容:\n---\n%s\n---' "$system_prompt" "$plain")
 
-  if ! response=$(curl --silent --show-error --fail --max-time "$request_timeout" \
-    "$openrouter_url" \
-    -H "Authorization: Bearer ${OPENROUTER_API_KEY}" \
-    -H "Content-Type: application/json" \
-    -H "HTTP-Referer: https://github.com/unix2dos/dotfiles" \
-    -H "X-Title: tmux-ai-pane-summary" \
-    -d "$body" 2>&1); then
-    printf 'OpenRouter 调用失败: %s' "$response"
+  status=0
+  output=$(perl -e 'alarm shift; exec @ARGV' "$request_timeout" \
+    opencode run --pure -m "$summary_model" "$prompt" 2>&1) || status=$?
+
+  if [ "$status" -ne 0 ]; then
+    if [ "$status" -eq 142 ] || [ "$status" -eq 14 ]; then
+      printf 'opencode 调用超时 (>%ss)' "$request_timeout"
+    else
+      printf 'opencode run 失败 (exit %s): %s' "$status" "$(printf '%s' "$output" | tr '\n' ' ' | head -c 200)"
+    fi
     return 1
   fi
 
-  summary=$(printf '%s' "$response" | jq -r '.choices[0].message.content // .error.message // empty' 2>/dev/null)
+  # 去掉 ANSI 转义、`> agent · model` 头部和前导空行
+  summary=$(printf '%s\n' "$output" \
+    | sed $'s/\x1b\\[[0-9;]*[a-zA-Z]//g' \
+    | awk '
+        !started && /^[[:space:]]*$/ { next }
+        !started && /^>/ { next }
+        { started = 1; print }
+      ' \
+    | awk 'NF {p=1} p {lines[NR]=$0; last=NR} END {for (i=1;i<=last;i++) print lines[i]}')
+
   if [ -z "$summary" ]; then
-    printf 'OpenRouter 返回为空。'
+    printf 'opencode 返回为空 (raw: %s)' "$(printf '%s' "$output" | tr '\n' ' ' | head -c 200)"
     return 1
   fi
   printf '%s' "$summary"
@@ -295,7 +274,7 @@ preview_one() {
     printf '═══ 🤖 AI 总结 ═══\n%s\n\n═══ 📺 原始内容 ═══\n%s\n' "$summary" "$raw"
   else
     ( warm_one "$target" ) >/dev/null 2>&1 &
-    printf '⏳ 正在用 OpenRouter %s 快速总结，缓存就绪后会瞬间显示。按 ? 可等待本 pane 总结完成。\n\n═══ 📺 原始内容 ═══\n%s\n' "$summary_model" "$raw"
+    printf '⏳ 正在通过 opencode (%s) 快速总结，缓存就绪后会瞬间显示。按 ? 可等待本 pane 总结完成。\n\n═══ 📺 原始内容 ═══\n%s\n' "$summary_model" "$raw"
   fi
 }
 
@@ -307,14 +286,18 @@ show_one() {
   cache_file=$(cache_path_for "$target")
 
   if ! cache_is_fresh "$cache_file" "$plain"; then
-    printf '⏳ 调用 OpenRouter %s 快速总结中，请稍候...\n\n' "$summary_model"
+    printf '⏳ 调用 opencode (%s) 快速总结中，请稍候...\n\n' "$summary_model"
     warm_one "$target"
     wait_for_cache "$cache_file"
   fi
 
   summary=$(cat "$cache_file" 2>/dev/null || true)
   if [ -z "$summary" ]; then
-    summary="OpenRouter 总结不可用。请确认 OPENROUTER_API_KEY 已设置，且 curl/jq/网络可用。"
+    if [ -s "${cache_file}.error" ]; then
+      summary="❌ $(cat "${cache_file}.error")"
+    else
+      summary="opencode 总结不可用。请确认 \`opencode\` 已安装且 opencode-go 订阅可用 (opencode auth 检查)。"
+    fi
   fi
   printf '═══ 🤖 AI 总结 ═══\n%s\n\n═══ 📺 原始内容 ═══\n%s\n' "$summary" "$raw"
 }
@@ -336,15 +319,23 @@ refresh_one() {
 
   summary=$(cat "$cache_file" 2>/dev/null || true)
   if [ -z "$summary" ]; then
-    summary="OpenRouter 总结不可用。请确认 OPENROUTER_API_KEY 已设置，且 curl/jq/网络可用。"
+    summary="opencode 总结不可用。请确认 \`opencode\` 已安装且 opencode-go 订阅可用 (opencode auth 检查)。"
   fi
   printf '%s' "$summary"
 }
 
 cached_summary_one() {
   local target="$1"
-  local cache_file summary summarized_at label
+  local cache_file error_file summary summarized_at label err
   cache_file=$(cache_path_for "$target")
+  error_file="${cache_file}.error"
+
+  # 错误优先：refresh 失败时立刻在 SUMMARY 列暴露原因，不再静默
+  if [ -s "$error_file" ] && { [ ! -s "$cache_file" ] || [ "$error_file" -nt "$cache_file" ]; }; then
+    err=$(tr '\n\t' '  ' < "$error_file" | tr -s ' ' | cut -c "1-${list_summary_chars}")
+    printf '❌ %s' "$err"
+    return 0
+  fi
 
   if [ -s "$cache_file" ]; then
     label=""
