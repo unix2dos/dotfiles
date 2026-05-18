@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root=${0:A:h:h}
-zshrc="${repo_root}/zsh/.zshrc"
+git_zsh="${repo_root}/zsh/git.zsh"
 tmpdir=$(mktemp -d)
 trap 'command rm -rf "$tmpdir"' EXIT
 
@@ -34,14 +34,11 @@ export AC_AI_API_BASE_URL="https://example.test/v1"
 export AC_AI_API_KEY="test-key"
 export AC_AI_MODEL="mimo-v2-pro"
 
-source <(awk '
-  /^# --- 8[.]2/ { in_section = 1 }
-  /^# --- 8[.]3/ { exit }
-  in_section { print }
-' "$zshrc")
+source "$git_zsh"
 
 output=$(gitmsg ai <<< "diff --git a/file b/file")
 
+[[ "$(alias ac)" == "ac=cz" ]]
 [[ "$output" == "chore(test): direct commit" ]]
 grep -q -- "https://example.test/v1/chat/completions" "$curl_args_file"
 grep -q -- "Authorization: Bearer test-key" "$curl_args_file"
