@@ -529,6 +529,9 @@ unbind Y #!important
 bind-key -T prefix y run-shell -b "tmux capture-pane -p -M -S 0 -E - -t '#{pane_id}' | pbcopy" \; display-message "Clipboard: visible pane only" #!important
 bind-key -T prefix Y run-shell -b "tmux capture-pane -p -S - -E - -t '#{pane_id}' | pbcopy" \; display-message "Clipboard: full pane scrollback" #!important
 
+unbind ? #!important
+bind-key -T prefix ? display-popup -E -w 80% -h 90% -b rounded -T ' ⌨️ TMUX Cheatsheet ' "less -R '$HOME/workspace/dotfiles/tmux/cheatsheet.txt'" #!important
+
 #### 4. 插件管理 ####
 tmux_conf_update_plugins_on_launch=false              # 不在启动时自动更新插件 (防止网络不稳定导致插件被清空，手动用 Prefix + u 更新)
 tmux_conf_update_plugins_on_reload=false              # 不在 Reload 配置时自动更新插件

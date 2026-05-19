@@ -6,11 +6,11 @@
 
 ─── 🚀 Popup 浮动工具 (最常用) ───────────────────────────────────
   M-p           项目浮动终端 (Cmd+p 同效，按目录复用 window)
-  M-q           AI Pane 切换 (claude/amp/codex/gemini/pi/droid)
+  M-q           AI Pane 切换 (claude/codex/gemini/amp/pi/agent/cursor-agent/droid/opencode)
+                popup 内 M-t 显示/隐藏预览，M-r 刷新 AI 摘要
   M-w           全局 Pane 切换 (fzf)
-  Prefix+g      lazygit
-  Prefix+k      cht.sh 命令速查
-  Prefix+?      本速查卡
+  Cmd+o         打开剪贴板路径，否则打开当前 pane 目录
+  Prefix+?      本速查卡 (less 弹窗)
 
 ─── 📋 Session 会话 ──────────────────────────────────────────────
   Prefix+Tab    切回上一个 Session
@@ -26,8 +26,8 @@
   C-S-Right     窗口右移
 
 ─── 📐 Pane 面板 ────────────────────────────────────────────────
-  Prefix+|      垂直分屏 (Oh My Tmux)
-  Prefix+-      水平分屏 (Oh My Tmux)
+  Prefix+%      左右分屏 (split -h，Oh My Tmux)
+  Prefix+-      上下分屏 (split -v，Oh My Tmux)
   Prefix+q      显示 Pane 编号 → 按数字跳转
   Prefix+z      Pane 全屏/取消全屏
   双击 Pane     全屏/取消全屏
@@ -38,7 +38,9 @@
   M-f           tmux 内置搜索 (copy-mode)
   Prefix+f      extrakto 智能提取 (fzf)
   Prefix+/      copycat 正则搜索
-  Prefix+Enter  进入 copy-mode (vi键位)
+  Prefix+Enter  进入 copy-mode (vi键位，t/T jump 已禁用)
+  Prefix+y      复制当前 pane 可见内容到剪贴板
+  Prefix+Y      复制当前 pane 完整 scrollback 到剪贴板
 
 ─── 🐭 其他 ─────────────────────────────────────────────────────
   Prefix+m      鼠标模式 toggle
@@ -47,7 +49,7 @@
   :setw synchronize-panes on   同步所有 Pane 输入
 
 ─── 📌 状态栏图标含义 ───────────────────────────────────────────
-  🔥🔥🔥       Prefix 已按下
+  🔥🔥🔥🔥🔥🔥   Prefix 已按下
   🐭            鼠标模式开启
   💞            多客户端连接中
   🦷            Pane 同步模式
