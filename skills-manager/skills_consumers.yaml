@@ -29,17 +29,18 @@ core:
   - code-refactor  # 代码重构专家
   - code-simplifier # 代码简化专家
   - architecture-designer # 架构设计师
-
-  - learn-map # 学习新东西专家
   - technical-content-optimizer # 技术内容优化专家
   - mermaid-generator # 流程图生成专家
-
   - strategic-product-advisor # 战略产品规划专家
   - ui-ux-auditor # UI/UX 设计专家
-  - autoresearch # 优化 SKILLS 专家
-  - find-skills # 跨 skill 检索专家
+  - learn-map # 学习新东西专家
   - blog-knowledge-extraction # 博客知识提取
   - humanizer-zh # 中文书写专家
+
+  - autoresearch # 优化 SKILLS 专家
+  - find-skills # 跨 skill 检索专家
+  - skill-creator # 创建 skill
+
   - ljg-roundtable # 圆桌讨论
   - ljg-plain # 白话文解释
   - ljg-think # 追问很多层
