@@ -221,6 +221,7 @@ unset _zsh_config_dir
 # --- 7.2 AI CLI ---
 alias cc='claude'
 alias ca="cursor-agent"
+alias gg='agy'
 
 # --- 7.3 文件操作别名 ---
 alias ls='eza -h --hyperlink'                   # 更好的 ls (使用 eza)
