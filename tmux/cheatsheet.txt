@@ -6,7 +6,7 @@
 
 ─── 🚀 Popup 浮动工具 (最常用) ───────────────────────────────────
   M-p           项目浮动终端 (Cmd+p 同效，按目录复用 window)
-  M-q           AI Pane 切换 (claude/codex/gemini/amp/pi/agent/cursor-agent/droid/opencode)
+  M-q           AI Pane 切换 (claude/codex/gemini/amp/pi/agent/cursor-agent/droid/opencode/agy)
                 popup 内 M-t 显示/隐藏预览，M-r 刷新 AI 摘要
   M-w           全局 Pane 切换 (fzf)
   Cmd+o         打开剪贴板路径，否则打开当前 pane 目录

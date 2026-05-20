@@ -512,7 +512,7 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
 bind -n M-p run-shell -b "$HOME/workspace/dotfiles/tmux/popup_terminal.sh"
 
 
-# Option+q: 查找所有运行 AI CLI (claude/codex/gemini/amp) 的 Pane，fzf 选择后跳转
+# Option+q: 查找所有运行 AI CLI (claude/codex/gemini/amp/agy) 的 Pane，fzf 选择后跳转
 bind -n M-q display-popup -E -w 96% -h 92% -b rounded -S 'fg=#ff00af' -T ' 🤖 AI Panes · Option-T隐藏 · Option-R刷新总结 ' "bash '$HOME/workspace/dotfiles/tmux/ai_pane_switch_popup.sh'"
 
 # Ctrl + Shift + Left/Right: 交换窗口位置并跟随焦点 (无需 Prefix)

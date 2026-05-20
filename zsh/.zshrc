@@ -337,3 +337,7 @@ export PATH="$HOME/.grok/bin:$PATH"
 WW_HELPER_BIN="/Users/liuwei/.local/bin/ww-helper"
 source "/Users/liuwei/.local/bin/ww.sh"
 # ww shell wrapper end
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/liuwei/.local/bin:$PATH"

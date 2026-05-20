@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # M-q AI CLI pane switcher.
 #
-# Finds panes running AI CLIs such as claude/codex/gemini/amp/pi/agent/cursor-agent/droid,
+# Finds panes running AI CLIs such as claude/codex/gemini/amp/pi/agent/cursor-agent/droid/agy/antigravity,
 # shows them in an fzf popup, and switches to the selected pane. Preview
 # content is provided by ai_pane_summary.sh; M-r refreshes, M-t toggles preview.
 
@@ -60,7 +60,7 @@ detect_ai_cli() {
 
   # Native binaries and CLIs that exec with argv[0] set to the tool name.
   case "$base" in
-    claude|codex|gemini|amp|agent|cursor-agent|droid|pi|opencode)
+    claude|codex|gemini|amp|agent|cursor-agent|droid|pi|opencode|agy|antigravity-cli|antigravity)
       printf '%s' "$base"
       return 0
       ;;
@@ -75,7 +75,7 @@ detect_ai_cli() {
   for word in $command; do
     lower=$(printf '%s' "$word" | tr '[:upper:]' '[:lower:]')
     case "$lower" in
-      claude|codex|gemini|amp|droid|pi|cursor-agent|opencode|*/claude|*/codex|*/gemini|*/amp|*/droid|*/pi|*/cursor-agent|*/opencode)
+      claude|codex|gemini|amp|droid|pi|cursor-agent|opencode|agy|antigravity-cli|antigravity|*/claude|*/codex|*/gemini|*/amp|*/droid|*/pi|*/cursor-agent|*/opencode|*/agy|*/antigravity-cli|*/antigravity)
         path_base "$lower"
         return 0
         ;;
@@ -134,7 +134,7 @@ collect_results() {
     done
   done < <(
     ps -eo pid=,command= |
-      /usr/bin/grep -Ei '(^|[[:space:]/])(claude|codex|gemini|amp|droid|pi|opencode)([[:space:]/.]|$)|(^|[[:space:]/])agent([[:space:]/.]|$)|(^|[[:space:]/])cursor-agent([[:space:]/.]|$)|claude-code|openai-codex|@openai/codex|gemini-cli|pi-coding-agent|@anthropic-ai/claude-code|@google/gemini-cli' |
+      /usr/bin/grep -Ei '(^|[[:space:]/])(claude|codex|gemini|amp|droid|pi|opencode|agy|antigravity-cli|antigravity)([[:space:]/.]|$)|(^|[[:space:]/])agent([[:space:]/.]|$)|(^|[[:space:]/])cursor-agent([[:space:]/.]|$)|claude-code|openai-codex|@openai/codex|gemini-cli|pi-coding-agent|@anthropic-ai/claude-code|@google/gemini-cli' |
       /usr/bin/grep -Ev 'grep -Ei|ai_pane_switch_popup\.sh' |
       sort -rn
   )

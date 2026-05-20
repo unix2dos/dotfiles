@@ -103,7 +103,7 @@ Oh My Tmux 分屏：`Prefix+%` 左右分屏（`split-window -h`），`Prefix+-` 
 AI pane 切换器。
 
 - 由 `M-q` 调用。
-- 查找进程树里包含 `claude`、`codex`、`gemini`、`amp`、`pi`、`agent`、`cursor-agent`、`droid`、`opencode` 等 AI CLI 的 pane。
+- 查找进程树里包含 `claude`、`codex`、`gemini`、`amp`、`pi`、`agent`、`cursor-agent`、`droid`、`opencode`、`agy`、`antigravity` 等 AI CLI 的 pane。
 - 用 tmux popup + fzf 展示结果。
 - 预览内容由 `ai_pane_summary.sh` 提供。
 - popup 内 `M-r` 刷新摘要。
