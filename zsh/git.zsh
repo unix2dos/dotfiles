@@ -14,8 +14,8 @@
 #   - 直连失败时会自动 fallback 到 sgpt。
 #
 # 默认模型为什么不同：
-#   - direct 默认用 mimo-v2-pro：直连重复测试更稳，约 6-7s 能返回可用提交信息。
-#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 mimo-v2-pro 更适合 ShellGPT 包装层。
+#   - direct 默认用 glm-5.1：实测三轮 avg 6.17s，是当前 zen 网关里最快且稳定的模型。
+#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 glm-5.1 更适合 ShellGPT 包装层。
 #   - AC_AI_MODEL 会同时覆盖 direct 和 sgpt 的默认模型。
 
 alias gs='git status'                          # Git 状态
@@ -83,7 +83,7 @@ function _ac_gitmsg_sgpt() {
 function _ac_gitmsg_direct() {
     local lang_desc="$1"
     local diff_content="$2"
-    local model="${AC_AI_MODEL:-mimo-v2-pro}"
+    local model="${AC_AI_MODEL:-glm-5.1}"
     local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
     local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
     local timeout="${AC_AI_TIMEOUT:-35}"
@@ -164,7 +164,7 @@ function cz() {
 
         local ai_start=$(_ac_now_ms)
         local message=$(gitmsg "$1" < "$prompt_file")
-        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-mimo-v2-pro}" "$ai_start"
+        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-glm-5.1}" "$ai_start"
 
         if [ -z "$message" ]; then
             echo "Error: Failed to generate commit message." >&2

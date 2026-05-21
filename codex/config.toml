@@ -88,6 +88,9 @@ trust_level = "trusted"
 [projects."/Users/liuwei/go/src/bunnie/bunnie-server"]
 trust_level = "trusted"
 
+[projects."/Users/liuwei/go/src/ailab/genlab"]
+trust_level = "trusted"
+
 [marketplaces.openai-bundled]
 last_updated = "2026-05-09T04:22:08Z"
 source_type = "local"
