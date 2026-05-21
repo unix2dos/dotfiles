@@ -14,9 +14,12 @@
 #   - 直连失败时会自动 fallback 到 sgpt。
 #
 # 默认模型为什么不同：
-#   - direct 默认用 glm-5.1：实测三轮 avg 6.17s，是当前 zen 网关里最快且稳定的模型。
+#   - direct 默认用 glm-5.1 + reasoning_effort=none：关闭思考链后实测 avg ~3s。
 #   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 glm-5.1 更适合 ShellGPT 包装层。
 #   - AC_AI_MODEL 会同时覆盖 direct 和 sgpt 的默认模型。
+#   - AC_AI_REASONING_EFFORT 控制 direct 的 reasoning_effort 字段：
+#       默认 "none"（最快）；deepseek 系不支持 none，需改成 low/medium/high；
+#       置空字符串 (AC_AI_REASONING_EFFORT="") 则不传该字段。
 
 alias gs='git status'                          # Git 状态
 alias gd='git diff'                            # Git diff
@@ -87,6 +90,8 @@ function _ac_gitmsg_direct() {
     local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
     local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
     local timeout="${AC_AI_TIMEOUT:-35}"
+    # 关闭思考链可大幅提速；deepseek 系不支持 "none"，需用 low/medium/high 或置空
+    local reasoning_effort="${AC_AI_REASONING_EFFORT-none}"
 
     [[ -n "$api_base" && -n "$api_key" ]] || return 1
     command -v curl >/dev/null 2>&1 || return 1
@@ -97,8 +102,9 @@ ${diff_content}
 
 Return exactly one Conventional Commit message in ${lang_desc} and nothing else. Use <type>(<scope>): <subject>."
     local payload response
-    payload=$(jq -n --arg model "$model" --arg content "$content" \
-        '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false}') || return 1
+    payload=$(jq -n --arg model "$model" --arg content "$content" --arg effort "$reasoning_effort" \
+        '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false}
+         + (if $effort == "" then {} else {reasoning_effort:$effort} end)') || return 1
 
     response=$(curl --silent --show-error --fail --max-time "$timeout" \
         -H "Authorization: Bearer ${api_key}" \
