@@ -13,13 +13,13 @@
 #   - 也可以用 AC_AI_API_BASE_URL / AC_AI_API_KEY 临时覆盖。
 #   - 直连失败时会自动 fallback 到 sgpt。
 #
-# 默认模型为什么不同：
-#   - direct 默认用 glm-5.1 + reasoning_effort=none：关闭思考链后实测 avg ~3s。
-#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 glm-5.1 更适合 ShellGPT 包装层。
+# 默认模型：
+#   - direct 默认用 mimo-v2-pro：非推理模型，实测 avg ~3.5s，速度最快。
+#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 mimo-v2-pro 更适合 ShellGPT 包装层。
 #   - AC_AI_MODEL 会同时覆盖 direct 和 sgpt 的默认模型。
 #   - AC_AI_REASONING_EFFORT 控制 direct 的 reasoning_effort 字段：
-#       默认 "none"（最快）；deepseek 系不支持 none，需改成 low/medium/high；
-#       置空字符串 (AC_AI_REASONING_EFFORT="") 则不传该字段。
+#       默认不传（最快）；deepseek 系需改成 low/medium/high；
+#       设为 "none" 则传给支持该字段的模型（glm 等）。
 
 alias gs='git status'                          # Git 状态
 alias gd='git diff'                            # Git diff
@@ -86,12 +86,11 @@ function _ac_gitmsg_sgpt() {
 function _ac_gitmsg_direct() {
     local lang_desc="$1"
     local diff_content="$2"
-    local model="${AC_AI_MODEL:-glm-5.1}"
+    local model="${AC_AI_MODEL:-mimo-v2-pro}"
     local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
     local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
     local timeout="${AC_AI_TIMEOUT:-35}"
-    # 关闭思考链可大幅提速；deepseek 系不支持 "none"，需用 low/medium/high 或置空
-    local reasoning_effort="${AC_AI_REASONING_EFFORT-none}"
+    local reasoning_effort="${AC_AI_REASONING_EFFORT-}"
 
     [[ -n "$api_base" && -n "$api_key" ]] || return 1
     command -v curl >/dev/null 2>&1 || return 1
@@ -102,9 +101,20 @@ ${diff_content}
 
 Return exactly one Conventional Commit message in ${lang_desc} and nothing else. Use <type>(<scope>): <subject>."
     local payload response
-    payload=$(jq -n --arg model "$model" --arg content "$content" --arg effort "$reasoning_effort" \
-        '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false}
-         + (if $effort == "" then {} else {reasoning_effort:$effort} end)') || return 1
+
+    # 默认不传 reasoning_effort（对非推理模型更快）
+    # deepseek 系必须传 low/medium/high，不支持置空
+    if [[ "$model" == deepseek* ]]; then
+        local ds_effort="${reasoning_effort:-low}"
+        payload=$(jq -n --arg model "$model" --arg content "$content" --arg effort "$ds_effort" \
+            '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false,reasoning_effort:$effort}') || return 1
+    elif [[ -n "$reasoning_effort" ]]; then
+        payload=$(jq -n --arg model "$model" --arg content "$content" --arg effort "$reasoning_effort" \
+            '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false,reasoning_effort:$effort}') || return 1
+    else
+        payload=$(jq -n --arg model "$model" --arg content "$content" \
+            '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false}') || return 1
+    fi
 
     response=$(curl --silent --show-error --fail --max-time "$timeout" \
         -H "Authorization: Bearer ${api_key}" \
@@ -170,7 +180,7 @@ function cz() {
 
         local ai_start=$(_ac_now_ms)
         local message=$(gitmsg "$1" < "$prompt_file")
-        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-glm-5.1}" "$ai_start"
+        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-mimo-v2-pro}" "$ai_start"
 
         if [ -z "$message" ]; then
             echo "Error: Failed to generate commit message." >&2
