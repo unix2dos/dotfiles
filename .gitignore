@@ -18,3 +18,5 @@ cursor/mcp.local.json
 cursor/cli-config.local.json
 
 .worktrees/
+.sisyphus/
+
