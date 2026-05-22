@@ -64,6 +64,7 @@ consumers:
 
   # Gemini Antigravity：默认核心集
   "~/.gemini/antigravity/skills": {}
+  "~/.gemini/config/skills": {}
 
   # OpenClaw：核心集 + unix2dos/skills 整源
   "~/.openclaw/skills":
