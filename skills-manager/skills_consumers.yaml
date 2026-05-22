@@ -25,6 +25,7 @@ core:
   - ask-first # 先问后答专家
   - confidence-check # 前置信度检查
   - asking-clarifying-questions # 提问澄清专家
+  - karpathy-guidelines # Karpathy LLM 编码守则
 
   - code-refactor  # 代码重构专家
   - code-simplifier # 代码简化专家
