@@ -22,9 +22,9 @@
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具最常用的几个，所有 consumer 默认都装这套
 core:
-  - ask-first # 先问后答专家
+  - ask-first # 模糊问题挖真实意图
+  - asking-clarifying-questions # 问题需求对齐
   - confidence-check # 前置信度检查
-  - asking-clarifying-questions # 提问澄清专家
   - karpathy-guidelines # Karpathy LLM 编码守则
 
   - code-refactor  # 代码重构专家
