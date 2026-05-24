@@ -24,6 +24,7 @@
 core:
   - ask-first # 模糊问题挖真实意图
   - asking-clarifying-questions # 问题需求对齐
+  - grill-with-docs # 方案 grilling + 领域语言对齐 + 文档更新
   - confidence-check # 前置信度检查
   - karpathy-guidelines # Karpathy LLM 编码守则
 
