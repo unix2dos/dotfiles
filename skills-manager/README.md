@@ -1,134 +1,86 @@
 # Skills Manager
 
-Multi-AI-tool skills aggregation layer.
+多 AI 工具的 skill 聚合层。**core** = 默认装进 Cursor / Claude / Codex 等工具的 23 个 skill。
 
-## Quick Start
+安装与配置 → [INSTALL.md](./INSTALL.md)
 
-```bash
-bash ~/workspace/dotfiles/skills-manager/install.sh
-bash ~/workspace/dotfiles/skills-manager/install.sh --dry-run  # 仅预览
-```
+---
 
-## Files
+## 怎么用：按阶段找 skill
 
-| File | Purpose |
-|---|---|
-| `skills_sources.yaml`   | 下载器配置：从哪 git clone + 怎么 build |
-| `skills_consumers.yaml` | 分发器配置：每个 AI 工具装哪些 skill |
-| `install.sh`            | 所有逻辑：clean → clone+build → aggregate → distribute |
+| 阶段 | 组 | 干什么 | 代表 skill |
+|---|---|---|---|
+| 还没说清楚要做什么 | ① 澄清 | 挖意图、对齐需求、grilling 方案 | ask-first, grill-with-docs |
+| 要定架构或方向 | ② 设计 | 系统设计、画图、UI 审计、产品战略 | architecture-designer, mermaid-generator |
+| 要写/改代码 | ③ 编码 | 编码守则、Go 重构、简化代码 | karpathy-guidelines, code-refactor |
+| 要产出内容 | ④ 写作 | 博客、润色、去 AI 味、深度长文 | blog-knowledge-extraction, ljg-writes |
+| 要系统学一个主题 | ⑤ 学习 | 生成学习地图、分阶段讲解 | learn-map |
+| 要管理 skill 本身 | ⑥ 元工具 | 创建、发现、自动优化 skill | skill-creator, autoresearch |
 
-## Pipeline
+> **触发：** `自动` = agent 自行判断；`手动 @` = 需显式说出触发词（如 `@ui-ux-auditor`）。
 
-```
-Step 0  clean             清理 ~/.skills-installed + ~/.skills-community
-Step 1  clone + build     拉源仓库、跑 build、抓 extracts
-Step 2  aggregate         按优先级聚合到 ~/.skills-installed（symlink 层）
-Step 3  distribute        按 consumers 配置创建各 AI 工具的 skill 集
-```
+---
 
-## Sources（按优先级 high → low）
+## ① 澄清与方案对齐
 
-| # | Source | Repo | 备注 |
-|---|--------|------|------|
-| 1 | skills      | unix2dos/skills    | 自有，clone 到 `~/workspace/skills`，无前缀 |
-| 2 | superpowers | obra/superpowers   | 工程流程框架 |
-| 3 | mini        | slavingia/skills   | 精益创业 |
-| 4 | ljg-skills  | lijigang/ljg-skills| npm build |
-| 5 | gstack      | garrytan/gstack    | bun build + runtime assets |
-| – | extracts    | 多仓库子目录提取    | skill-creator / find-skills / 等 |
+任务没说清、方案没对齐时先用这组。
 
-同名 skill → 优先级高的胜出。
-
-## Consumer 配置（`skills_consumers.yaml`）
-
-```yaml
-core:
-  - code-refactor
-  - architecture-designer
-  # ...
-
-consumers:
-  "~/.claude/skills":  { add:  [extra1, extra2] }   # core ∪ {extra1, extra2}
-  "~/.codex/skills":   {}                           # 装 core
-  "~/.cursor/skills":  { only: [a, b] }             # 只装 a, b（不要 core）
-```
-
-**三种写法**：
-
-| 配置 | 实际安装 |
-|---|---|
-| `{}`              | core |
-| `{ add: [a, b] }` | core ∪ {a, b} |
-| `{ only: [a, b] }`| {a, b}（不要 core） |
-
-**引用形式**（`core` / `add` / `only` 里通用）：
-
-| 形式 | 展开为 |
-|---|---|
-| `code-refactor`         | 单个 skill |
-| `source:superpowers`    | 该 source 聚合后的所有 skill（整源一键加）|
-| `source:skills`         | `unix2dos/skills` 下全部 skill |
-| `source:extract`        | 所有 `extracts:` 条目 |
-
-`source:<name>` 里的 `<name>` = `skills_sources.yaml` 里的 `name` / `prefix` / repo basename（即 `derive_source_name` 结果）。新加的 skill 只要属于被引用的 source，**无需改 consumers 配置**自动跟着进来。
-
-**规则**：
-- 出现在 `consumers:` 里 = 被 install.sh 管理；不写 = 完全不碰
-- `add` 和 `only` 互斥
-- 配置里写了不存在的 skill 名 → `[WARN]` 跳过，不报错
-- `source:<name>` 没匹配到任何 skill → `[WARN]` 跳过
-
-## Source 配置（`skills_sources.yaml`）
-
-```yaml
-repos:
-  - { repo: owner/name, prefix: xxx }                          # 最简
-  - { repo: owner/name, prefix: "", clone_to: ~/path }          # 本地工作区源（无前缀）
-  - { repo: owner/name, name: foo, prefix: "",                 # gstack 风格
-      skills_dir: .agents/skills, build: "...",
-      runtime_assets: [bin, browse] }
-
-extracts:
-  - { repo: owner/name, subdir: path/to/skill, name: my-skill }
-```
-
-字段：
-
-| 字段 | 必填 | 说明 |
+| Skill | 干什么 | 触发 |
 |---|---|---|
-| `repo`           | ✓ | GitHub `owner/name` |
-| `prefix`         | 可选 | skill 名前缀防撞名；`""` 表示不加前缀 |
-| `name`           | 可选 | source 标识；不写则用 prefix 或 repo basename |
-| `clone_to`       | 可选 | 自定义 clone 路径；默认 `~/.skills-community/{name}` |
-| `skills_dir`     | 可选 | skill 根目录，默认 `.` |
-| `branch`         | 可选 | 默认 `main` |
-| `build`          | 可选 | clone 后执行的命令 |
-| `exclude`        | 可选 | 跳过的 skill 名列表 |
-| `runtime_assets` | 可选 | symlink 到主 skill 目录的 build 产物 |
+| ask-first | 从模糊/类比/情绪化输入照见真实意图 | 自动 |
+| asking-clarifying-questions | 动手前对齐需求、消歧术语、验证假设 | 自动 |
+| grill-with-docs | 逐题 grilling 方案，更新 CONTEXT.md / ADR | 自动 |
+| confidence-check | 写代码前做前置信度检查 | 自动 |
 
-## 已知限制
+## ② 架构与设计
 
-- **不要手动在 consumer 目录放文件**：install.sh 检测到非 symlink 内容会备份到 `{path}.backup.{timestamp}` 后清空
-- **core 不支持"减某个"**：要排除某个 skill，用 `only: [...]` 自己列全
-- **owned 类源必须显式 `clone_to`**：默认 clone_to 在 `~/.skills-community/`，每次会被 wipe；本地工作区必须指向 `~/.skills-community/` 之外（如 `~/workspace/skills`）
+| Skill | 干什么 | 触发 |
+|---|---|---|
+| architecture-designer | 系统架构设计、ADR、技术选型 | 自动 |
+| mermaid-generator | 生成 Mermaid 流程图/时序图/ER 图 | 自动 |
+| ui-ux-auditor | UI/UX 设计审计 | 手动 @ |
+| strategic-product-advisor | 产品方向、竞品、商业模式 | 手动 @ |
 
-## Project Skills（按需安装，不参与全局）
+## ③ 编码
 
-### [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) — UI/UX 设计智能（67 风格 / 161 配色 / 57 字体）
+| Skill | 干什么 | 触发 |
+|---|---|---|
+| karpathy-guidelines | LLM 编码守则（少过度设计、surgical 改动） | 自动 |
+| code-refactor | Go 代码重构（SOLID、idiomatic Go） | 自动 |
+| code-simplifier | 简化代码、降复杂度 | 自动 |
 
-```bash
-npx uipro-cli init --ai claude        # Claude Code
-npx uipro-cli init --ai codex         # Codex
-npx uipro-cli init --ai antigravity   # Antigravity
-npx uipro-cli init --ai all           # 全部平台
-```
+## ④ 内容与写作
 
-### [impeccable](https://github.com/pbakaus/impeccable) — 前端 UI/UX 设计智能，20 个斜杠命令
+| Skill | 干什么 | 触发 |
+|---|---|---|
+| blog-knowledge-extraction | 素材 → 中文技术博客 | 手动 @ |
+| technical-content-optimizer | 博客润色到工程博客水准 | 手动 @ |
+| humanizer-zh | 去除中文 AI 写作痕迹 | 自动 |
+| ljg-plain | 白话解释，说人话 | 自动 |
+| ljg-think | 纵向深钻，追到本质 | 自动 |
+| ljg-writes | 深度长文（1000–1500 字） | 自动 |
+| ljg-roundtable | 多视角圆桌辩论 | 自动 |
 
-```bash
-git clone --depth 1 https://github.com/pbakaus/impeccable.git /tmp/impeccable
-cp -r /tmp/impeccable/.claude ./
-cp -r /tmp/impeccable/.codex ./
-cp -r /tmp/impeccable/.cursor ./
-cp -r /tmp/impeccable/.gemini ./
-```
+## ⑤ 学习与探索
+
+| Skill | 干什么 | 触发 |
+|---|---|---|
+| learn-map | 系统化学习一个主题 | 手动 @ |
+
+## ⑥ Skill 生态
+
+| Skill | 干什么 | 触发 |
+|---|---|---|
+| skill-creator | 创建/修改 skill、跑 eval | 自动 |
+| find-skills | 搜索安装社区 skill | 自动 |
+| autoresearch | 自动 eval + 优化 skill prompt | 自动 |
+
+---
+
+## 不在 core 里？
+
+- **Codex** 额外装了 `superpowers` 工程流程全家桶
+- **OpenClaw** 额外装了 `skills` 仓库全部 skill（含 `go-code-review`、`daily-tech-digest` 等）
+- **ljg-skills** 还有拆书、铸图、读论文等 15 个 skill 未进 core
+
+完整 source 列表、非 core skill 明细、安装命令 → [INSTALL.md](./INSTALL.md)

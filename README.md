@@ -21,7 +21,7 @@ git clone https://github.com/unix2dos/dotfiles.git ~/workspace/dotfiles
 # 2. 符号链接配置文件（已有文件自动备份为 *.backup.{timestamp}）
 cd ~/workspace/dotfiles && ./install.sh
 
-# 3. 安装全局 AI skills（可选，详见 skills-manager/README.md）
+# 3. 安装全局 AI skills（可选，详见 skills-manager/INSTALL.md）
 bash ~/workspace/dotfiles/skills-manager/install.sh
 ```
 

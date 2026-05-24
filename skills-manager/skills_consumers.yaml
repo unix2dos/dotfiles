@@ -20,33 +20,41 @@
 #                              例：source:superpowers / source:skills / source:extract
 
 # ─── 核心 skill 集 ────────────────────────────────────────────
-# 跨工具最常用的几个，所有 consumer 默认都装这套
+# 跨工具默认安装。分组与 README.md 一致；用途说明见 README，安装见 INSTALL.md
 core:
-  - ask-first # 模糊问题挖真实意图
-  - asking-clarifying-questions # 问题需求对齐
-  - grill-with-docs # 方案 grilling + 领域语言对齐 + 文档更新
-  - confidence-check # 前置信度检查
-  - karpathy-guidelines # Karpathy LLM 编码守则
+  # ① 澄清与方案对齐
+  - ask-first # 模糊输入 → 真实意图
+  - asking-clarifying-questions # 需求对齐、消歧术语
+  - grill-with-docs # grilling 方案，更新 CONTEXT/ADR
+  - confidence-check # 写代码前置信度检查
 
-  - code-refactor  # 代码重构专家
-  - code-simplifier # 代码简化专家
-  - architecture-designer # 架构设计师
-  - technical-content-optimizer # 技术内容优化专家
-  - mermaid-generator # 流程图生成专家
-  - strategic-product-advisor # 战略产品规划专家
-  - ui-ux-auditor # UI/UX 设计专家
-  - learn-map # 学习新东西专家
-  - blog-knowledge-extraction # 博客知识提取
-  - humanizer-zh # 中文书写专家
+  # ② 架构与设计
+  - architecture-designer # 系统架构、ADR、技术选型
+  - mermaid-generator # Mermaid 图表
+  - ui-ux-auditor # UI/UX 审计（手动 @）
+  - strategic-product-advisor # 产品方向、竞品（手动 @）
 
-  - autoresearch # 优化 SKILLS 专家
-  - find-skills # 跨 skill 检索专家
-  - skill-creator # 创建 skill
+  # ③ 编码
+  - karpathy-guidelines # LLM 编码守则
+  - code-refactor # Go 重构
+  - code-simplifier # 代码简化
 
-  - ljg-roundtable # 圆桌讨论
-  - ljg-plain # 白话文解释
-  - ljg-think # 追问很多层
-  - ljg-writes # 写作引擎
+  # ④ 内容与写作
+  - blog-knowledge-extraction # 素材 → 博客（手动 @）
+  - technical-content-optimizer # 博客润色（手动 @）
+  - humanizer-zh # 去 AI 味
+  - ljg-plain # 白话解释
+  - ljg-think # 纵向深钻
+  - ljg-writes # 深度长文
+  - ljg-roundtable # 圆桌辩论
+
+  # ⑤ 学习与探索
+  - learn-map # 系统化学习（手动 @）
+
+  # ⑥ Skill 生态
+  - skill-creator # 创建/修改 skill
+  - find-skills # 发现社区 skill
+  - autoresearch # 自动 eval 优化 skill
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
