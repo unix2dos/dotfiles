@@ -33,7 +33,7 @@
 	#pager = delta
 
 	# 全局忽略文件配置（IDE 配置、系统文件等）
-	excludesfile = /Users/liuwei/workspace/LevonConfig/Config/git/ignore
+	excludesfile = /Users/liuwei/workspace/dotfiles/git/ignore
 
 [init]
 	defaultBranch = main
