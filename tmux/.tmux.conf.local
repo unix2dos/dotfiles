@@ -526,8 +526,10 @@ bind-key -n User0 run-shell -b "'$HOME/workspace/dotfiles/tmux/smart-open.sh' '#
 # === Quick copy pane to macOS clipboard (prefix+y / prefix+Y) ===
 unbind y #!important
 unbind Y #!important
-bind-key -T prefix y run-shell -b "tmux capture-pane -p -M -S 0 -E - -t '#{pane_id}' | pbcopy" \; display-message "Clipboard: visible pane only" #!important
-bind-key -T prefix Y run-shell -b "tmux capture-pane -p -S - -E - -t '#{pane_id}' | pbcopy" \; display-message "Clipboard: full pane scrollback" #!important
+bind -T prefix y run-shell -b 'tmp=$(mktemp); tmux capture-pane -p -M -S 0 -E - -t "#{pane_id}" > "$tmp"; pbcopy < "$tmp"; tmux load-buffer "$tmp"; rm -f "$tmp"; tmux display-message "Clipboard+buffer: visible pane only"' #!important
+bind -T prefix Y run-shell -b 'tmp=$(mktemp); tmux capture-pane -p -S - -E - -t "#{pane_id}" > "$tmp"; pbcopy < "$tmp"; tmux load-buffer "$tmp"; rm -f "$tmp"; tmux display-message "Clipboard+buffer: full pane scrollback"' #!important
+bind -T prefix p paste-buffer -p #!important
+run-shell -b 'sleep 0.5; printf "%s\n" "unbind y" "bind -T prefix y run-shell -b '\''tmp=\$(mktemp); tmux capture-pane -p -M -S 0 -E - -t \"##{pane_id}\" > \"\$tmp\"; pbcopy < \"\$tmp\"; tmux load-buffer \"\$tmp\"; rm -f \"\$tmp\"; tmux display-message \"Clipboard+buffer: visible pane only\"'\''" | tmux source-file -'
 
 unbind ? #!important
 bind-key -T prefix ? display-popup -E -w 80% -h 90% -b rounded -T ' ⌨️ TMUX Cheatsheet ' "less -R '$HOME/workspace/dotfiles/tmux/cheatsheet.txt'" #!important
