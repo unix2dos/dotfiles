@@ -9,8 +9,8 @@
 
 # 操作系统文件
 .DS_Store   # macOS 系统自动生成的文件夹元数据文件
-.antigravitycli
-
 
 # AI 辅助工具本地配置
 **/.claude/settings.local.json  # Claude AI 的本地设置文件
+.antigravitycli
+.sisyphus
