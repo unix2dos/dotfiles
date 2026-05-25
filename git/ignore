@@ -14,3 +14,4 @@
 **/.claude/settings.local.json  # Claude AI 的本地设置文件
 .antigravitycli
 .sisyphus
+.playwright-mcp/
