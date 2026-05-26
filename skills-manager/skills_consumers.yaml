@@ -25,7 +25,6 @@ core:
   # ① 澄清与方案对齐
   - ask-first # 模糊输入 → 真实意图
   - asking-clarifying-questions # 需求对齐、消歧术语
-  - grill-with-docs # grilling 方案，更新 CONTEXT/ADR
   - confidence-check # 写代码前置信度检查
 
   # ② 架构与设计
@@ -55,6 +54,10 @@ core:
   - skill-creator # 创建/修改 skill
   - find-skills # 发现社区 skill
   - autoresearch # 自动 eval 优化 skill
+
+  # ⑦ Matt Pocock（mattpocock/skills）
+  - source:mattpocock-engineering # grill-with-docs, diagnose, tdd, triage, to-issues, to-prd, …
+  - source:mattpocock-productivity # caveman, grill-me, handoff, write-a-skill
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
