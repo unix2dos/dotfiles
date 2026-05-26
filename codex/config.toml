@@ -107,6 +107,29 @@ max_depth = 2
 
 [hooks.state]
 
+# OMX-owned Codex hook trust state
+# Trusts only setup-managed codex-native-hook.js wrappers.
+[hooks.state."/Users/liuwei/.codex/hooks.json:post_compact:0:0"]
+trusted_hash = "sha256:2986dd92e7e03aa3bb7d50a0e89afe20521c10274aa40913f69167edb90f5db8"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:5f59f057ed6f8931ed2b1579b49f5dcf9b7a66575c0de527caf1576b61fc22f3"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:pre_compact:0:0"]
+trusted_hash = "sha256:d7dff2631231d8d85eba1cebbdc025ca2198f8ccc1ccfdb63e6f945dcf64f35a"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:6125596ea2a28ba788f51dc577985d4b0c36beb6253fbfb01390603ceb01dd6b"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:53294b1edbdabbd43013eff0113aa7c62904bf954387cad302340912ce9adf38"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:stop:0:0"]
+trusted_hash = "sha256:4139d46f7b767e5e0daa8d937d10db3020653c04b904b9ce8c70224534f554b4"
+
+[hooks.state."/Users/liuwei/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:dcfa70a8b4e367452b225b47aeddb8a6ed3148a7ac520348621a8127d03f5b1c"
+
 [shell_environment_policy.set]
 USE_OMX_EXPLORE_CMD = "1"
 
@@ -149,29 +172,6 @@ command = "/Users/liuwei/.nvm/versions/node/v24.6.0/bin/node"
 args = ["/Users/liuwei/.nvm/versions/node/v24.6.0/lib/node_modules/oh-my-codex/dist/mcp/wiki-server.js"]
 enabled = true
 startup_timeout_sec = 5
-
-# OMX-owned Codex hook trust state
-# Trusts only setup-managed codex-native-hook.js wrappers.
-[hooks.state."/Users/liuwei/.codex/hooks.json:post_compact:0:0"]
-trusted_hash = "sha256:2986dd92e7e03aa3bb7d50a0e89afe20521c10274aa40913f69167edb90f5db8"
-
-[hooks.state."/Users/liuwei/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:5f59f057ed6f8931ed2b1579b49f5dcf9b7a66575c0de527caf1576b61fc22f3"
-
-[hooks.state."/Users/liuwei/.codex/hooks.json:pre_compact:0:0"]
-trusted_hash = "sha256:d7dff2631231d8d85eba1cebbdc025ca2198f8ccc1ccfdb63e6f945dcf64f35a"
-
-[hooks.state."/Users/liuwei/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:6125596ea2a28ba788f51dc577985d4b0c36beb6253fbfb01390603ceb01dd6b"
-
-[hooks.state."/Users/liuwei/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:2204d30cb4126dc671c9bb69b8c93afe4dfecab4aa4abbecbaeec0e83b8d3d29"
-
-[hooks.state."/Users/liuwei/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:4139d46f7b767e5e0daa8d937d10db3020653c04b904b9ce8c70224534f554b4"
-
-[hooks.state."/Users/liuwei/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:dcfa70a8b4e367452b225b47aeddb8a6ed3148a7ac520348621a8127d03f5b1c"
 # End OMX-owned Codex hook trust state
 
 # OMX TUI StatusLine (Codex CLI v0.101.0+)
@@ -185,6 +185,8 @@ status_line_use_colors = true
 
 [notice]
 hide_rate_limit_model_nudge = true
+
+[desktop]
 
 # ============================================================
 # End oh-my-codex
