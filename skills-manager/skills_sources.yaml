@@ -28,10 +28,6 @@ repos:
     prefix: superpowers
     skills_dir: skills
 
-  # - repo: slavingia/skills
-  #   prefix: mini
-  #   skills_dir: skills
-
   - repo: lijigang/ljg-skills
     prefix: ""
     skills_dir: skills
@@ -39,14 +35,7 @@ repos:
     build: "cd skills/ljg-card && npm install --silent && npx playwright install chromium"
     exclude: [ljg-word, ljg-travel]
 
-  # - repo: garrytan/gstack
-  #   name: gstack
-  #   prefix: ""
-  #   skills_dir: .agents/skills
-  #   build: "bun install --silent && bun run build"
-  #   runtime_assets: [bin, browse, review, qa]
-
-  # mattpocock/skills — shared clone, two scan roots (engineering + productivity)
+  # mattpocock/skills 带 grillme 的 skill
   - repo: mattpocock/skills
     name: mattpocock-engineering
     clone_to: ~/.skills-community/mattpocock-skills
@@ -56,6 +45,19 @@ repos:
     name: mattpocock-productivity
     clone_to: ~/.skills-community/mattpocock-skills
     skills_dir: skills/productivity
+
+
+  ### 注释掉的 skill ###
+  # - repo: garrytan/gstack
+  #   name: gstack
+  #   prefix: ""
+  #   skills_dir: .agents/skills
+  #   build: "bun install --silent && bun run build"
+  #   runtime_assets: [bin, browse, review, qa]
+
+  # - repo: slavingia/skills
+  #   prefix: mini
+  #   skills_dir: skills
 
 extracts:
   - { repo: anthropics/skills,       subdir: skills/skill-creator,                                                  name: skill-creator }
