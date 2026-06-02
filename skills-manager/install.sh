@@ -21,6 +21,7 @@ COMMUNITY_DIR="$HOME/.skills-community"
 
 DRY_RUN=false
 TMPDIR_BASE=""
+DIFF_DIR=""
 
 # skill_link_name -> source_name mapping (populated in step_link)
 # Format: "|link_name=source_name|..." (bash 3.x compatible)
@@ -186,12 +187,30 @@ cleanup() {
   fi
 }
 
+# ─── snapshot consumer dirs (for diff) ─────────────────────────────
+
+snapshot_consumers() {
+  DIFF_DIR="$(mktemp -d)"
+  local consumer_count
+  consumer_count=$(yq '.consumers | length' "$CONSUMERS_CONFIG")
+  for ((idx = 0; idx < consumer_count; idx++)); do
+    local raw_path consumer_path
+    raw_path=$(yq -r ".consumers | keys | .[$idx]" "$CONSUMERS_CONFIG")
+    consumer_path=$(expand_path "$raw_path")
+    if [[ -d "$consumer_path" ]]; then
+      ls -1 "$consumer_path" 2>/dev/null | sort > "${DIFF_DIR}/${idx}_old"
+    else
+      touch "${DIFF_DIR}/${idx}_old"
+    fi
+  done
+}
+
 # ─── Step 0: clean stale aggregate dirs ───────────────────────────
 # Wipes INSTALL_DIR + COMMUNITY_DIR. Sources whose clone_to is OUTSIDE
 # COMMUNITY_DIR (e.g. owned: ~/workspace/skills) are NOT touched.
 
 step_clean() {
-  log_header "Step 0/4 — clean stale dirs"
+  log_header "Step 0/5 — clean stale dirs"
 
   for dir in "$COMMUNITY_DIR" "$INSTALL_DIR"; do
     if [[ "$DRY_RUN" == true ]]; then
@@ -206,7 +225,7 @@ step_clean() {
 # ─── Step 1: clone repos + fetch extracts + build ────────────────
 
 step_clone_and_build() {
-  log_header "Step 1/4 — clone + build"
+  log_header "Step 1/5 — clone + build"
 
   # ── repos ──
   local repo_count
@@ -338,7 +357,7 @@ step_clone_and_build() {
 # ─── Step 2: aggregate to INSTALL_DIR ─────────────────────────────
 
 step_aggregate() {
-  log_header "Step 2/4 — aggregate -> ${INSTALL_DIR}"
+  log_header "Step 2/5 — aggregate -> ${INSTALL_DIR}"
 
   if [[ "$DRY_RUN" == false ]]; then
     mkdir -p "$INSTALL_DIR"
@@ -550,7 +569,7 @@ prepare_consumer_dir() {
 }
 
 step_link() {
-  log_header "Step 3/4 — distribute to consumers"
+  log_header "Step 3/5 — distribute to consumers"
 
   local consumer_count
   consumer_count=$(yq '.consumers | length' "$CONSUMERS_CONFIG")
@@ -602,6 +621,56 @@ step_link() {
   done
 }
 
+# ─── Step 4: diff report ──────────────────────────────────────────
+
+step_diff() {
+  [[ "$DRY_RUN" == true ]] && return
+  [[ -z "$DIFF_DIR" || ! -d "$DIFF_DIR" ]] && return
+
+  log_header "Step 4/5 — changes"
+
+  local consumer_count has_changes=false
+  consumer_count=$(yq '.consumers | length' "$CONSUMERS_CONFIG")
+
+  for ((idx = 0; idx < consumer_count; idx++)); do
+    local raw_path consumer_path
+    raw_path=$(yq -r ".consumers | keys | .[$idx]" "$CONSUMERS_CONFIG")
+    consumer_path=$(expand_path "$raw_path")
+
+    if [[ -d "$consumer_path" ]]; then
+      ls -1 "$consumer_path" 2>/dev/null | sort > "${DIFF_DIR}/${idx}_new"
+    else
+      touch "${DIFF_DIR}/${idx}_new"
+    fi
+
+    local added removed
+    added=$(comm -13 "${DIFF_DIR}/${idx}_old" "${DIFF_DIR}/${idx}_new")
+    removed=$(comm -23 "${DIFF_DIR}/${idx}_old" "${DIFF_DIR}/${idx}_new")
+
+    if [[ -n "$added" || -n "$removed" ]]; then
+      has_changes=true
+      log_info "${raw_path}:"
+      if [[ -n "$added" ]]; then
+        while IFS= read -r s; do
+          [[ -n "$s" ]] && echo -e "  ${GREEN}+ ${s}${NC}"
+        done <<< "$added"
+      fi
+      if [[ -n "$removed" ]]; then
+        while IFS= read -r s; do
+          [[ -n "$s" ]] && echo -e "  ${RED}- ${s}${NC}"
+        done <<< "$removed"
+      fi
+    fi
+  done
+
+  if [[ "$has_changes" == false ]]; then
+    log_success "no changes across all consumers"
+  fi
+
+  rm -rf "$DIFF_DIR"
+  DIFF_DIR=""
+}
+
 # ─── main ─────────────────────────────────────────────────────────
 
 main() {
@@ -611,10 +680,12 @@ main() {
 
   [[ "$DRY_RUN" == true ]] && log_warn "DRY-RUN mode"
 
+  snapshot_consumers
   step_clean
   step_clone_and_build
   step_aggregate
   step_link
+  step_diff
 
   echo ""
   log_success "all done!"
