@@ -21,6 +21,7 @@
 
 repos:
   - repo: unix2dos/skills
+    name: unix2dos
     prefix: ""
     clone_to: ~/workspace/skills
 

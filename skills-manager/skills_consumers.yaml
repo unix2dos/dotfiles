@@ -22,38 +22,20 @@
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具默认安装。分组与 README.md 一致；用途说明见 README，安装见 INSTALL.md
 core:
-  # ① 澄清与方案对齐
-  - ask-first # 模糊输入 → 真实意图
+  # ① unix2dos/skills 整源
+  - source:unix2dos
+
+  # ② 社区精选
   - asking-clarifying-questions # 需求对齐、消歧术语
-  - confidence-check # 写代码前置信度检查
-
-  # ② 架构与设计
   - architecture-designer # 系统架构、ADR、技术选型
-  - mermaid-generator # Mermaid 图表
-  - ui-ux-auditor # UI/UX 审计（手动 @）
-  - strategic-product-advisor # 产品方向、竞品（手动 @）
-
-  # ③ 编码
   - karpathy-guidelines # LLM 编码守则
-  - code-refactor # Go 重构
-  - code-simplifier # 代码简化
-
-  # ④ 内容与写作
-  - blog-knowledge-extraction # 素材 → 博客（手动 @）
-  - technical-content-optimizer # 博客润色（手动 @）
   - humanizer-zh # 去 AI 味
   - ljg-plain # 白话解释
   - ljg-think # 纵向深钻
   - ljg-writes # 深度长文
   - ljg-roundtable # 圆桌辩论
-
-  # ⑤ 学习与探索
-  - learn-map # 系统化学习（手动 @）
-
-  # ⑥ Skill 生态
   - skill-creator # 创建/修改 skill
   - find-skills # 发现社区 skill
-  - autoresearch # 自动 eval 优化 skill
 
   # ⑦ Matt Pocock（mattpocock/skills）
   - source:mattpocock-engineering # grill-with-docs, diagnose, tdd, triage, to-issues, to-prd, …
@@ -79,10 +61,8 @@ consumers:
   "~/.gemini/antigravity/skills": {}
   "~/.gemini/config/skills": {}
 
-  # OpenClaw：核心集 + unix2dos/skills 整源
-  "~/.openclaw/skills":
-    add:
-      - source:skills
+  # OpenClaw：默认核心集
+  "~/.openclaw/skills": {}
 
   # OpenCode：默认核心集
   "~/.config/opencode/skills": {}
