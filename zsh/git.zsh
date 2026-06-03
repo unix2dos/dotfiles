@@ -85,42 +85,56 @@ function _ac_gitmsg_sgpt() {
 
 function _ac_gitmsg_direct() {
     local lang_desc="$1"
-    local diff_content="$2"
+    local diff_file="$2"
     local model="${AC_AI_MODEL:-mimo-v2-pro}"
     local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
     local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
     local timeout="${AC_AI_TIMEOUT:-35}"
     local reasoning_effort="${AC_AI_REASONING_EFFORT-}"
+    local jq_user_content='("Git diff:\n"+$diff+"\n\nReturn exactly one Conventional Commit message in "+$lang+" and nothing else. Use <type>(<scope>): <subject>.")'
+    local jq_base='{model:$model,messages:[{role:"user",content:'"${jq_user_content}"'}],temperature:0,stream:false'
 
+    [[ -r "$diff_file" ]] || return 1
     [[ -n "$api_base" && -n "$api_key" ]] || return 1
     command -v curl >/dev/null 2>&1 || return 1
     command -v jq >/dev/null 2>&1 || return 1
 
-    local content="Git diff:
-${diff_content}
+    local payload_file response
+    payload_file=$(mktemp "${TMPDIR:-/tmp}/ac-ai-payload.XXXXXX") || return 1
 
-Return exactly one Conventional Commit message in ${lang_desc} and nothing else. Use <type>(<scope>): <subject>."
-    local payload response
-
+    # --rawfile: diff stays off argv; payload file + curl -d @file avoids ARG_MAX on huge JSON
     # 默认不传 reasoning_effort（对非推理模型更快）
     # deepseek 系必须传 low/medium/high，不支持置空
     if [[ "$model" == deepseek* ]]; then
         local ds_effort="${reasoning_effort:-low}"
-        payload=$(jq -n --arg model "$model" --arg content "$content" --arg effort "$ds_effort" \
-            '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false,reasoning_effort:$effort}') || return 1
+        jq -n --arg model "$model" --arg lang "$lang_desc" --arg effort "$ds_effort" --rawfile diff "$diff_file" \
+            "${jq_base},reasoning_effort:\$effort}" >| "$payload_file" || {
+            command rm -f "$payload_file"
+            return 1
+        }
     elif [[ -n "$reasoning_effort" ]]; then
-        payload=$(jq -n --arg model "$model" --arg content "$content" --arg effort "$reasoning_effort" \
-            '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false,reasoning_effort:$effort}') || return 1
+        jq -n --arg model "$model" --arg lang "$lang_desc" --arg effort "$reasoning_effort" --rawfile diff "$diff_file" \
+            "${jq_base},reasoning_effort:\$effort}" >| "$payload_file" || {
+            command rm -f "$payload_file"
+            return 1
+        }
     else
-        payload=$(jq -n --arg model "$model" --arg content "$content" \
-            '{model:$model,messages:[{role:"user",content:$content}],temperature:0,stream:false}') || return 1
+        jq -n --arg model "$model" --arg lang "$lang_desc" --rawfile diff "$diff_file" \
+            "${jq_base}}" >| "$payload_file" || {
+            command rm -f "$payload_file"
+            return 1
+        }
     fi
 
     response=$(curl --silent --show-error --fail --max-time "$timeout" \
         -H "Authorization: Bearer ${api_key}" \
         -H "Content-Type: application/json" \
-        -d "$payload" \
-        "${api_base%/}/chat/completions") || return 1
+        -d "@${payload_file}" \
+        "${api_base%/}/chat/completions") || {
+        command rm -f "$payload_file"
+        return 1
+    }
+    command rm -f "$payload_file"
 
     printf '%s' "$response" |
         jq -r '.choices[0].message.content // .choices[0].text // empty' |
@@ -132,16 +146,24 @@ function gitmsg() {
     if [[ "$1" == "ai" ]]; then
         lang_desc="English"
     fi
-    local diff_content
-    diff_content=$(cat)
 
-    if [[ "${AC_AI_BACKEND:-direct}" == "sgpt" ]]; then
-        _ac_gitmsg_sgpt "$lang_desc" <<< "$diff_content"
-        return
+    local diff_file="${2:-}"
+    local owned=0
+    if [[ -z "$diff_file" || ! -r "$diff_file" ]]; then
+        diff_file=$(mktemp "${TMPDIR:-/tmp}/ac-ai-gitmsg.XXXXXX") || return 1
+        cat > "$diff_file"
+        owned=1
     fi
 
-    _ac_gitmsg_direct "$lang_desc" "$diff_content" ||
-        _ac_gitmsg_sgpt "$lang_desc" <<< "$diff_content"
+    if [[ "${AC_AI_BACKEND:-direct}" == "sgpt" ]]; then
+        _ac_gitmsg_sgpt "$lang_desc" < "$diff_file"
+    else
+        _ac_gitmsg_direct "$lang_desc" "$diff_file" ||
+            _ac_gitmsg_sgpt "$lang_desc" < "$diff_file"
+    fi
+    local rc=$?
+    [[ "$owned" -eq 1 ]] && command rm -f "$diff_file"
+    return "$rc"
 }
 
 # Analyze git diff HEAD, generate a commit message, then confirm/edit/commit.
@@ -161,17 +183,27 @@ function cz() {
 
         local prepare_start=$(_ac_now_ms)
         local line_count=$(wc -l < "$diff_file" | tr -d ' ')
+        local byte_count=$(wc -c < "$diff_file" | tr -d ' ')
         local max_lines="${AC_AI_MAX_DIFF_LINES:-800}"
+        local max_bytes="${AC_AI_MAX_DIFF_BYTES:-524288}"
         [[ "$max_lines" == <-> ]] || max_lines=800
+        [[ "$max_bytes" == <-> ]] || max_bytes=524288
         prompt_file="$diff_file"
 
-        if [ "$line_count" -gt 1200 ]; then
-            echo "⚠️  Diff 较长（${line_count} 行），已截取前 ${max_lines} 行 + 文件统计" >&2
+        if [ "$line_count" -gt 1200 ] || [ "$byte_count" -gt "$max_bytes" ]; then
+            echo "⚠️  Diff 较大（${line_count} 行 / ${byte_count} 字节），已截断 + 文件统计" >&2
             prompt_file=$(mktemp "${TMPDIR:-/tmp}/ac-ai-prompt.XXXXXX") || return 1
             head -n "$max_lines" "$diff_file" >| "$prompt_file"
+            local prompt_bytes=$(wc -c < "$prompt_file" | tr -d ' ')
+            if [ "$prompt_bytes" -gt "$max_bytes" ]; then
+                local capped_file
+                capped_file=$(mktemp "${TMPDIR:-/tmp}/ac-ai-prompt-cap.XXXXXX") || return 1
+                head -c "$max_bytes" "$prompt_file" >| "$capped_file"
+                command mv -f "$capped_file" "$prompt_file"
+            fi
             {
                 echo
-                echo "... [Diff 过长已截断：共 ${line_count} 行，完整统计如下]"
+                echo "... [Diff 过长已截断：共 ${line_count} 行 / ${byte_count} 字节，完整统计如下]"
                 echo
                 git diff --stat --no-ext-diff --no-color HEAD
             } >> "$prompt_file"
@@ -179,7 +211,7 @@ function cz() {
         _ac_trace "prepare diff (${line_count} lines)" "$prepare_start"
 
         local ai_start=$(_ac_now_ms)
-        local message=$(gitmsg "$1" < "$prompt_file")
+        local message=$(gitmsg "$1" "$prompt_file")
         _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-mimo-v2-pro}" "$ai_start"
 
         if [ -z "$message" ]; then
