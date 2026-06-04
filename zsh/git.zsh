@@ -14,8 +14,8 @@
 #   - 直连失败时会自动 fallback 到 sgpt。
 #
 # 默认模型：
-#   - direct 默认用 mimo-v2-pro：非推理模型，实测 avg ~3.5s，速度最快。
-#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 mimo-v2-pro 更适合 ShellGPT 包装层。
+#   - direct 默认用 mimo-v2.5-pro：非推理模型，实测 avg ~3.5s，速度最快。
+#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 mimo-v2.5-pro 更适合 ShellGPT 包装层。
 #   - AC_AI_MODEL 会同时覆盖 direct 和 sgpt 的默认模型。
 #   - AC_AI_REASONING_EFFORT 控制 direct 的 reasoning_effort 字段：
 #       默认不传（最快）；deepseek 系需改成 low/medium/high；
@@ -86,7 +86,7 @@ function _ac_gitmsg_sgpt() {
 function _ac_gitmsg_direct() {
     local lang_desc="$1"
     local diff_file="$2"
-    local model="${AC_AI_MODEL:-mimo-v2-pro}"
+    local model="${AC_AI_MODEL:-mimo-v2.5-pro}"
     local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
     local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
     local timeout="${AC_AI_TIMEOUT:-35}"
@@ -212,7 +212,7 @@ function cz() {
 
         local ai_start=$(_ac_now_ms)
         local message=$(gitmsg "$1" "$prompt_file")
-        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-mimo-v2-pro}" "$ai_start"
+        _ac_trace "ai backend=${AC_AI_BACKEND:-direct} model=${AC_AI_MODEL:-mimo-v2.5-pro}" "$ai_start"
 
         if [ -z "$message" ]; then
             echo "Error: Failed to generate commit message." >&2
