@@ -345,3 +345,5 @@ export PATH="/Users/liuwei/.local/bin:$PATH"
 
 # Load local private configs (not tracked by dotfiles)
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
+
+export PATH=$PATH:/Users/liuwei/.spicetify
