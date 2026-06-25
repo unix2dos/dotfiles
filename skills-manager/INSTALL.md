@@ -66,8 +66,9 @@ consumer 目录里是 **symlink**，指向聚合层；自有 skill 直接链到 
 | skills | `unix2dos/skills` | core 精选 + OpenClaw 全量 |
 | superpowers | `obra/superpowers` | 仅 Codex（14 个，带 `superpowers-` 前缀） |
 | ljg-skills | `lijigang/ljg-skills` | core 4 个 + 下方非 core |
-| mattpocock-engineering | `mattpocock/skills` → `skills/engineering` | core（10 个） |
-| mattpocock-productivity | `mattpocock/skills` → `skills/productivity` | core（4 个） |
+| mattpocock-engineering | `mattpocock/skills` → `skills/engineering` | core（14 个） |
+| mattpocock-productivity | `mattpocock/skills` → `skills/productivity` | core（5 个） |
+| mattpocock-in-progress | `mattpocock/skills` → `skills/in-progress` | core（6 个） |
 | extracts | 多个第三方 repo | 见 `skills_sources.yaml` |
 
 ### skills 仓库 · 非 core（OpenClaw 自动，其他需手动加 core）

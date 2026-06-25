@@ -38,8 +38,9 @@ core:
   - find-skills # 发现社区 skill
 
   # ⑦ Matt Pocock（mattpocock/skills）
-  - source:mattpocock-engineering # grill-with-docs, diagnose, tdd, triage, to-issues, to-prd, …
-  - source:mattpocock-productivity # caveman, grill-me, handoff, write-a-skill
+  - source:mattpocock-engineering # grill-with-docs, diagnosing-bugs, tdd, triage, to-issues, to-prd, implement, …
+  - source:mattpocock-productivity # grill-me, handoff, grilling, teach, writing-great-skills
+  - source:mattpocock-in-progress # decision-mapping, loop-me, review, writing-beats/fragments/shape
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
