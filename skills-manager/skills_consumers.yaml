@@ -36,6 +36,8 @@ core:
   - ljg-roundtable # 圆桌辩论
   - skill-creator # 创建/修改 skill
   - find-skills # 发现社区 skill
+  - design-taste-frontend # anti-slop 前端（landing / portfolio / 新建页）
+  - redesign-existing-projects # 改造已有项目 UI，audit-first
 
   # ⑦ Matt Pocock（mattpocock/skills）
   - source:mattpocock-engineering # grill-with-docs, diagnosing-bugs, tdd, triage, to-issues, to-prd, implement, …
