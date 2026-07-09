@@ -220,7 +220,7 @@ unset _zsh_config_dir
 
 # --- 7.2 AI CLI ---
 alias cc='claude'
-alias ca="cursor-agent --model composer-2.5-fast"
+alias ca="cursor-agent"
 alias gg='agy'
 
 # --- 7.3 文件操作别名 ---
