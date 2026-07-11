@@ -49,10 +49,11 @@ consumers:
   # Claude Code：默认核心集
   "~/.claude/skills": {}
 
-  # Codex（OpenAI CLI）：核心集 + superpowers 全家桶
-  "~/.codex/skills":
-    add:
-      - source:superpowers
+  # Codex（OpenAI CLI）：默认核心集
+  "~/.codex/skills": {}
+  # "~/.codex/skills":
+  #   add:
+  #     - source:superpowers
 
   # Cursor IDE：默认核心集
   "~/.cursor/skills": {}
