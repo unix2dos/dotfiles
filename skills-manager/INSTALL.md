@@ -33,7 +33,7 @@ bash ~/workspace/dotfiles/skills-manager/install.sh --dry-run   # 仅预览
 clean → clone+build → aggregate（~/.skills-installed）→ distribute（~/.claude/skills 等）
 ```
 
-consumer 目录里是 **symlink**，指向聚合层；自有 skill 直接链到 `~/workspace/skills`，改 SKILL.md **无需**重跑 install。
+consumer 目录采用**原地同步**：安装器只替换受管 symlink，按 `preserve` 保留工具自带目录，并把其他真实条目逐个备份。自有 skill 直接链到 `~/workspace/skills`，改 SKILL.md **无需**重跑 install。
 
 ### 分发规则
 
@@ -68,7 +68,7 @@ consumer 目录里是 **symlink**，指向聚合层；自有 skill 直接链到 
 | ljg-skills | `lijigang/ljg-skills` | core 4 个 + 下方非 core |
 | mattpocock-engineering | `mattpocock/skills` → `skills/engineering` | core（14 个） |
 | mattpocock-productivity | `mattpocock/skills` → `skills/productivity` | core（5 个） |
-| mattpocock-in-progress | `mattpocock/skills` → `skills/in-progress` | core（6 个） |
+| mattpocock-in-progress | `mattpocock/skills` → `skills/in-progress` | 可选 source，不进入 core |
 | extracts | 多个第三方 repo | 见 `skills_sources.yaml` |
 
 ### skills 仓库 · 非 core（OpenClaw 自动，其他需手动加 core）
@@ -101,7 +101,7 @@ brainstorming · writing-plans · executing-plans · test-driven-development · 
 
 ```yaml
 "~/.cursor/skills": {}                              # 装 core
-"~/.codex/skills":  { add: [source:superpowers] }  # core + 额外
+"~/.codex/skills":  { preserve: [.system] }         # core + 保留 Codex 系统 skill
 "~/.some/tool":     { only: [a, b] }                # 完全自定义
 ```
 
@@ -110,6 +110,7 @@ brainstorming · writing-plans · executing-plans · test-driven-development · 
 | `{}` | core |
 | `{ add: [...] }` | core ∪ 额外 |
 | `{ only: [...] }` | 仅 listed，不要 core |
+| `{ preserve: [...] }` | 原地保留指定顶层条目；可与 `add` / `only` 共用 |
 
 引用：`code-refactor`（单个）· `source:superpowers`（整源）· `source:skills` · `source:extract`
 
@@ -128,7 +129,7 @@ brainstorming · writing-plans · executing-plans · test-driven-development · 
 
 ## 6. 已知限制
 
-- consumer 目录勿手动放文件 — 非 symlink 会被备份后清空
+- consumer 目录里的未声明真实条目会被逐个备份；工具自带目录应加入 `preserve`
 - core 不支持「减某个」— 用 `only: [...]` 自己列全
 - owned 源必须显式 `clone_to` — 默认路径每次 install 会被 wipe
 

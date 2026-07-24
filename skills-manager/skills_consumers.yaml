@@ -4,12 +4,14 @@
 # 规则（一句话）：
 #   默认装 core；写 add 加几个；写 only 完全自定义不要 core。
 #
-# 三种写法：
+# 常用写法：
 #   {}                         → 装 core
 #   { add: [a, b] }            → core ∪ {a, b}
 #   { only: [a, b] }           → {a, b}（不要 core）
+#   { preserve: [.system] }     → 装 core，并原地保留指定顶层条目
 #
 # add / only 互斥；都没写等价于 {}。
+# preserve 可与 add / only 共用；保留项不会被删除或覆盖。
 # 出现在 consumers: 里 = 被 install.sh 管理；不写 = 完全不碰。
 #
 # 引用形式（在 core / add / only 里都通用）：
@@ -26,14 +28,12 @@ core:
   - source:unix2dos
 
   # ② 社区精选
-  - asking-clarifying-questions # 需求对齐、消歧术语
   - architecture-designer # 系统架构、ADR、技术选型
   - humanizer-zh # 去 AI 味
   - ljg-plain # 白话解释
   - ljg-think # 纵向深钻
   - ljg-writes # 深度长文
   - ljg-roundtable # 圆桌辩论
-  - skill-creator # 创建/修改 skill
   - find-skills # 发现社区 skill
   - design-taste-frontend # anti-slop 前端（landing / portfolio / 新建页）
   - redesign-existing-projects # 改造已有项目 UI，audit-first
@@ -41,15 +41,15 @@ core:
   # ⑦ Matt Pocock（mattpocock/skills）
   - source:mattpocock-engineering # grill-with-docs, diagnosing-bugs, tdd, triage, to-issues, to-prd, implement, …
   - source:mattpocock-productivity # grill-me, handoff, grilling, teach, writing-great-skills
-  - source:mattpocock-in-progress # decision-mapping, loop-me, review, writing-beats/fragments/shape
 
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
   # Claude Code：默认核心集
   "~/.claude/skills": {}
 
-  # Codex（OpenAI CLI）：默认核心集
-  "~/.codex/skills": {}
+  # Codex（OpenAI CLI）：默认核心集；.system 由 Codex 自己管理
+  "~/.codex/skills":
+    preserve: [.system]
   # "~/.codex/skills":
   #   add:
   #     - source:superpowers

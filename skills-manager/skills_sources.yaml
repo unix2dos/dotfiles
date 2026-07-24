@@ -67,10 +67,8 @@ repos:
   #   skills_dir: skills
 
 extracts:
-  - { repo: anthropics/skills,       subdir: skills/skill-creator,                                                  name: skill-creator }
   - { repo: vercel-labs/skills,      subdir: skills/find-skills,                                                    name: find-skills }
   - { repo: Jeffallan/claude-skills, subdir: skills/architecture-designer,                                          name: architecture-designer }
-  - { repo: ed3dai/ed3d-plugins,     subdir: plugins/ed3d-plan-and-execute/skills/asking-clarifying-questions,      name: asking-clarifying-questions }
   - { repo: op7418/Humanizer-zh,     subdir: .,                                                                     name: humanizer-zh }
   - { repo: Leonxlnx/taste-skill,              subdir: skills/taste-skill,                                          name: design-taste-frontend }
   - { repo: Leonxlnx/taste-skill,              subdir: skills/redesign-skill,                                       name: redesign-existing-projects }

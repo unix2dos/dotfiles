@@ -1,6 +1,6 @@
 # Skills Manager
 
-多 AI 工具的 skill 聚合层。**core** = 默认装进 Cursor / Claude / Codex 等工具的 skill 集（含 `mattpocock/skills` 的 engineering + productivity + in-progress）。
+多 AI 工具的 skill 聚合层。**core** = 默认装进 Cursor / Claude / Codex 等工具的 skill 集（含 `mattpocock/skills` 的 engineering + productivity；in-progress 仅按需安装）。
 
 安装与配置 → [INSTALL.md](./INSTALL.md)
 
@@ -15,9 +15,9 @@
 | 要写/改代码 | ③ 编码 | Go 重构、简化代码、疑难诊断 | code-refactor, code-simplifier |
 | 要产出内容 | ④ 写作 | 博客、润色、去 AI 味、深度长文 | blog-knowledge-extraction, ljg-writes |
 | 要系统学一个主题 | ⑤ 学习 | 生成学习地图、分阶段讲解 | learn-map |
-| 要管理 skill 本身 | ⑥ 元工具 | 创建、发现、自动优化 skill | skill-creator, autoresearch |
+| 要管理 skill 本身 | ⑥ 元工具 | 发现、自动优化 skill | find-skills, autoresearch |
 | 工程流程（Matt Pocock） | ⑦ 工程 | 诊断、TDD、拆 issue、PRD、triage | diagnosing-bugs, tdd, to-issues, triage |
-| 实验性（Matt Pocock） | ⑧ 实验 | 决策地图、workflow 设计、双轴 review、写作 shaping | decision-mapping, loop-me, review, writing-shape |
+| 实验性（Matt Pocock，非 core） | ⑧ 实验 | 决策地图、workflow 设计、双轴 review、写作 shaping | decision-mapping, loop-me, review, writing-shape |
 
 > **触发：** `自动` = agent 自行判断；`手动 @` = 需显式说出触发词（如 `@ui-ux-auditor`）。
 
@@ -30,7 +30,6 @@
 | Skill | 干什么 | 触发 |
 |---|---|---|
 | ask-first | 从模糊/类比/情绪化输入照见真实意图 | 自动 |
-| asking-clarifying-questions | 动手前对齐需求、消歧术语、验证假设 | 自动 |
 | grill-with-docs | 逐题 grilling 方案，更新 CONTEXT.md / ADR | 自动 |
 | grill-me | 逐题 grilling（无 repo 文档时） | 自动 |
 | handoff | 压缩会话为交接文档 | 自动 |
@@ -81,14 +80,15 @@
 
 | Skill | 干什么 | 触发 |
 |---|---|---|
-| skill-creator | 创建/修改 skill、跑 eval | 自动 |
 | find-skills | 搜索安装社区 skill | 自动 |
 | autoresearch | 自动 eval + 优化 skill prompt | 自动 |
 | writing-great-skills | 按 Matt Pocock 结构写新 skill | 自动 |
 
-## ⑧ Matt Pocock · in-progress（实验性）
+> Codex 自带的 `.system/skill-creator` 由 Codex 管理，不进入本项目的 source 或 core。
 
-上游 `skills/in-progress`，API 可能变动；适合愿意尝鲜的场景。
+## ⑧ Matt Pocock · in-progress（实验性，非 core）
+
+上游 `skills/in-progress`，API 可能变动；保留为可选 source，不随 core 默认安装。
 
 | Skill | 干什么 | 触发 |
 |---|---|---|

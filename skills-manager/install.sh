@@ -532,32 +532,82 @@ resolve_consumer_skills() {
   printf '%s\n' "${result[@]}"
 }
 
-# Wipe consumer dir safely:
-#   - if symlink → just rm
-#   - if dir with non-symlink contents → backup
-#   - if dir with only symlinks → safe rm
+# Return success when a top-level consumer entry is configured to be preserved.
+is_consumer_entry_preserved() {
+  local consumer_path="$1" entry_name="$2"
+  local preserve_count
+  preserve_count=$(yq ".consumers[\"${consumer_path}\"].preserve | length" "$CONSUMERS_CONFIG" 2>/dev/null)
+  [[ "$preserve_count" == "0" || "$preserve_count" == "null" ]] && return 1
+
+  local k preserved
+  for ((k = 0; k < preserve_count; k++)); do
+    preserved=$(cq ".consumers[\"${consumer_path}\"].preserve[$k]")
+    [[ "$preserved" == "$entry_name" ]] && return 0
+  done
+  return 1
+}
+
+# Synchronize a consumer directory in place:
+#   - preserve explicitly configured top-level entries
+#   - remove old managed symlinks
+#   - back up other real entries individually
+#   - never move the whole consumer directory
 prepare_consumer_dir() {
-  local path="$1"
+  local raw_path="$1" path="$2"
+  local backup="${path}.backup.$(date +%Y%m%d%H%M%S).$$"
 
   if [[ -L "$path" ]]; then
+    log_warn "${path}: consumer root is a symlink; replacing it with a directory"
     if [[ "$DRY_RUN" == false ]]; then
       rm -f "$path"
     fi
   elif [[ -d "$path" ]]; then
-    local non_link_count=0
-    local entry
+    local link_count=0 backup_count=0 preserve_count=0
+    local entry entry_name
     while IFS= read -r entry; do
-      [[ -n "$entry" ]] && non_link_count=$((non_link_count + 1))
-    done < <(find "$path" -mindepth 1 -maxdepth 1 ! -type l 2>/dev/null)
+      [[ -n "$entry" ]] || continue
+      entry_name="$(basename "$entry")"
 
-    if [[ "$non_link_count" -gt 0 ]]; then
-      local backup="${path}.backup.$(date +%Y%m%d%H%M%S)"
-      log_warn "${path}: contains ${non_link_count} non-symlink entr(ies), backing up to ${backup}"
-      if [[ "$DRY_RUN" == false ]]; then
-        mv "$path" "$backup"
+      if is_consumer_entry_preserved "$raw_path" "$entry_name"; then
+        ((preserve_count++)) || true
+        continue
       fi
-    elif [[ "$DRY_RUN" == false ]]; then
-      rm -rf "$path"
+
+      if [[ -L "$entry" ]]; then
+        ((link_count++)) || true
+        if [[ "$DRY_RUN" == false ]]; then
+          rm -f "$entry"
+        fi
+      else
+        ((backup_count++)) || true
+        if [[ "$DRY_RUN" == false ]]; then
+          mkdir -p "$backup"
+          mv "$entry" "$backup/"
+        fi
+      fi
+    done < <(find "$path" -mindepth 1 -maxdepth 1 -print 2>/dev/null | sort)
+
+    if [[ "$preserve_count" -gt 0 ]]; then
+      log_info "${path}: preserving ${preserve_count} configured entr(ies)"
+    fi
+    if [[ "$link_count" -gt 0 ]]; then
+      if [[ "$DRY_RUN" == true ]]; then
+        log_info "[DRY-RUN] ${path}: would replace ${link_count} managed symlink(s) in place"
+      else
+        log_info "${path}: removed ${link_count} old managed symlink(s)"
+      fi
+    fi
+    if [[ "$backup_count" -gt 0 ]]; then
+      if [[ "$DRY_RUN" == true ]]; then
+        log_warn "[DRY-RUN] ${path}: would back up ${backup_count} real entr(ies) individually to ${backup}"
+      else
+        log_warn "${path}: backed up ${backup_count} real entr(ies) individually to ${backup}"
+      fi
+    fi
+  elif [[ -e "$path" ]]; then
+    log_warn "${path}: consumer root is not a directory; backing it up to ${backup}"
+    if [[ "$DRY_RUN" == false ]]; then
+      mv "$path" "$backup"
     fi
   fi
 
@@ -589,7 +639,7 @@ step_link() {
       mkdir -p "$(dirname "$consumer_path")"
     fi
 
-    prepare_consumer_dir "$consumer_path"
+    prepare_consumer_dir "$raw_path" "$consumer_path"
 
     # resolve skills
     local skills=()
@@ -597,13 +647,23 @@ step_link() {
       [[ -n "$s" ]] && skills+=("$s")
     done < <(resolve_consumer_skills "$raw_path")
 
-    local linked=0 missing=0
+    local linked=0 missing=0 conflicts=0
     for skill in ${skills[@]+"${skills[@]}"}; do
       local target="${INSTALL_DIR}/${skill}"
       if [[ -e "$target" || -L "$target" ]]; then
+        if is_consumer_entry_preserved "$raw_path" "$skill"; then
+          log_warn "${consumer_path}: preserved entry conflicts with managed skill: ${skill} (skip)"
+          ((conflicts++)) || true
+          continue
+        fi
         if [[ "$DRY_RUN" == false ]]; then
           local resolved
           resolved="$(readlink "$target")"
+          if [[ -e "${consumer_path}/${skill}" || -L "${consumer_path}/${skill}" ]]; then
+            log_warn "${consumer_path}: destination still exists: ${skill} (skip)"
+            ((conflicts++)) || true
+            continue
+          fi
           ln -s "$resolved" "${consumer_path}/${skill}"
         fi
         ((linked++)) || true
@@ -613,8 +673,8 @@ step_link() {
       fi
     done
 
-    if [[ "$missing" -gt 0 ]]; then
-      log_info "${consumer_path}: ${linked} linked, ${missing} missing"
+    if [[ "$missing" -gt 0 || "$conflicts" -gt 0 ]]; then
+      log_info "${consumer_path}: ${linked} linked, ${missing} missing, ${conflicts} conflict(s)"
     else
       log_success "${consumer_path}: ${linked} skills"
     fi
