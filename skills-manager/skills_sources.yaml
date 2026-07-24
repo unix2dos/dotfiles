@@ -16,6 +16,7 @@
 #   skills_dir      (可选)  skill 根目录；不写则自动扫描 SKILL.md 推断
 #   branch          (可选)  默认 main
 #   build           (可选)  克隆后执行的命令
+#   include         (可选)  只检出并聚合这些 skill；使用 Git sparse checkout
 #   exclude         (可选)  跳过的 skill 名列表
 #   runtime_assets  (可选)  symlink 到主 skill 目录的资产（仅整仓 source）
 
@@ -26,16 +27,11 @@ repos:
     clone_to: ~/workspace/skills
     exclude: [confidence-check]
 
-  - repo: obra/superpowers
-    prefix: superpowers
-    skills_dir: skills
-
   - repo: lijigang/ljg-skills
     prefix: ""
     skills_dir: skills
     branch: master
-    build: "cd skills/ljg-card && npm install --silent && npx playwright install chromium"
-    exclude: [ljg-word, ljg-travel]
+    include: [ljg-plain, ljg-think, ljg-writes, ljg-roundtable]
 
   # mattpocock/skills 带 grillme 的 skill
   - repo: mattpocock/skills

@@ -81,7 +81,8 @@
 | Skill | 干什么 | 触发 |
 |---|---|---|
 | find-skills | 搜索安装社区 skill | 自动 |
-| autoresearch | 自动 eval + 优化 skill prompt | 自动 |
+| autoresearch | 自动 eval + 优化 skill prompt | 手动 @ |
+| dedup-history | 为每日/随机内容生成类 skill 提供历史去重 | 子 Skill（手动） |
 | writing-great-skills | 按 Matt Pocock 结构写新 skill | 自动 |
 
 > Codex 自带的 `.system/skill-creator` 由 Codex 管理，不进入本项目的 source 或 core。
@@ -101,10 +102,11 @@
 
 ---
 
-## 不在 core 里？
+## 边界说明
 
-- **Codex** 额外装了 `superpowers` 工程流程全家桶
-- **OpenClaw** 额外装了 `skills` 仓库全部 skill（含 `go-code-review`、`daily-tech-digest` 等）
-- **ljg-skills** 还有拆书、铸图、读论文等 15 个 skill 未进 core
+- **unix2dos/skills** 当前整源进入 core，触发方式由各 Skill 的 `agents/openai.yaml` 控制
+- **Matt Pocock in-progress** 仍聚合为可选 source，但不进入 core
+- **ljg-skills** 只稀疏检出并聚合 `ljg-plain`、`ljg-think`、`ljg-writes`、`ljg-roundtable`
+- **Superpowers** source 已移除，不再下载或分发
 
 完整 source 列表、非 core skill 明细、安装命令 → [INSTALL.md](./INSTALL.md)

@@ -33,7 +33,7 @@ bash ~/workspace/dotfiles/skills-manager/install.sh --dry-run   # 仅预览
 clean → clone+build → aggregate（~/.skills-installed）→ distribute（~/.claude/skills 等）
 ```
 
-consumer 目录采用**原地同步**：安装器只替换受管 symlink，按 `preserve` 保留工具自带目录，并把其他真实条目逐个备份。自有 skill 直接链到 `~/workspace/skills`，改 SKILL.md **无需**重跑 install。
+consumer 目录采用**原地同步**：安装器只替换 symlink，所有真实目录都视为外部工具管理并原地保留。自有 skill 直接链到 `~/workspace/skills`，改 SKILL.md **无需**重跑 install。
 
 ### 分发规则
 
@@ -41,8 +41,6 @@ consumer 目录采用**原地同步**：安装器只替换受管 symlink，按 `
 |---|---|
 | **core 白名单** | Cursor / Claude 等 `{}` consumer 只装 `skills_consumers.yaml` 的 core |
 | **新 skill 进 core** | 在 skills 仓库写完 → 手动加 core 一行 → 跑 install |
-| **OpenClaw 例外** | `add: source:skills` 自动装你写的全部 skill |
-| **Codex 例外** | `add: source:superpowers` 额外装工程流程 skill |
 
 ---
 
@@ -63,27 +61,16 @@ consumer 目录采用**原地同步**：安装器只替换受管 symlink，按 `
 
 | Source | Repo | 装到哪 |
 |---|---|---|
-| skills | `unix2dos/skills` | core 精选 + OpenClaw 全量 |
-| superpowers | `obra/superpowers` | 仅 Codex（14 个，带 `superpowers-` 前缀） |
-| ljg-skills | `lijigang/ljg-skills` | core 4 个 + 下方非 core |
+| unix2dos | `unix2dos/skills` | 整源进入 core（受 `exclude` 限制） |
+| ljg-skills | `lijigang/ljg-skills` | 稀疏检出并聚合 core 4 个 |
 | mattpocock-engineering | `mattpocock/skills` → `skills/engineering` | core（14 个） |
 | mattpocock-productivity | `mattpocock/skills` → `skills/productivity` | core（5 个） |
 | mattpocock-in-progress | `mattpocock/skills` → `skills/in-progress` | 可选 source，不进入 core |
 | extracts | 多个第三方 repo | 见 `skills_sources.yaml` |
 
-### skills 仓库 · 非 core（OpenClaw 自动，其他需手动加 core）
+### ljg-skills · 精选
 
-`book-recommender` · `daily-knowledge` · `daily-tech-digest` · `geo-explorer` · `go-code-review` · `history-autopsy` · `insight-miner` · `news-tracker` · `project-hunter` · `value-judge` · `wisdom-decoder`
-
-### ljg-skills · 非 core
-
-`ljg-book` · `ljg-card` · `ljg-invest` · `ljg-learn` · `ljg-paper` · `ljg-paper-flow` · `ljg-paper-river` · `ljg-present` · `ljg-push` · `ljg-qa` · `ljg-rank` · `ljg-read` · `ljg-relationship` · `ljg-skill-map` · `ljg-word-flow`
-
-（已 exclude：`ljg-word`、`ljg-travel`）
-
-### superpowers · Codex 专用
-
-brainstorming · writing-plans · executing-plans · test-driven-development · systematic-debugging · verification-before-completion · requesting-code-review · using-git-worktrees · subagent-driven-development · dispatching-parallel-agents · finishing-a-development-branch · receiving-code-review · using-superpowers · writing-skills
+仅保留 `ljg-plain` · `ljg-think` · `ljg-writes` · `ljg-roundtable`。`include` 会同时限制 Git sparse checkout 和聚合；不再执行 `ljg-card` 的 npm / Playwright build。
 
 ---
 
@@ -101,7 +88,7 @@ brainstorming · writing-plans · executing-plans · test-driven-development · 
 
 ```yaml
 "~/.cursor/skills": {}                              # 装 core
-"~/.codex/skills":  { preserve: [.system] }         # core + 保留 Codex 系统 skill
+"~/.codex/skills":  {}                              # 装 core；真实目录自动保留
 "~/.some/tool":     { only: [a, b] }                # 完全自定义
 ```
 
@@ -110,9 +97,8 @@ brainstorming · writing-plans · executing-plans · test-driven-development · 
 | `{}` | core |
 | `{ add: [...] }` | core ∪ 额外 |
 | `{ only: [...] }` | 仅 listed，不要 core |
-| `{ preserve: [...] }` | 原地保留指定顶层条目；可与 `add` / `only` 共用 |
 
-引用：`code-refactor`（单个）· `source:superpowers`（整源）· `source:skills` · `source:extract`
+引用：`code-refactor`（单个）· `source:unix2dos`（整源）· `source:extract`
 
 ### Source 字段
 
@@ -123,13 +109,14 @@ brainstorming · writing-plans · executing-plans · test-driven-development · 
 | `clone_to` | 克隆路径；自有源必须指向 `~/.skills-community/` 外 |
 | `skills_dir` | skill 根目录 |
 | `build` | clone 后执行的命令 |
+| `include` | 只稀疏检出并聚合列出的 skill |
 | `exclude` | 跳过的 skill |
 
 ---
 
 ## 6. 已知限制
 
-- consumer 目录里的未声明真实条目会被逐个备份；工具自带目录应加入 `preserve`
+- consumer 目录里的真实条目不会被同步或删除；同名真实条目优先于受管 skill
 - core 不支持「减某个」— 用 `only: [...]` 自己列全
 - owned 源必须显式 `clone_to` — 默认路径每次 install 会被 wipe
 

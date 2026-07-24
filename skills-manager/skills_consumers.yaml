@@ -4,22 +4,21 @@
 # 规则（一句话）：
 #   默认装 core；写 add 加几个；写 only 完全自定义不要 core。
 #
-# 常用写法：
+# 三种写法：
 #   {}                         → 装 core
 #   { add: [a, b] }            → core ∪ {a, b}
 #   { only: [a, b] }           → {a, b}（不要 core）
-#   { preserve: [.system] }     → 装 core，并原地保留指定顶层条目
 #
 # add / only 互斥；都没写等价于 {}。
-# preserve 可与 add / only 共用；保留项不会被删除或覆盖。
 # 出现在 consumers: 里 = 被 install.sh 管理；不写 = 完全不碰。
+# consumer 中的真实目录视为外部内容，安装器只同步 symlink。
 #
 # 引用形式（在 core / add / only 里都通用）：
 #   - <skill-name>             具体 skill 名，例如 code-refactor
 #   - source:<name>            展开为该 source 的所有 skill；<name> 取自
 #                              skills_sources.yaml 里的 name / prefix / repo basename
 #                              （即 derive_source_name 的结果）
-#                              例：source:superpowers / source:skills / source:extract
+#                              例：source:unix2dos / source:mattpocock-engineering / source:extract
 
 # ─── 核心 skill 集 ────────────────────────────────────────────
 # 跨工具默认安装。分组与 README.md 一致；用途说明见 README，安装见 INSTALL.md
@@ -47,12 +46,8 @@ consumers:
   # Claude Code：默认核心集
   "~/.claude/skills": {}
 
-  # Codex（OpenAI CLI）：默认核心集；.system 由 Codex 自己管理
-  "~/.codex/skills":
-    preserve: [.system]
-  # "~/.codex/skills":
-  #   add:
-  #     - source:superpowers
+  # Codex（OpenAI CLI）：默认核心集
+  "~/.codex/skills": {}
 
   # Cursor IDE：默认核心集
   "~/.cursor/skills": {}

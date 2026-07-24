@@ -127,7 +127,22 @@ derive_scan_root() {
 
 is_repo_skill_excluded() {
   local idx="$1" skill_name="$2"
-  local exclude_count
+  local include_count exclude_count k
+
+  include_count=$(yq ".repos[$idx].include | length" "$SOURCES_CONFIG" 2>/dev/null)
+  if [[ "$include_count" != "0" && "$include_count" != "null" ]]; then
+    local included=false
+    for ((k = 0; k < include_count; k++)); do
+      local allowed
+      allowed=$(sq ".repos[$idx].include[$k]")
+      if [[ "$allowed" == "$skill_name" ]]; then
+        included=true
+        break
+      fi
+    done
+    [[ "$included" == false ]] && return 0
+  fi
+
   exclude_count=$(yq ".repos[$idx].exclude | length" "$SOURCES_CONFIG" 2>/dev/null)
   [[ "$exclude_count" == "0" || "$exclude_count" == "null" ]] && return 1
   for ((k = 0; k < exclude_count; k++)); do
@@ -136,6 +151,30 @@ is_repo_skill_excluded() {
     [[ "$excluded" == "$skill_name" ]] && return 0
   done
   return 1
+}
+
+configure_sparse_checkout() {
+  local idx="$1" dest="$2"
+  local include_count k
+  include_count=$(yq ".repos[$idx].include | length" "$SOURCES_CONFIG" 2>/dev/null)
+  [[ "$include_count" == "0" || "$include_count" == "null" ]] && return 0
+
+  local skills_dir
+  skills_dir=$(sq ".repos[$idx].skills_dir")
+
+  local -a sparse_paths=()
+  for ((k = 0; k < include_count; k++)); do
+    local included
+    included=$(sq ".repos[$idx].include[$k]")
+    if [[ -z "$skills_dir" || "$skills_dir" == "." ]]; then
+      sparse_paths+=("$included")
+    else
+      sparse_paths+=("${skills_dir}/${included}")
+    fi
+  done
+
+  git -C "$dest" sparse-checkout set "${sparse_paths[@]}"
+  log_info "sparse checkout: ${include_count} included skills"
 }
 
 get_skill_link_name() {
@@ -151,11 +190,19 @@ get_skill_link_name() {
 }
 
 clone_or_pull() {
-  local label="$1" repo_url="$2" dest="$3" branch="${4:-main}"
+  local label="$1" repo_url="$2" dest="$3" branch="${4:-main}" idx="${5:-}"
+  local include_count=0
+  if [[ -n "$idx" ]]; then
+    include_count=$(yq ".repos[$idx].include | length" "$SOURCES_CONFIG" 2>/dev/null)
+    [[ "$include_count" == "null" ]] && include_count=0
+  fi
 
   if [[ -d "$dest/.git" ]]; then
     log_info "${label}: pulling..."
     if [[ "$DRY_RUN" == false ]]; then
+      if [[ "$include_count" != "0" ]]; then
+        configure_sparse_checkout "$idx" "$dest"
+      fi
       git -C "$dest" pull --ff-only --quiet 2>/dev/null || {
         log_warn "${label}: ff failed, fetch + reset..."
         git -C "$dest" fetch --depth 1 origin "$branch" --quiet
@@ -169,7 +216,12 @@ clone_or_pull() {
     log_info "${label}: cloning..."
     if [[ "$DRY_RUN" == false ]]; then
       mkdir -p "$(dirname "$dest")"
-      git clone --depth 1 --branch "$branch" "$repo_url" "$dest" --quiet
+      if [[ "$include_count" != "0" ]]; then
+        git clone --depth 1 --filter=blob:none --sparse --branch "$branch" "$repo_url" "$dest" --quiet
+        configure_sparse_checkout "$idx" "$dest"
+      else
+        git clone --depth 1 --branch "$branch" "$repo_url" "$dest" --quiet
+      fi
     fi
     log_success "${label}: cloned to ${dest}"
   fi
@@ -241,7 +293,7 @@ step_clone_and_build() {
     branch="${branch:-main}"
     build=$(sq ".repos[$i].build")
 
-    clone_or_pull "$sname" "$repo_url" "$clone_to" "$branch"
+    clone_or_pull "$sname" "$repo_url" "$clone_to" "$branch" "$i"
 
     # ── build ──
     if [[ -n "$build" ]]; then
@@ -465,7 +517,7 @@ expand_source_ref() {
 # Compute final skill list for a consumer (uniquified, order-preserving)
 # Refs can be:
 #   - a plain skill name (e.g. "code-refactor")
-#   - `source:<name>` — expands to all skills from that source (e.g. `source:superpowers`)
+#   - `source:<name>` — expands to all skills from that source (e.g. `source:unix2dos`)
 #     valid source names = derive_source_name() for each repo, plus `extract` for extracts
 # Args: consumer_path
 # Output: one skill name per line
@@ -532,28 +584,12 @@ resolve_consumer_skills() {
   printf '%s\n' "${result[@]}"
 }
 
-# Return success when a top-level consumer entry is configured to be preserved.
-is_consumer_entry_preserved() {
-  local consumer_path="$1" entry_name="$2"
-  local preserve_count
-  preserve_count=$(yq ".consumers[\"${consumer_path}\"].preserve | length" "$CONSUMERS_CONFIG" 2>/dev/null)
-  [[ "$preserve_count" == "0" || "$preserve_count" == "null" ]] && return 1
-
-  local k preserved
-  for ((k = 0; k < preserve_count; k++)); do
-    preserved=$(cq ".consumers[\"${consumer_path}\"].preserve[$k]")
-    [[ "$preserved" == "$entry_name" ]] && return 0
-  done
-  return 1
-}
-
 # Synchronize a consumer directory in place:
-#   - preserve explicitly configured top-level entries
 #   - remove old managed symlinks
-#   - back up other real entries individually
+#   - leave real entries untouched because they are managed externally
 #   - never move the whole consumer directory
 prepare_consumer_dir() {
-  local raw_path="$1" path="$2"
+  local path="$1"
   local backup="${path}.backup.$(date +%Y%m%d%H%M%S).$$"
 
   if [[ -L "$path" ]]; then
@@ -562,16 +598,10 @@ prepare_consumer_dir() {
       rm -f "$path"
     fi
   elif [[ -d "$path" ]]; then
-    local link_count=0 backup_count=0 preserve_count=0
-    local entry entry_name
+    local link_count=0 unmanaged_count=0
+    local entry
     while IFS= read -r entry; do
       [[ -n "$entry" ]] || continue
-      entry_name="$(basename "$entry")"
-
-      if is_consumer_entry_preserved "$raw_path" "$entry_name"; then
-        ((preserve_count++)) || true
-        continue
-      fi
 
       if [[ -L "$entry" ]]; then
         ((link_count++)) || true
@@ -579,29 +609,18 @@ prepare_consumer_dir() {
           rm -f "$entry"
         fi
       else
-        ((backup_count++)) || true
-        if [[ "$DRY_RUN" == false ]]; then
-          mkdir -p "$backup"
-          mv "$entry" "$backup/"
-        fi
+        ((unmanaged_count++)) || true
       fi
     done < <(find "$path" -mindepth 1 -maxdepth 1 -print 2>/dev/null | sort)
 
-    if [[ "$preserve_count" -gt 0 ]]; then
-      log_info "${path}: preserving ${preserve_count} configured entr(ies)"
+    if [[ "$unmanaged_count" -gt 0 ]]; then
+      log_info "${path}: leaving ${unmanaged_count} externally managed real entr(ies) untouched"
     fi
     if [[ "$link_count" -gt 0 ]]; then
       if [[ "$DRY_RUN" == true ]]; then
         log_info "[DRY-RUN] ${path}: would replace ${link_count} managed symlink(s) in place"
       else
         log_info "${path}: removed ${link_count} old managed symlink(s)"
-      fi
-    fi
-    if [[ "$backup_count" -gt 0 ]]; then
-      if [[ "$DRY_RUN" == true ]]; then
-        log_warn "[DRY-RUN] ${path}: would back up ${backup_count} real entr(ies) individually to ${backup}"
-      else
-        log_warn "${path}: backed up ${backup_count} real entr(ies) individually to ${backup}"
       fi
     fi
   elif [[ -e "$path" ]]; then
@@ -639,7 +658,7 @@ step_link() {
       mkdir -p "$(dirname "$consumer_path")"
     fi
 
-    prepare_consumer_dir "$raw_path" "$consumer_path"
+    prepare_consumer_dir "$consumer_path"
 
     # resolve skills
     local skills=()
@@ -651,8 +670,8 @@ step_link() {
     for skill in ${skills[@]+"${skills[@]}"}; do
       local target="${INSTALL_DIR}/${skill}"
       if [[ -e "$target" || -L "$target" ]]; then
-        if is_consumer_entry_preserved "$raw_path" "$skill"; then
-          log_warn "${consumer_path}: preserved entry conflicts with managed skill: ${skill} (skip)"
+        if [[ -e "${consumer_path}/${skill}" && ! -L "${consumer_path}/${skill}" ]]; then
+          log_warn "${consumer_path}: externally managed entry conflicts with managed skill: ${skill} (skip)"
           ((conflicts++)) || true
           continue
         fi
