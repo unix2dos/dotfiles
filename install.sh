@@ -123,6 +123,9 @@ link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statuslin
 link_file "$DOTFILES/claude/plugins/claude-hud/config.json" "$HOME/.claude/plugins/claude-hud/config.json"
 link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.json"
 link_file "$DOTFILES/codex/config.toml"             "$HOME/.codex/config.toml"
+link_file "$DOTFILES/workbuddy/SOUL.md"              "$HOME/.workbuddy/SOUL.md"
+link_file "$DOTFILES/workbuddy/IDENTITY.md"          "$HOME/.workbuddy/IDENTITY.md"
+link_file "$DOTFILES/workbuddy/USER.md"              "$HOME/.workbuddy/USER.md"
 if [ -f "$DOTFILES/cursor/statusline.sh" ]; then
   link_file "$DOTFILES/cursor/statusline.sh" "$HOME/.cursor/statusline.sh"
   chmod +x "$DOTFILES/cursor/statusline.sh"

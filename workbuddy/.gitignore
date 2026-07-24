@@ -1,0 +1,11 @@
+# WorkBuddy 配置文件
+# 身份文件 (SOUL.md, IDENTITY.md, USER.md) 已版本管理——通过软链连接
+
+# 敏感文件（永不提交）
+settings.json
+models.json
+.mcp.json
+mcp.json
+MEMORY.md
+mcp-approvals.json
+ioa-im-override.json
