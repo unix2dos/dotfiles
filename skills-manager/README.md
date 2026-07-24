@@ -12,7 +12,7 @@
 |---|---|---|---|
 | 还没说清楚要做什么 | ① 澄清 | 挖意图、对齐需求、grilling 方案 | ask-first, grill-with-docs, grill-me |
 | 要定架构或方向 | ② 设计 | 系统设计、画图、UI 审计、产品战略 | architecture-designer, mermaid-generator |
-| 要写/改代码 | ③ 编码 | 编码守则、Go 重构、简化代码 | karpathy-guidelines, code-refactor |
+| 要写/改代码 | ③ 编码 | Go 重构、简化代码、疑难诊断 | code-refactor, code-simplifier |
 | 要产出内容 | ④ 写作 | 博客、润色、去 AI 味、深度长文 | blog-knowledge-extraction, ljg-writes |
 | 要系统学一个主题 | ⑤ 学习 | 生成学习地图、分阶段讲解 | learn-map |
 | 要管理 skill 本身 | ⑥ 元工具 | 创建、发现、自动优化 skill | skill-creator, autoresearch |
@@ -34,7 +34,6 @@
 | grill-with-docs | 逐题 grilling 方案，更新 CONTEXT.md / ADR | 自动 |
 | grill-me | 逐题 grilling（无 repo 文档时） | 自动 |
 | handoff | 压缩会话为交接文档 | 自动 |
-| confidence-check | 写代码前做前置信度检查 | 自动 |
 
 ## ② 架构与设计
 
@@ -49,7 +48,6 @@
 
 | Skill | 干什么 | 触发 |
 |---|---|---|
-| karpathy-guidelines | LLM 编码守则（少过度设计、surgical 改动） | 自动 |
 | code-refactor | Go 代码重构（SOLID、idiomatic Go） | 自动 |
 | code-simplifier | 简化代码、降复杂度 | 自动 |
 | diagnosing-bugs | 疑难 bug / 性能回归诊断循环 | 自动 |

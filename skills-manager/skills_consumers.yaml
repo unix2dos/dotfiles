@@ -28,7 +28,6 @@ core:
   # ② 社区精选
   - asking-clarifying-questions # 需求对齐、消歧术语
   - architecture-designer # 系统架构、ADR、技术选型
-  - karpathy-guidelines # LLM 编码守则
   - humanizer-zh # 去 AI 味
   - ljg-plain # 白话解释
   - ljg-think # 纵向深钻
