@@ -55,8 +55,10 @@ consumers:
   # 通用 agents 入口：默认核心集
   "~/.agents/skills": {}
 
-  # Gemini Antigravity：默认核心集
-  "~/.gemini/antigravity/skills": {}
+  # AGY CLI（命令行）：默认核心集
+  "~/.gemini/antigravity-cli/skills": {}
+
+  # Antigravity 2.0 桌面 APP：默认核心集
   "~/.gemini/config/skills": {}
 
   # OpenClaw：默认核心集
@@ -70,3 +72,6 @@ consumers:
 
   # Factory（Droid）：默认核心集
   "~/.factory/skills": {}
+
+  # WorkBuddy：默认核心集（让 WorkBuddy Skill 工具能发现这些 skill）
+  "~/.workbuddy/skills": {}
