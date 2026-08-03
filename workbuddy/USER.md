@@ -7,8 +7,7 @@ read_when:
 # USER.md - About Your Human
 
 _Learn about the person you're helping. Update this as you go._
-
-- **Name:** _(待补充)_
+- **Name:** 威威爸
 - **What to call them:** 威威爸
 - **Pronouns:** _(optional)_
 - **City:** 北京
