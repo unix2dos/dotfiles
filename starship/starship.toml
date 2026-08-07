@@ -12,8 +12,10 @@ scan_timeout = 30       # 扫描文件系统的超时时间（默认值）
 # ============================================
 format = """
 $directory\
+${custom.repo}\
+${custom.worktree}\
+${custom.worktree_warning}\
 $git_branch\
-$custom\
 $git_state\
 $git_status\
 $line_break\
@@ -54,18 +56,20 @@ error_symbol = "[╰](white)[❯](red)[❯](red)[❯](red) "
 [directory]
 truncation_length = 3
 truncation_symbol = "…/"
-truncate_to_repo = true
+truncate_to_repo = false
 style = "cyan bold"
 read_only = " 🔒"
+format = "[ $path]($style)[$read_only]($read_only_style)"
 
 # [Git 分支]
 [git_branch]
 symbol = " "
 style = "green bold"
+format = "  [$symbol$branch]($style)"
 
 # [Git 状态]
 [git_status]
-format = "([$all_status$ahead_behind]($style) )"
+format = "([ $all_status$ahead_behind]($style) )"
 style = "bold yellow"
 ignore_submodules = true
 conflicted = "\uf071 "
@@ -114,18 +118,70 @@ format = "[$duration](bold yellow) "
 [aws]
 disabled = true
 
-# [Git Worktree] - worktree 提示
+# [Git 仓库]
+[custom.repo]
+command = """
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 1
+common_dir=$(git rev-parse --git-common-dir 2>/dev/null) || exit 1
+if [[ "$common_dir" != /* ]]; then
+  common_dir="$repo_root/$common_dir"
+fi
+repo_name=$(basename "$(dirname "$common_dir")")
+remote_url=$(git remote get-url origin 2>/dev/null || true)
+
+case "$remote_url" in
+  *github.com*|*github.*)
+    repo_icon=""
+    ;;
+  *gitlab.com*|*gitlab.*)
+    repo_icon=""
+    ;;
+  *gitea.com*|*gitea.*|*git.hoxigames.xyz*)
+    repo_icon=""
+    ;;
+  *)
+    if [[ -d "$repo_root/.gitea" ]]; then
+      repo_icon=""
+    elif [[ -f "$repo_root/.gitlab-ci.yml" ]]; then
+      repo_icon=""
+    elif [[ -d "$repo_root/.github" ]]; then
+      repo_icon=""
+    else
+      repo_icon=""
+    fi
+    ;;
+esac
+
+echo "$repo_icon $repo_name"
+"""
+when = "git rev-parse --is-inside-work-tree 2>/dev/null"
+format = " [│](dimmed white) [($output)](bold blue)"
+shell = ["bash", "--noprofile", "--norc"]
+
+# [Git Worktree]
 [custom.worktree]
 command = """
 wt_path=$(git rev-parse --git-dir 2>/dev/null)
-if [[ "$wt_path" == *".git/worktrees/"* ]]; then
-  echo "🪴 $(basename "$wt_path")"
-else
-  echo "⛔ USE WORKTREE!"
+wt_name=$(basename "$wt_path")
+common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+if [[ "$common_dir" != /* ]]; then
+  common_dir="$(git rev-parse --show-toplevel)/$common_dir"
 fi
+repo_name=$(basename "$(dirname "$common_dir")")
+if [[ "$wt_name" == "$repo_name-"* ]]; then
+  wt_name=${wt_name#"$repo_name-"}
+fi
+echo "$wt_name"
 """
-when = "git rev-parse --is-inside-work-tree 2>/dev/null"
-format = " [($output)](bold magenta)  "
+when = """[[ "$(git rev-parse --git-dir 2>/dev/null)" == *".git/worktrees/"* ]]"""
+format = "  [ $output](bold magenta)"
+shell = ["bash", "--noprofile", "--norc"]
+
+# [Git Worktree 提醒]
+[custom.worktree_warning]
+command = "echo ' USE WORKTREE!'"
+when = """[[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" == "true" ]] && [[ "$(git rev-parse --git-dir 2>/dev/null)" != *".git/worktrees/"* ]]"""
+format = "  [($output)](bold yellow)"
 shell = ["bash", "--noprofile", "--norc"]
 
 # [当前时间]
@@ -134,4 +190,3 @@ disabled = false
 style = "bold white"
 format = "[$time]($style) "
 use_12hr = false
-

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cmd+p / M-p persistent project popup terminal.
+# M-p / M-o persistent project popup terminal.
 #
 # Behavior:
 #   - Toggle the single "_popup" session.

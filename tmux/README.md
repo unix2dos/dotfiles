@@ -30,7 +30,7 @@ Tmux 预留的定制入口。只有变量无法表达时，再加原生 tmux 命
 - 状态栏和 copy-mode 使用 vi 键位。
 - copy-mode 中禁用 `t/T` jump prompt，避免误触黄色 `(jump to forward)` 输入栏。
 - `Cmd+o` 通过 tmux `user-keys` 捕获，并转发给 `smart-open.sh`。
-- `M-p`、`M-q`、`M-w` 是无需 prefix 的自定义 popup 工作流。
+- `M-p` / `M-o`、`M-q`、`M-w` 是无需 prefix 的自定义 popup 工作流。
 - `Prefix+y` / `Prefix+Y` 将 pane 内容复制到 macOS 剪贴板。
 - `Prefix+?` 在 popup 中打开 `cheatsheet.txt`。
 - 开启 `extended-keys` + `csi-u`，让 pi 等 TUI 在 tmux 内正确识别 Shift/Ctrl/Alt 组合键。
@@ -62,7 +62,7 @@ binding 超过几行，把逻辑移到本目录脚本里，tmux 配置只保留�
 
 | 快捷键 | 脚本 | 用途 |
 |:-------|:-----|:-----|
-| `Cmd+p` / `M-p` | `popup_terminal.sh` | 打开/收起持久项目浮动终端。 |
+| `M-p` / `M-o` | `popup_terminal.sh` | 打开/收起持久项目浮动终端。 |
 | `M-q` | `ai_pane_switch_popup.sh` | 查找并跳转到运行中的 AI CLI pane。 |
 | `M-w` | `pane_switch_popup.sh` | 查找并跳转到任意 tmux pane。 |
 | `Cmd+o` | `smart-open.sh` | 打开剪贴板路径；没有合法路径时打开当前 pane 目录。 |
@@ -70,7 +70,7 @@ binding 超过几行，把逻辑移到本目录脚本里，tmux 配置只保留�
 | `Prefix+y` / `Prefix+Y` | — | pane 可见内容 / 完整 scrollback → macOS 剪贴板。 |
 | 状态栏 | `net_speed.sh` | 渲染紧凑的网络上下行速度。 |
 
-`Cmd+p` 由 Ghostty 映射成和 `M-p` 相同的转义序列。`Cmd+o` 映射到 tmux `user-keys[0]`。
+`Cmd+o` 映射到 tmux `user-keys[0]`。
 
 Oh My Tmux 分屏：`Prefix+%` 左右分屏（`split-window -h`），`Prefix+-` 上下分屏（`split-window -v`）。
 
@@ -88,7 +88,7 @@ Oh My Tmux 分屏：`Prefix+%` 左右分屏（`split-window -h`），`Prefix+-` 
 
 用于快速进入项目目录的持久浮动终端。
 
-- 由 `Cmd+p` / `M-p` 调用。
+- 由 `M-p` / `M-o` 调用。
 - 使用单个 `_popup` tmux session。
 - 每个来源 pane 目录创建或复用一个 `_popup` window。
 - 通过目录 window 复用实现快速切换，不再盲打 `cd`。

@@ -508,8 +508,9 @@ bind-key -n DoubleClick1Pane resize-pane -Z          # 双击 pane 全屏/取消
 #   ① 若当前已在 _popup session：detach 收起浮窗
 #   ② 若 _popup session 存在：切到当前目录对应 window；没有则创建
 #   ③ 最多保留 TMUX_POPUP_MAX_WINDOWS 个目录 window，默认 5；只清理非活跃 shell window
-# Option+p：触发 popup 切换，不需要 prefix
+# Option+p / Option+o：触发 popup 切换，不需要 prefix
 bind -n M-p run-shell -b "$HOME/workspace/dotfiles/tmux/popup_terminal.sh"
+bind -n M-o run-shell -b "$HOME/workspace/dotfiles/tmux/popup_terminal.sh"
 
 
 # Option+q: 查找所有运行 AI CLI (claude/codex/gemini/amp/agy) 的 Pane，fzf 选择后跳转

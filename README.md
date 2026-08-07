@@ -65,7 +65,7 @@ brew install --cask alacritty ghostty
 
 | 快捷键 | 功能 |
 |:-------|:-----|
-| `Cmd+p` / `M-p` | 项目浮动终端：按当前 pane 目录复用 `_popup` window，并自动 `git status` |
+| `M-p` / `M-o` | 项目浮动终端：按当前 pane 目录复用 `_popup` window，并自动 `git status` |
 | `M-q` | AI pane 切换：查找 `claude` / `codex` / `gemini` / `amp` 等运行中的 pane |
 | `M-w` | 全局 pane 切换：fzf 预览并跳转所有 tmux pane |
 | `Cmd+o` | 智能打开：优先打开剪贴板路径，否则打开当前 pane 目录 |
