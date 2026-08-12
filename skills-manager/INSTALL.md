@@ -39,8 +39,8 @@ consumer 目录采用**原地同步**：安装器只替换 symlink，所有真�
 
 | 规则 | 说明 |
 |---|---|
-| **core 白名单** | Cursor / Claude 等 `{}` consumer 只装 `skills_consumers.yaml` 的 core |
-| **新 skill 进 core** | 在 skills 仓库写完 → 手动加 core 一行 → 跑 install |
+| **core 集** | Cursor / Claude 等 `{}` consumer 安装 `skills_consumers.yaml` 的 core；`source:<name>` 会展开该 source 的全部 skill |
+| **自有新 skill 进 core** | 在 `~/workspace/skills` 新建 skill → `source:unix2dos` 自动纳入（`exclude` 除外）→ 跑 install，无需逐项修改 core |
 
 ---
 

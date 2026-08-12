@@ -13,7 +13,7 @@
 | 还没说清楚要做什么 | ① 澄清 | 挖意图、对齐需求、grilling 方案 | ask-first, grill-with-docs, grill-me |
 | 要定架构或方向 | ② 设计 | 系统设计、画图、UI 审计、产品战略 | architecture-designer, mermaid-generator |
 | 要写/改代码 | ③ 编码 | Go 重构、简化代码、疑难诊断 | code-refactor, code-simplifier |
-| 要产出内容 | ④ 写作 | 博客、润色、去 AI 味、深度长文 | blog-knowledge-extraction, ljg-writes |
+| 要产出内容 | ④ 写作 | 博客成文、受控编辑、整体润色、去 AI 味 | notes-to-blog, blog-content-editor, blog-refine, ljg-writes |
 | 要系统学一个主题 | ⑤ 学习 | 生成学习地图、分阶段讲解 | learn-map |
 | 要管理 skill 本身 | ⑥ 元工具 | 发现、自动优化 skill | find-skills, autoresearch |
 | 工程流程（Matt Pocock） | ⑦ 工程 | 诊断、TDD、拆 issue、PRD、triage | diagnosing-bugs, tdd, to-issues, triage |
@@ -62,8 +62,9 @@
 
 | Skill | 干什么 | 触发 |
 |---|---|---|
-| blog-knowledge-extraction | 素材 → 中文技术博客 | 手动 @ |
-| technical-content-optimizer | 博客润色到工程博客水准 | 手动 @ |
+| notes-to-blog | 笔记、素材 → 中文技术博客 | 手动 @ |
+| blog-content-editor | 完整博客草稿 → 诊断、确认后受控增删 | 手动 @ |
+| blog-refine | 技术博客整体重写、润色 | 手动 @ |
 | humanizer-zh | 去除中文 AI 写作痕迹 | 自动 |
 | ljg-plain | 白话解释，说人话 | 自动 |
 | ljg-think | 纵向深钻，追到本质 | 自动 |
