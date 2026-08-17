@@ -155,5 +155,7 @@
     "claudeCode.selectedModel": "default",
     "claudeCode.preferredLocation": "panel",
     "claudeCode.initialPermissionMode": "bypassPermissions",
-    "git.openRepositoryInParentFolders": "never"
+    "git.openRepositoryInParentFolders": "never",
+    "gitlens.graph.details.location": "auto",
+    "gitlens.graph.changesColumn.enabled": true
 }
