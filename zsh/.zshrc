@@ -347,3 +347,6 @@ export PATH="/Users/liuwei/.local/bin:$PATH"
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
 
 export PATH=$PATH:/Users/liuwei/.spicetify
+
+# Added by cua-driver-rs installer — see https://github.com/trycua/cua
+export PATH="/Users/liuwei/.local/bin:$PATH"
