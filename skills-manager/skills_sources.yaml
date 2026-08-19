@@ -14,7 +14,7 @@
 #   clone_to        (可选)  克隆目标；不写则 = ~/.skills-community/{prefix or name}
 #                           本地工作区类的源（如 owned）必须显式声明
 #   skills_dir      (可选)  skill 根目录；不写则自动扫描 SKILL.md 推断
-#   branch          (可选)  默认 main
+#   branch          (可选)  branch 或 tag；默认 main
 #   build           (可选)  克隆后执行的命令
 #   include         (可选)  只检出并聚合这些 skill；使用 Git sparse checkout
 #   exclude         (可选)  跳过的 skill 名列表
@@ -32,6 +32,13 @@ repos:
     skills_dir: skills
     branch: master
     include: [ljg-plain, ljg-think, ljg-writes, ljg-roundtable]
+
+  - repo: tt-a1i/archify
+    name: archify
+    prefix: ""
+    skills_dir: .
+    branch: v2.15.0
+    include: [archify]
 
   # mattpocock/skills 带 grillme 的 skill
   - repo: mattpocock/skills

@@ -44,13 +44,13 @@ core:
 # ─── 各 AI 工具的 skill 集 ────────────────────────────────────
 consumers:
   # Claude Code：默认核心集
-  "~/.claude/skills": {}
+  "~/.claude/skills": { add: [archify] }
 
   # Cursor IDE：默认核心集
-  "~/.cursor/skills": {}
+  "~/.cursor/skills": { add: [archify] }
 
   # 通用 agents 入口：默认核心集（也是 Codex 的用户级 Skill 目录）
-  "~/.agents/skills": {}
+  "~/.agents/skills": { add: [archify] }
 
   # AGY CLI（命令行）：默认核心集
   "~/.gemini/antigravity-cli/skills": {}
@@ -62,7 +62,7 @@ consumers:
   "~/.openclaw/skills": {}
 
   # OpenCode：默认核心集
-  "~/.config/opencode/skills": {}
+  "~/.config/opencode/skills": { add: [archify] }
 
   # Alma：默认核心集
   "~/.config/alma/skills": {}

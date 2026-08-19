@@ -63,6 +63,7 @@ consumer 目录采用**原地同步**：安装器只替换 symlink，所有真�
 |---|---|---|
 | unix2dos | `unix2dos/skills` | 整源进入 core（受 `exclude` 限制） |
 | ljg-skills | `lijigang/ljg-skills` | 稀疏检出并聚合 core 4 个 |
+| archify | `tt-a1i/archify` → `archify` | 固定 `v2.15.0`；按 consumer 加载 |
 | mattpocock-engineering | `mattpocock/skills` → `skills/engineering` | core（14 个） |
 | mattpocock-productivity | `mattpocock/skills` → `skills/productivity` | core（5 个） |
 | mattpocock-in-progress | `mattpocock/skills` → `skills/in-progress` | 可选 source，不进入 core |

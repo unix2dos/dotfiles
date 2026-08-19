@@ -40,6 +40,7 @@
 |---|---|---|
 | architecture-designer | 系统架构设计、ADR、技术选型 | 自动 |
 | mermaid-generator | 生成 Mermaid 流程图/时序图/ER 图 | 自动 |
+| archify | 生成可校验、可交互、可导出的技术架构图 | 自动 / `$archify` |
 | ui-ux-auditor | UI/UX 设计审计 | 手动 @ |
 | strategic-product-advisor | 产品方向、竞品、商业模式 | 手动 @ |
 
@@ -108,6 +109,7 @@
 - **unix2dos/skills** 当前整源进入 core，触发方式由各 Skill 的 `agents/openai.yaml` 控制
 - **Matt Pocock in-progress** 仍聚合为可选 source，但不进入 core
 - **ljg-skills** 只稀疏检出并聚合 `ljg-plain`、`ljg-think`、`ljg-writes`、`ljg-roundtable`
+- **Archify** 固定在 `v2.15.0`，只分发给 Claude、Cursor、Codex（`~/.agents/skills`）和 OpenCode
 - **Superpowers** source 已移除，不再下载或分发
 
 完整 source 列表、非 core skill 明细、安装命令 → [INSTALL.md](./INSTALL.md)
