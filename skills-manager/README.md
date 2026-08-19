@@ -77,6 +77,7 @@
 | Skill | 干什么 | 触发 |
 |---|---|---|
 | learn-map | 系统化学习一个主题 | 手动 @ |
+| learnlm-inspired-tutor | LearnLM 启发式自适应导师，复杂问题先确认学习地图 | 手动 `$learnlm-inspired-tutor` |
 
 ## ⑥ Skill 生态
 
