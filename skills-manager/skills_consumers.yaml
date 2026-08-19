@@ -46,13 +46,10 @@ consumers:
   # Claude Code：默认核心集
   "~/.claude/skills": {}
 
-  # Codex（OpenAI CLI）：默认核心集
-  "~/.codex/skills": {}
-
   # Cursor IDE：默认核心集
   "~/.cursor/skills": {}
 
-  # 通用 agents 入口：默认核心集
+  # 通用 agents 入口：默认核心集（也是 Codex 的用户级 Skill 目录）
   "~/.agents/skills": {}
 
   # AGY CLI（命令行）：默认核心集

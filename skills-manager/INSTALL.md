@@ -88,9 +88,12 @@ consumer 目录采用**原地同步**：安装器只替换 symlink，所有真�
 
 ```yaml
 "~/.cursor/skills": {}                              # 装 core
-"~/.codex/skills":  {}                              # 装 core；真实目录自动保留
+"~/.agents/skills": {}                              # 装 core；Codex 用户级 Skill 入口
 "~/.some/tool":     { only: [a, b] }                # 完全自定义
 ```
+
+Codex 的用户级 Skill 统一分发到 `~/.agents/skills`。`~/.codex/skills`
+留给 Codex 或其他安装器维护，不再作为本项目的 consumer。
 
 | 配置 | 效果 |
 |---|---|
