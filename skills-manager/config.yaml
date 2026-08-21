@@ -39,7 +39,6 @@ presets:
     # 单 Skill Source：Source 名就是最终 Skill 名
     skills:
       - archify
-      - architecture-designer
       - humanizer-zh
       - find-skills
       - design-taste-frontend
@@ -50,7 +49,7 @@ sources:
   unix2dos:
     github: unix2dos/skills
     checkout: ~/workspace/skills
-    exclude: [confidence-check]
+    exclude: [confidence-check, code-refactor, code-simplifier]
 
   ljg-skills:
     github: lijigang/ljg-skills
@@ -73,19 +72,9 @@ sources:
     checkout: ~/.skills-community/mattpocock-skills
     skills_dir: skills/productivity
 
-  # 可选实验 Source：未被 preset/install 引用，因此不会聚合或分发
-  mattpocock-in-progress:
-    github: mattpocock/skills
-    checkout: ~/.skills-community/mattpocock-skills
-    skills_dir: skills/in-progress
-
   find-skills:
     github: vercel-labs/skills
     skill: skills/find-skills
-
-  architecture-designer:
-    github: Jeffallan/claude-skills
-    skill: skills/architecture-designer
 
   humanizer-zh:
     github: op7418/Humanizer-zh
