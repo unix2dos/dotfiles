@@ -1,0 +1,100 @@
+# Skills Manager
+# 阅读顺序：安装到哪里 → 原生扩展 → 预设内容 → 下载来源。
+
+# 1. 每个目录安装什么 Skill
+install:
+  "~/.claude/skills":
+    preset: default
+
+  "~/.cursor/skills":
+    preset: default
+
+  "~/.agents/skills":
+    preset: default
+
+  "~/.gemini/antigravity-cli/skills":
+    preset: default
+
+  "~/.config/opencode/skills":
+    preset: default
+
+  "~/.workbuddy/skills":
+    preset: default
+
+# 2. 工具原生扩展（不安装到上面的 Skill 目录）
+extensions:
+  ponytail:
+    hosts: [codex, cursor]
+
+# 3. 可复用的 Skill 预设
+presets:
+  default:
+    # 包含这些 Source 经过 include/exclude 后提供的全部 Skill
+    sources:
+      - unix2dos
+      - ljg-skills
+      - mattpocock-engineering
+      - mattpocock-productivity
+
+    # 单 Skill Source：Source 名就是最终 Skill 名
+    skills:
+      - archify
+      - architecture-designer
+      - humanizer-zh
+      - find-skills
+      - design-taste-frontend
+      - redesign-existing-projects
+
+# 4. Skill 从哪里获取；声明顺序也是同名 Skill 的优先级
+sources:
+  unix2dos:
+    github: unix2dos/skills
+    checkout: ~/workspace/skills
+    exclude: [confidence-check]
+
+  ljg-skills:
+    github: lijigang/ljg-skills
+    skills_dir: skills
+    branch: master
+    include: [ljg-plain, ljg-think, ljg-writes, ljg-roundtable]
+
+  archify:
+    github: tt-a1i/archify
+    skills_dir: .
+    include: [archify]
+
+  mattpocock-engineering:
+    github: mattpocock/skills
+    checkout: ~/.skills-community/mattpocock-skills
+    skills_dir: skills/engineering
+
+  mattpocock-productivity:
+    github: mattpocock/skills
+    checkout: ~/.skills-community/mattpocock-skills
+    skills_dir: skills/productivity
+
+  # 可选实验 Source：未被 preset/install 引用，因此不会聚合或分发
+  mattpocock-in-progress:
+    github: mattpocock/skills
+    checkout: ~/.skills-community/mattpocock-skills
+    skills_dir: skills/in-progress
+
+  find-skills:
+    github: vercel-labs/skills
+    skill: skills/find-skills
+
+  architecture-designer:
+    github: Jeffallan/claude-skills
+    skill: skills/architecture-designer
+
+  humanizer-zh:
+    github: op7418/Humanizer-zh
+    skill: .
+
+  design-taste-frontend:
+    github: Leonxlnx/taste-skill
+    skill: skills/taste-skill
+
+  redesign-existing-projects:
+    github: Leonxlnx/taste-skill
+    skill: skills/redesign-skill
