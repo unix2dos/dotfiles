@@ -59,8 +59,7 @@ sources:
 
   archify:
     github: tt-a1i/archify
-    skills_dir: .
-    include: [archify]
+    skill: archify
 
   mattpocock-engineering:
     github: mattpocock/skills

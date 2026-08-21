@@ -66,8 +66,7 @@ sources:
 
   archify:
     github: tt-a1i/archify
-    skills_dir: .
-    include: [archify]
+    skill: archify
 ```
 
 解析顺序：
