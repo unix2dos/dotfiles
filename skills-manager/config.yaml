@@ -12,6 +12,9 @@ install:
   "~/.agents/skills":
     preset: default
 
+  "~/.gemini/antigravity/skills":
+    preset: default
+
   "~/.gemini/antigravity-cli/skills":
     preset: default
 
