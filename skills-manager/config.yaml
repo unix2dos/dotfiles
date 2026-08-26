@@ -42,6 +42,7 @@ presets:
     # 单 Skill Source：Source 名就是最终 Skill 名
     skills:
       - archify
+      - show-me
       - humanizer-zh
       - find-skills
       - design-taste-frontend
@@ -63,6 +64,10 @@ sources:
   archify:
     github: tt-a1i/archify
     skill: archify
+
+  show-me:
+    github: humanlayer/skills
+    skill: plugins/show-me/skills/show-me
 
   mattpocock-engineering:
     github: mattpocock/skills

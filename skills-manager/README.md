@@ -93,7 +93,7 @@ Source 声明顺序也是同名 Skill 的优先级。只有被 Preset 或安装�
 
 ## 当前结果
 
-`default` Preset 当前包含 59 个 Skill，Archify 已包含在内。它分发到：
+`default` Preset 当前包含 60 个 Skill，Archify 和 Show Me 已包含在内。它分发到：
 
 - `~/.claude/skills`
 - `~/.cursor/skills`
