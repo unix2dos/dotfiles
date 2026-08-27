@@ -59,7 +59,7 @@ sources:
     github: lijigang/ljg-skills
     skills_dir: skills
     branch: master
-    include: [ljg-plain, ljg-think, ljg-writes, ljg-roundtable]
+    include: [ljg-plain, ljg-think, ljg-writes, ljg-structure, ljg-is, ljg-roundtable]
 
   archify:
     github: tt-a1i/archify
