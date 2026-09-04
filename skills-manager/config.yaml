@@ -38,6 +38,7 @@ presets:
       - ljg-skills
       - mattpocock-engineering
       - mattpocock-productivity
+      - sepia
 
     # 单 Skill Source：Source 名就是最终 Skill 名
     skills:
@@ -78,6 +79,10 @@ sources:
     github: mattpocock/skills
     checkout: ~/.skills-community/mattpocock-skills
     skills_dir: skills/productivity
+
+  sepia:
+    github: Nanako0129/sepia
+    skills_dir: skills
 
   find-skills:
     github: vercel-labs/skills

@@ -49,7 +49,7 @@ extensions:
 # 3. 默认 Skill 集合
 presets:
   default:
-    sources: [unix2dos, ljg-skills]
+    sources: [unix2dos, ljg-skills, sepia]
     skills: [archify, humanizer-zh]
 
 # 4. Skill 从哪里获取
@@ -63,6 +63,10 @@ sources:
     github: lijigang/ljg-skills
     skills_dir: skills
     include: [ljg-plain, ljg-think, ljg-writes, ljg-roundtable]
+
+  sepia:
+    github: Nanako0129/sepia
+    skills_dir: skills
 
   archify:
     github: tt-a1i/archify
@@ -93,16 +97,19 @@ Source 声明顺序也是同名 Skill 的优先级。只有被 Preset 或安装�
 
 ## 当前结果
 
-`default` Preset 当前包含 60 个 Skill，Archify 和 Show Me 已包含在内。它分发到：
+`default` Preset 的实际 Skill 数量以 `bash install.sh --preview` 为准。Sepia 的 5 个相邻 Skill 会作为同一个 Source 分发，Archify 和 Show Me 也已包含在内。它们会安装到：
 
 - `~/.claude/skills`
 - `~/.cursor/skills`
 - `~/.agents/skills`
+- `~/.gemini/antigravity/skills`
 - `~/.gemini/antigravity-cli/skills`
 - `~/.config/opencode/skills`
 - `~/.workbuddy/skills`
 
 安装目录中的真实文件或真实 Skill 由外部管理，安装器会保留；受管 Skill 使用软链接直接指向 Source。
+
+Sepia 当前只包含标准 Skill，因此通过 Source 安装，不另外注册原生 Extension。不要同时使用 Source 与 Codex 原生插件安装，以免重复暴露同名 Skill。
 
 ## Extension
 

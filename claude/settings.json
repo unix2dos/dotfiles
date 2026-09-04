@@ -120,6 +120,5 @@
   },
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark-daltonized",
-  "skipAutoPermissionPrompt": true
+  "theme": "dark-daltonized"
 }
