@@ -50,7 +50,7 @@ extensions:
 presets:
   default:
     sources: [unix2dos, ljg-skills, sepia]
-    skills: [archify, humanizer-zh]
+    skills: [archify]
 
 # 4. Skill 从哪里获取
 sources:
@@ -97,7 +97,7 @@ Source 声明顺序也是同名 Skill 的优先级。只有被 Preset 或安装�
 
 ## 当前结果
 
-`default` Preset 的实际 Skill 数量以 `bash install.sh --preview` 为准。Sepia 的 5 个相邻 Skill 会作为同一个 Source 分发，Archify 和 Show Me 也已包含在内。它们会安装到：
+`default` Preset 的实际 Skill 数量以 `bash install.sh --preview` 为准。Sepia 的相邻 Skill 会作为同一个 Source 分发，Archify 和 Show Me 也已包含在内。它们会安装到：
 
 - `~/.claude/skills`
 - `~/.cursor/skills`

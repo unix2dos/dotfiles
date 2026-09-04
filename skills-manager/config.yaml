@@ -44,7 +44,6 @@ presets:
     skills:
       - archify
       - show-me
-      - humanizer-zh
       - find-skills
       - design-taste-frontend
       - redesign-existing-projects
@@ -87,10 +86,6 @@ sources:
   find-skills:
     github: vercel-labs/skills
     skill: skills/find-skills
-
-  humanizer-zh:
-    github: op7418/Humanizer-zh
-    skill: .
 
   design-taste-frontend:
     github: Leonxlnx/taste-skill
