@@ -94,3 +94,10 @@ sources:
   redesign-existing-projects:
     github: Leonxlnx/taste-skill
     skill: skills/redesign-skill
+
+# 5. 打包为云 Agent 可安装的 plugin：把 Preset 解析结果复制成真实文件
+#    提交进 git 后供 Devin / Claude Code 等云端引用（见 README「云 Agent」）
+bundle:
+  name: unix2dos-skills
+  path: bundle        # 相对 skills-manager/；也支持 ~ 或绝对路径
+  preset: default

@@ -1,0 +1,13 @@
+{
+  "name": "unix2dos",
+  "owner": {
+    "name": "unix2dos"
+  },
+  "plugins": [
+    {
+      "name": "unix2dos-skills",
+      "source": "./skills-manager/bundle",
+      "description": "Aggregated Agent skills managed by skills-manager (config.yaml)"
+    }
+  ]
+}
