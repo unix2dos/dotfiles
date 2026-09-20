@@ -9,9 +9,8 @@ skills-manager/
 ├── README.md
 ├── config.yaml
 ├── install.sh
-├── installers/
-│   └── ponytail.sh
-└── bundle/           # install.sh 生成，提交进 git 供云 Agent 安装
+└── installers/
+    └── ponytail.sh
 ```
 
 ## 使用
@@ -131,21 +130,21 @@ installers/ponytail.sh install codex cursor
 
 ## 云 Agent（bundle）
 
-本地软链覆盖不了云上的 Agent（Devin 云会话、Claude Code 等）。`config.yaml` 的 `bundle` 段把 Preset 解析结果**复制**成标准 plugin 目录——真实文件而非软链，提交进 git 即可被云端引用：
+本地软链覆盖不了云上的 Agent（Devin 云会话、Claude Code 等）。`config.yaml` 的 `bundle` 段把 Preset 解析结果**复制**成标准 plugin，写进独立仓库 [agent-skills-bundle](https://github.com/unix2dos/agent-skills-bundle)（私有，避免在公开仓库再分发第三方 Skill）：
 
 ```yaml
 bundle:
   name: unix2dos-skills
-  path: bundle        # 相对 skills-manager/；也支持 ~ 或绝对路径
+  owner: unix2dos                          # 写进 Claude marketplace.json
+  path: ~/workspace/agent-skills-bundle    # agent-skills-bundle 的本地 checkout
   preset: default
+  push: true                               # 有变更时自动 commit + push
 ```
 
-`bash install.sh` 会重写 `bundle/skills/` 和两份 manifest（`.devin-plugin/plugin.json`、`.claude-plugin/plugin.json`）。日常维护不变：改 Skill 或 config → `install.sh` → 提交 bundle diff → push，云端安装自动跟上。
+`bash install.sh` 重写该仓库的 `skills/` 与 manifest（`.devin-plugin/plugin.json`、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json`）；`push: true` 时自动提交并推送。同步链路不变：改 Skill 或 config → `install.sh` 一条命令，本地目录和云端同时更新。仓库里所有内容都是生成的，不要手改。
 
-各平台装法：
+各平台装法（首次一次性）：
 
-- **Devin**：Settings → Customize → Plugins 安装 `https://github.com/unix2dos/dotfiles/tree/main/skills-manager/bundle`（支持 repo 子目录）
-- **Claude Code**：`/plugin marketplace add unix2dos/dotfiles` → `/plugin install unix2dos-skills@unix2dos`（依赖仓库根目录的 `.claude-plugin/marketplace.json`）
-- **其他**：任何支持 git plugin / marketplace 的 Agent 都指向同一 bundle 目录
-
-注意：bundle 会把第三方 Source 的 Skill 一并复制进来。dotfiles 是公开仓库，等于在公开渠道再分发这些 Skill——上游均为公开仓库但建议自行确认其 License。介意的话把 `bundle.path` 指到一个私有仓库。
+- **Devin**：把 `unix2dos/agent-skills-bundle` 装成 plugin（Settings → Customize → Plugins，私有 repo 走 Git 集成即可）
+- **Claude Code**：`/plugin marketplace add unix2dos/agent-skills-bundle` → `/plugin install unix2dos-skills@unix2dos`
+- **其他**：任何支持 git plugin / marketplace 的 Agent 都指向同一仓库
