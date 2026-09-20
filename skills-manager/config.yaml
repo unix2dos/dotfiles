@@ -99,3 +99,13 @@ sources:
   ian-xiaohei-illustrations:
     github: helloianneo/ian-xiaohei-illustrations
     skill: ian-xiaohei-illustrations
+
+# 5. 打包为云 Agent 可安装的 plugin：写入独立仓库 agent-skills-bundle（真实
+#    文件，可私有）；push: true 时 install.sh 会在该仓库自动 commit + push
+bundle:
+  name: unix2dos-skills
+  owner: unix2dos     # 写进 Claude marketplace.json
+  path: ~/workspace/agent-skills-bundle   # 也支持相对 skills-manager/ 或绝对路径
+  preset: default
+  push: true
+
