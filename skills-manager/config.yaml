@@ -47,6 +47,7 @@ presets:
       - find-skills
       - design-taste-frontend
       - redesign-existing-projects
+      - ian-xiaohei-illustrations
 
 # 4. Skill 从哪里获取；声明顺序也是同名 Skill 的优先级
 sources:
@@ -94,3 +95,7 @@ sources:
   redesign-existing-projects:
     github: Leonxlnx/taste-skill
     skill: skills/redesign-skill
+
+  ian-xiaohei-illustrations:
+    github: helloianneo/ian-xiaohei-illustrations
+    skill: ian-xiaohei-illustrations

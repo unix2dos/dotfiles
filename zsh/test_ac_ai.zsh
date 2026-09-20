@@ -14,6 +14,11 @@ mkdir -p "${tmpdir}/bin"
 cat > "${tmpdir}/bin/curl" <<'STUB'
 #!/bin/sh
 printf '%s\n' "$@" > "$CURL_ARGS_FILE"
+for arg in "$@"; do
+  case "$arg" in
+    @*) cat "${arg#@}" >> "$CURL_ARGS_FILE" ;;
+  esac
+done
 printf '%s\n' '{"choices":[{"message":{"content":"chore(test): direct commit"}}]}'
 STUB
 chmod +x "${tmpdir}/bin/curl"
@@ -33,6 +38,7 @@ export SGPT_STDIN_FILE="$sgpt_stdin_file"
 export AC_AI_API_BASE_URL="https://example.test/v1"
 export AC_AI_API_KEY="test-key"
 export AC_AI_MODEL="mimo-v2-pro"
+export AC_AI_OPENCODE_SESSION="test-session-id"
 
 source "$git_zsh"
 
@@ -42,5 +48,7 @@ output=$(gitmsg ai <<< "diff --git a/file b/file")
 [[ "$output" == "chore(test): direct commit" ]]
 grep -q -- "https://example.test/v1/chat/completions" "$curl_args_file"
 grep -q -- "Authorization: Bearer test-key" "$curl_args_file"
+grep -q -- "User-Agent: ac-ai-commit/1.0" "$curl_args_file"
+grep -q -- "x-opencode-session: test-session-id" "$curl_args_file"
 grep -q -- "mimo-v2-pro" "$curl_args_file"
 [[ ! -s "$sgpt_args_file" ]]

@@ -12,6 +12,8 @@
 #   - 直连会复用 ~/.config/shell_gpt/.sgptrc 里的 API_BASE_URL 和 OPENAI_API_KEY。
 #   - 也可以用 AC_AI_API_BASE_URL / AC_AI_API_KEY 临时覆盖。
 #   - 直连失败时会自动 fallback 到 sgpt。
+#   - OpenCode Go 要求自报 User-Agent，并带上稳定的 x-opencode-session。
+#     默认写入 ~/.cache/ac-ai/opencode-session；可用 AC_AI_OPENCODE_SESSION 覆盖。
 #
 # 默认模型：
 #   - direct 默认用 mimo-v2.5-pro：非推理模型，实测 avg ~3.5s，速度最快。
@@ -49,6 +51,32 @@ function _ac_sgpt_config_value() {
     local config="${SHELL_GPT_CONFIG_PATH:-$HOME/.config/shell_gpt/.sgptrc}"
     [[ -r "$config" ]] || return 1
     awk -F= -v key="$key" '$1 == key { sub(/^[^=]*=/, ""); print; exit }' "$config"
+}
+
+# Stable session id for OpenCode Go routing / prompt cache.
+# https://opencode.ai/docs/go/#where-can-i-use-it
+function _ac_opencode_session() {
+    if [[ -n "${AC_AI_OPENCODE_SESSION:-}" ]]; then
+        printf '%s' "$AC_AI_OPENCODE_SESSION"
+        return
+    fi
+    local dir="${XDG_CACHE_HOME:-$HOME/.cache}/ac-ai"
+    local file="$dir/opencode-session"
+    if [[ -r "$file" ]]; then
+        local existing
+        existing=$(<"$file")
+        existing="${existing%%$'\n'*}"
+        if [[ -n "$existing" ]]; then
+            printf '%s' "$existing"
+            return
+        fi
+    fi
+    command mkdir -p "$dir" || return 1
+    local session
+    session=$(uuidgen 2>/dev/null | tr '[:upper:]' '[:lower:]')
+    [[ -n "$session" ]] || session="ac-ai-$(date +%s)-$$"
+    printf '%s\n' "$session" >| "$file" || return 1
+    printf '%s' "$session"
 }
 
 function _ac_extract_commit_message() {
@@ -126,9 +154,18 @@ function _ac_gitmsg_direct() {
         }
     fi
 
+    local session_id
+    session_id=$(_ac_opencode_session) || {
+        command rm -f "$payload_file"
+        return 1
+    }
+
+    # Named UA + session header: OpenCode Go rejects generic curl traffic.
     response=$(curl --silent --show-error --fail --max-time "$timeout" \
         -H "Authorization: Bearer ${api_key}" \
         -H "Content-Type: application/json" \
+        -H "User-Agent: ac-ai-commit/1.0" \
+        -H "x-opencode-session: ${session_id}" \
         -d "@${payload_file}" \
         "${api_base%/}/chat/completions") || {
         command rm -f "$payload_file"

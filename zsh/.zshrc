@@ -350,3 +350,8 @@ export PATH=$PATH:/Users/liuwei/.spicetify
 
 # Added by cua-driver-rs installer — see https://github.com/trycua/cua
 export PATH="/Users/liuwei/.local/bin:$PATH"
+
+case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac # ship
+
+# Added by Devin
+export PATH="/Users/liuwei/.codeium/windsurf/bin:$PATH"
