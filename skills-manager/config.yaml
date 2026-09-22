@@ -54,7 +54,7 @@ sources:
   unix2dos:
     github: unix2dos/skills
     checkout: ~/workspace/skills
-    exclude: [confidence-check, code-refactor, code-simplifier]
+    #exclude: [confidence-check]
 
   ljg-skills:
     github: lijigang/ljg-skills
