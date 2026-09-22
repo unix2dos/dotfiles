@@ -27,7 +27,7 @@ install:
 # 2. 工具原生扩展（不安装到上面的 Skill 目录）
 extensions:
   ponytail:
-    hosts: [codex, cursor]
+    hosts: [codex, cursor, claude, devin, opencode]
 
 # 3. 可复用的 Skill 预设
 presets:
