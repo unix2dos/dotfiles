@@ -157,5 +157,8 @@
     "claudeCode.initialPermissionMode": "bypassPermissions",
     "git.openRepositoryInParentFolders": "never",
     "gitlens.graph.details.location": "auto",
-    "gitlens.graph.changesColumn.enabled": true
+    "gitlens.graph.changesColumn.enabled": true,
+    "devin.allowCascadeAccessGitignoreFiles": true,
+    "application.shellEnvironmentResolutionTimeout": 30,
+    "extensions.ignoreRecommendations": true
 }
