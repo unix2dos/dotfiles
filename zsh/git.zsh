@@ -17,7 +17,7 @@
 #
 # 默认模型：
 #   - direct 默认用 mimo-v2.5-pro：非推理模型，实测 avg ~3.5s，速度最快。
-#   - sgpt 默认用 minimax-m2.5：作为 fallback 时比 mimo-v2.5-pro 更适合 ShellGPT 包装层。
+#   - sgpt 默认用 mimo-v2.5：使用 Go 当前支持的 Chat Completions 模型。
 #   - AC_AI_MODEL 会同时覆盖 direct 和 sgpt 的默认模型。
 #   - AC_AI_REASONING_EFFORT 控制 direct 的 reasoning_effort 字段：
 #       默认不传（最快）；deepseek 系需改成 low/medium/high；
@@ -86,6 +86,10 @@ function _ac_extract_commit_message() {
             line = $0
             sub(/^[[:space:]]+/, "", line)
             sub(/[[:space:]]+$/, "", line)
+            if (line ~ /^`[^`]+`$/) {
+                sub(/^`/, "", line)
+                sub(/`$/, "", line)
+            }
             if (line ~ /^(feat|fix|refactor|style|docs|perf|ci|chore|test|build)(\([^)]+\))?!?: /) {
                 print line
                 found = 1
@@ -107,8 +111,45 @@ function _ac_extract_commit_message() {
 
 function _ac_gitmsg_sgpt() {
     local lang_desc="$1"
-    local model="${AC_AI_MODEL:-minimax-m2.5}"
-    sgpt --model "$model" --no-md "Generate exactly one Conventional Commit message in ${lang_desc} from the git diff on stdin. Format: <type>(<scope>): <subject>. Use feat, fix, refactor, style, docs, perf, ci, or chore. Describe only the meaningful change. Output only the commit message, no explanation."
+    local model="${AC_AI_MODEL:-mimo-v2.5}"
+    local api_base="${AC_AI_API_BASE_URL:-$(_ac_sgpt_config_value API_BASE_URL)}"
+    local api_key="${AC_AI_API_KEY:-$(_ac_sgpt_config_value OPENAI_API_KEY)}"
+    local session_id sgpt_bin shebang
+    session_id=$(_ac_opencode_session) || return 1
+    sgpt_bin=$(whence -p sgpt) || return 1
+    IFS= read -r shebang < "$sgpt_bin" || return 1
+    if [[ "$shebang" != '#!'*python* ]]; then
+        echo "ac ai: Cannot locate ShellGPT's Python interpreter." >&2
+        return 1
+    fi
+    local -a python_cmd
+    python_cmd=(${(z)${shebang#\#!}})
+
+    # Run in ShellGPT's own environment; add headers without editing site-packages.
+    local response
+    response=$(AC_AI_OPENCODE_SESSION="$session_id" \
+    API_BASE_URL="$api_base" OPENAI_API_KEY="$api_key" \
+    "${python_cmd[@]}" -c '
+import os
+import sys
+from sgpt import cli
+from sgpt.handlers import handler
+
+handler.additional_kwargs["extra_headers"] = {
+    "User-Agent": "ac-ai-commit/1.0",
+    "x-opencode-session": os.environ["AC_AI_OPENCODE_SESSION"],
+}
+try:
+    cli()
+except Exception as exc:
+    message = str(exc)
+    key = os.environ.get("OPENAI_API_KEY")
+    if key:
+        message = message.replace(key, "<REDACTED>")
+    print("ac ai: sgpt: " + message, file=sys.stderr)
+    sys.exit(1)
+' --model "$model" --no-cache --no-md "Generate exactly one Conventional Commit message in ${lang_desc} from the git diff on stdin. Format: <type>(<scope>): <subject>. Use feat, fix, refactor, style, docs, perf, ci, or chore. Describe only the meaningful change. Output only the commit message, no explanation.") || return 1
+    printf '%s\n' "$response" | _ac_extract_commit_message
 }
 
 function _ac_gitmsg_direct() {
@@ -161,7 +202,7 @@ function _ac_gitmsg_direct() {
     }
 
     # Named UA + session header: OpenCode Go rejects generic curl traffic.
-    response=$(curl --silent --show-error --fail --max-time "$timeout" \
+    response=$(curl --silent --show-error --fail-with-body --max-time "$timeout" \
         -H "Authorization: Bearer ${api_key}" \
         -H "Content-Type: application/json" \
         -H "User-Agent: ac-ai-commit/1.0" \
@@ -169,6 +210,14 @@ function _ac_gitmsg_direct() {
         -d "@${payload_file}" \
         "${api_base%/}/chat/completions") || {
         command rm -f "$payload_file"
+        local error_message
+        error_message=$(printf '%s' "$response" | jq -r '
+            .error | if type == "object" then
+                [(.code // .type // "api_error"), (.message // "")] | join(": ")
+            elif type == "string" then . else empty end
+        ' 2>/dev/null)
+        error_message=${error_message//"$api_key"/<REDACTED>}
+        echo "ac ai: direct: ${error_message:-request failed}" >&2
         return 1
     }
     command rm -f "$payload_file"
@@ -195,8 +244,10 @@ function gitmsg() {
     if [[ "${AC_AI_BACKEND:-direct}" == "sgpt" ]]; then
         _ac_gitmsg_sgpt "$lang_desc" < "$diff_file"
     else
-        _ac_gitmsg_direct "$lang_desc" "$diff_file" ||
+        _ac_gitmsg_direct "$lang_desc" "$diff_file" || {
+            echo "ac ai: Trying ShellGPT fallback." >&2
             _ac_gitmsg_sgpt "$lang_desc" < "$diff_file"
+        }
     fi
     local rc=$?
     [[ "$owned" -eq 1 ]] && command rm -f "$diff_file"

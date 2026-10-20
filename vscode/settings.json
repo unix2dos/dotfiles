@@ -160,5 +160,10 @@
     "gitlens.graph.changesColumn.enabled": true,
     "devin.allowCascadeAccessGitignoreFiles": true,
     "application.shellEnvironmentResolutionTimeout": 30,
-    "extensions.ignoreRecommendations": true
+    "extensions.ignoreRecommendations": true,
+    "devin.acp.agentPreferences": {
+        "devin-cli": {
+            "model": "gemini-4-argon-medium"
+        }
+    }
 }
