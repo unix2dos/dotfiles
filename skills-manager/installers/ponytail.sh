@@ -34,6 +34,7 @@ codex_state() {
     CODEX_VERSION=$(printf '%s' "$CODEX_PLUGINS" | yq -p=json -r '.installed[] | select(.pluginId == "ponytail@ponytail") | .version' | head -n 1)
     json_has "$CODEX_PLUGINS" '.installed[] | select(.pluginId == "ponytail@ponytail" and .enabled == true)' && CODEX_ENABLED=true
   fi
+  return 0
 }
 
 preview_codex() {
@@ -45,6 +46,8 @@ preview_codex() {
     [[ "$CODEX_ENABLED" == true ]] && state="enabled"
     echo "  Codex       ${CODEX_VERSION:-unknown}  installed, ${state} → marketplace upgrade"
     echo "              exposes 6 plugin Skills outside ~/.agents/skills"
+  elif [[ "$CODEX_MARKETPLACE" == true ]]; then
+    echo "  Codex       marketplace exists → upgrade and install plugin"
   else
     echo "  Codex       not installed → add marketplace and install"
   fi
@@ -68,19 +71,36 @@ dry_run_codex() {
   fi
 }
 
+ensure_codex_marketplace() {
+  if [[ "$CODEX_MARKETPLACE" == false ]]; then
+    local add_output add_status
+    if add_output=$(codex plugin marketplace add DietrichGebert/ponytail --json 2>&1); then
+      echo "  Codex marketplace added: ponytail"
+      return 0
+    else
+      add_status=$?
+    fi
+
+    # A registered source may be absent from list (or added after the check).
+    # Keep that source; only an explicit duplicate-name error permits recovery.
+    if [[ "$add_output" != *"marketplace 'ponytail' is already added"* ]]; then
+      printf '%s\n' "$add_output" >&2
+      return "$add_status"
+    fi
+    echo "  Codex marketplace already exists: ponytail; reusing its source"
+  fi
+
+  codex plugin marketplace upgrade ponytail --json >/dev/null || return $?
+  echo "  Codex marketplace updated: ponytail"
+}
+
 install_codex() {
   codex_state
   if [[ "$CODEX_AVAILABLE" == false ]]; then
     echo "  Codex: unavailable — skipped"
     return 0
   fi
-  if [[ "$CODEX_MARKETPLACE" == true ]]; then
-    codex plugin marketplace upgrade ponytail --json >/dev/null
-    echo "  Codex marketplace updated: ponytail"
-  else
-    codex plugin marketplace add DietrichGebert/ponytail --json >/dev/null
-    echo "  Codex marketplace added: ponytail"
-  fi
+  ensure_codex_marketplace
 
   codex_state
   if [[ "$CODEX_INSTALLED" == false ]]; then

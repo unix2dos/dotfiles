@@ -123,7 +123,7 @@ installers/ponytail.sh install codex cursor claude devin opencode
 
 当前 Ponytail 行为：
 
-- Codex：安装完整插件；Hook 变化后在 `/hooks` 人工审查，并新建任务。
+- Codex：复用并更新已有的 `ponytail` marketplace，缺失时才添加，然后安装完整插件；若添加时提示同名 marketplace 已存在，则保留原来源并改为更新。网络、权限和更新失败仍会报错。Hook 变化后在 `/hooks` 人工审查，并新建任务。
 - Cursor：安装到 `~/.cursor/plugins/local/ponytail`，仅提供 always-on 规则；不含 Ponytail 模式、Hooks 和命令。安装后重启 Cursor 或执行 `Developer: Reload Window`。
 - Claude Code：通过 `claude plugin marketplace add` + `claude plugin install` 安装完整插件；新开会话后 `/ponytail` 应回显当前模式。
 - Devin CLI：`devin plugins install DietrichGebert/ponytail`；需先 `devin auth login`，未登录时跳过并提示。Skill 以 `/ponytail:ponytail`、`/ponytail:ponytail-review` 调用。
@@ -132,6 +132,8 @@ installers/ponytail.sh install codex cursor claude devin opencode
 Ponytail 的 always-on 激活依赖两个 Node hook；node 若由 nvm 管理，需保证非交互 shell 的 PATH 也能找到它，否则 skill 可用但不会自动激活。
 
 新增 Extension 时，只需增加 `installers/<name>.sh` 并在 `config.yaml` 声明 Host。
+
+Ponytail 的 Codex 安装回归检查：`python3 skills-manager/tests/test_ponytail.py`（从仓库根目录运行，需 `yq`）。测试使用隔离的模拟 CLI，不修改真实插件；覆盖已有来源、重复安装、来源冲突、禁用插件和失败退出。
 
 ## 云 Agent（bundle）
 

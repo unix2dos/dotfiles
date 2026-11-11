@@ -165,5 +165,6 @@
         "devin-cli": {
             "model": "gemini-4-argon-medium"
         }
-    }
+    },
+    "editor.unicodeHighlight.ambiguousCharacters": false
 }

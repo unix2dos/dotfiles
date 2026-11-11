@@ -46,7 +46,6 @@ presets:
       - show-me
       - find-skills
       - design-taste-frontend
-      - redesign-existing-projects
       - ian-xiaohei-illustrations
 
 # 4. Skill 从哪里获取；声明顺序也是同名 Skill 的优先级
@@ -60,7 +59,17 @@ sources:
     github: lijigang/ljg-skills
     skills_dir: skills
     branch: master
-    include: [ljg-plain, ljg-think, ljg-writes, ljg-roundtable, ljg-is, ljg-structure, ljg-constraint, ljg-teach, ljg-qa]
+    include:
+      - ljg-explain
+      - ljg-mechanism
+      - ljg-think
+      - ljg-writes
+      - ljg-roundtable
+      - ljg-is
+      - ljg-structure
+      - ljg-constraint
+      - ljg-teach
+      - ljg-qa
 
   archify:
     github: tt-a1i/archify
@@ -91,10 +100,6 @@ sources:
   design-taste-frontend:
     github: Leonxlnx/taste-skill
     skill: skills/taste-skill
-
-  redesign-existing-projects:
-    github: Leonxlnx/taste-skill
-    skill: skills/redesign-skill
 
   ian-xiaohei-illustrations:
     github: helloianneo/ian-xiaohei-illustrations
