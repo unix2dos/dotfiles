@@ -127,7 +127,7 @@ installers/ponytail.sh install codex cursor claude devin opencode
 - Codex：复用并更新已有的 `ponytail` marketplace，缺失时才添加，然后安装完整插件；若添加时提示同名 marketplace 已存在，则保留原来源并改为更新。网络、权限和更新失败仍会报错。Hook 变化后在 `/hooks` 人工审查，并新建任务。
 - Cursor：安装到 `~/.cursor/plugins/local/ponytail`，仅提供 always-on 规则；不含 Ponytail 模式、Hooks 和命令。安装后重启 Cursor 或执行 `Developer: Reload Window`。
 - Claude Code：通过 `claude plugin marketplace add` + `claude plugin install` 安装完整插件；新开会话后 `/ponytail` 应回显当前模式。
-- Devin CLI：`devin plugins install DietrichGebert/ponytail`；需先 `devin auth login`，未登录时跳过并提示。Skill 以 `/ponytail:ponytail`、`/ponytail:ponytail-review` 调用。
+- Devin CLI：`devin plugins install --yes DietrichGebert/ponytail`，非交互安装后核对插件列表，避免信任确认默认取消却被误报成功；需先 `devin auth login`，未登录时跳过并提示。Skill 以 `/ponytail:ponytail`、`/ponytail:ponytail-review` 调用。
 - OpenCode：向 `~/.config/opencode/opencode.json` 的 `plugin` 数组追加 `@dietrichgebert/ponytail`，下次启动时拉取 npm 包。
 
 Ponytail 的 always-on 激活依赖两个 Node hook；node 若由 nvm 管理，需保证非交互 shell 的 PATH 也能找到它，否则 skill 可用但不会自动激活。

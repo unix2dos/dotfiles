@@ -60,17 +60,19 @@ sources:
     skills_dir: skills
     branch: master
     include:
-      - ljg-explain  # 讲到能用
-      - ljg-mechanism # 机制研究
-      - ljg-think # 纵向深钻到不可再分的本质
+      - ljg-is # 知识管理到底是什么？
+      - ljg-explain  # 一篇收藏怎样变成可用的知识？
+      - ljg-mechanism # 究竟是什么过程导致“收藏多、用不上”？
+      - ljg-analogy # 储存与使用的区别变得看得见
+      - ljg-think # 为什么材料已经很多，仍然形成不了自己的判断？
+      - ljg-constraint # 哪些条件把你的知识管理方式限制住了？
+      - ljg-structure # 这个问题背后反复出现的关系是什么？
+
+      - ljg-teach # 先进入一个局面，暂时不给解释
       - ljg-writes # 把一个观点写成可理解、可迁移、经得住反例的 1000-1500 字中文文章
-      - ljg-roundtable # 圆桌讨论
-      - ljg-is # 把一个名词讲到能用
-      - ljg-structure # 找出一段信息中母题级别的结构
-      - ljg-constraint # 找出框住它的那几条约束
-      - ljg-teach # 用体验而不是定义来教授概念、原理或检验观点
-      - ljg-qa # 问答提取
-      - ljg-analogy # 让关系在另一个场景里显形
+      - ljg-qa # 把一段已有论证拆成问答链
+
+      - ljg-roundtable # 不同思想取向会怎样争论？
 
   archify:
     github: tt-a1i/archify

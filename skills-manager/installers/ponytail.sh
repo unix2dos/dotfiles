@@ -167,6 +167,7 @@ cursor_state() {
     source=$(cursor_rule_source 2>/dev/null || true)
     [[ -n "$source" ]] && cmp -s "$source" "$CURSOR_TARGET/rules/ponytail.mdc" && CURSOR_CURRENT=true
   fi
+  return 0
 }
 
 cursor_rule_source() {
@@ -330,7 +331,11 @@ devin_state() {
   DEVIN_BIN=$(devin_bin 2>/dev/null) || return 0
   DEVIN_AVAILABLE=true
   local list
-  list=$("$DEVIN_BIN" plugins list 2>&1) || { echo "$list" | grep -q "logged in" && return 0; }
+  if ! list=$("$DEVIN_BIN" plugins list 2>&1); then
+    if [[ "$list" == *"not logged in"* ]]; then return 0; fi
+    printf '%s\n' "$list" >&2
+    return 1
+  fi
   DEVIN_LOGGED_IN=true
   echo "$list" | grep -q "ponytail" && DEVIN_INSTALLED=true
   return 0
@@ -358,7 +363,7 @@ dry_run_devin() {
   if [[ "$DEVIN_INSTALLED" == true ]]; then
     echo "  [DRY-RUN] devin plugins update ponytail"
   else
-    echo "  [DRY-RUN] devin plugins install DietrichGebert/ponytail"
+    echo "  [DRY-RUN] devin plugins install --yes DietrichGebert/ponytail"
   fi
 }
 
@@ -374,11 +379,12 @@ install_devin() {
   fi
   if [[ "$DEVIN_INSTALLED" == true ]]; then
     "$DEVIN_BIN" plugins update ponytail >/dev/null
-    echo "  Devin plugin updated: ponytail"
   else
-    "$DEVIN_BIN" plugins install DietrichGebert/ponytail >/dev/null
-    echo "  Devin plugin installed: ponytail"
+    "$DEVIN_BIN" plugins install --yes DietrichGebert/ponytail >/dev/null
   fi
+  devin_state
+  [[ "$DEVIN_INSTALLED" == true ]] || { echo "ERROR: Devin did not list Ponytail after installation" >&2; return 1; }
+  echo "  Devin plugin ready: ponytail"
   echo "  Skills available as /ponytail:ponytail and /ponytail:ponytail-review"
 }
 
