@@ -11,6 +11,21 @@ esac
 
 command -v yq >/dev/null 2>&1 || { echo "ERROR: yq is required by ponytail installer" >&2; exit 1; }
 
+INSTALLER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+codex_config_dir() { printf '%s\n' "${CODEX_HOME:-$HOME/.codex}"; }
+
+restore_codex_registration() {
+  local codex_dir
+  codex_dir=$(codex_config_dir)
+  [[ -d "$codex_dir/.tmp/marketplaces/ponytail" ]] || return 3
+  command -v python3 >/dev/null 2>&1 || {
+    echo "ERROR: Python 3.11+ is required to restore the cached Ponytail marketplace" >&2
+    return 1
+  }
+  python3 "$INSTALLER_DIR/restore_codex_marketplace.py" "$codex_dir" "$@"
+}
+
 json_has() {
   local json="$1" expression="$2"
   printf '%s' "$json" | yq -p=json -e "$expression" >/dev/null 2>&1
@@ -19,6 +34,7 @@ json_has() {
 codex_state() {
   CODEX_AVAILABLE=false
   CODEX_MARKETPLACE=false
+  CODEX_MARKETPLACE_REPAIR=false
   CODEX_INSTALLED=false
   CODEX_ENABLED=false
   CODEX_VERSION=""
@@ -29,6 +45,15 @@ codex_state() {
   CODEX_PLUGINS=$(codex plugin list --json) || return 1
 
   json_has "$CODEX_MARKETPLACES" '.marketplaces[] | select(.name == "ponytail")' && CODEX_MARKETPLACE=true
+  if [[ "$CODEX_MARKETPLACE" == false ]]; then
+    local repair_status
+    if restore_codex_registration --check; then
+      CODEX_MARKETPLACE_REPAIR=true
+    else
+      repair_status=$?
+      [[ "$repair_status" -eq 3 ]] || return "$repair_status"
+    fi
+  fi
   if json_has "$CODEX_PLUGINS" '.installed[] | select(.pluginId == "ponytail@ponytail" and .installed == true)'; then
     CODEX_INSTALLED=true
     CODEX_VERSION=$(printf '%s' "$CODEX_PLUGINS" | yq -p=json -r '.installed[] | select(.pluginId == "ponytail@ponytail") | .version' | head -n 1)
@@ -41,6 +66,8 @@ preview_codex() {
   codex_state
   if [[ "$CODEX_AVAILABLE" == false ]]; then
     echo "  Codex       unavailable — skipped"
+  elif [[ "$CODEX_MARKETPLACE_REPAIR" == true ]]; then
+    echo "  Codex       cached marketplace, registration missing → restore and update"
   elif [[ "$CODEX_INSTALLED" == true ]]; then
     local state="disabled"
     [[ "$CODEX_ENABLED" == true ]] && state="enabled"
@@ -59,7 +86,10 @@ dry_run_codex() {
     echo "  Codex: unavailable — skipped"
     return 0
   fi
-  if [[ "$CODEX_MARKETPLACE" == true ]]; then
+  if [[ "$CODEX_MARKETPLACE_REPAIR" == true ]]; then
+    echo "  [DRY-RUN] back up config.toml and restore Ponytail's cached Git source"
+    echo "  [DRY-RUN] codex plugin marketplace upgrade ponytail --json"
+  elif [[ "$CODEX_MARKETPLACE" == true ]]; then
     echo "  [DRY-RUN] codex plugin marketplace upgrade ponytail --json"
   else
     echo "  [DRY-RUN] codex plugin marketplace add DietrichGebert/ponytail --json"
@@ -72,6 +102,16 @@ dry_run_codex() {
 }
 
 ensure_codex_marketplace() {
+  if [[ "$CODEX_MARKETPLACE_REPAIR" == true ]]; then
+    local repair_status
+    if restore_codex_registration; then
+      :
+    else
+      repair_status=$?
+      [[ "$repair_status" -eq 3 ]] || return "$repair_status"
+    fi
+    codex_state || return $?
+  fi
   if [[ "$CODEX_MARKETPLACE" == false ]]; then
     local add_output add_status
     if add_output=$(codex plugin marketplace add DietrichGebert/ponytail --json 2>&1); then

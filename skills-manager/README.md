@@ -10,7 +10,8 @@ skills-manager/
 ├── config.yaml
 ├── install.sh
 └── installers/
-    └── ponytail.sh
+    ├── ponytail.sh
+    └── restore_codex_marketplace.py
 ```
 
 ## 使用
@@ -131,9 +132,11 @@ installers/ponytail.sh install codex cursor claude devin opencode
 
 Ponytail 的 always-on 激活依赖两个 Node hook；node 若由 nvm 管理，需保证非交互 shell 的 PATH 也能找到它，否则 skill 可用但不会自动激活。
 
+如果 Codex 的 Ponytail marketplace 缓存仍在，但 `config.toml` 中的登记丢失，安装器会先核对缓存元数据中的官方 Git 来源和 marketplace 名称，再自动补回登记，并保留缓存记录的 Git ref 与稀疏检出路径。此恢复步骤需要 Python 3.11+，使用 `CODEX_HOME`（未设置时为 `~/.codex`）；原配置备份到该目录下的 `backups/ponytail-registration-*/config.toml`。已有登记不会被覆盖，配置的其他内容、权限和软链接会保留；写入前若检测到配置被其他进程修改则停止。来源不匹配或缓存元数据损坏会报错。`preview` 和 `dry-run` 只显示恢复计划，不修改配置。
+
 新增 Extension 时，只需增加 `installers/<name>.sh` 并在 `config.yaml` 声明 Host。
 
-Ponytail 的 Codex 安装回归检查：`python3 skills-manager/tests/test_ponytail.py`（从仓库根目录运行，需 `yq`）。测试使用隔离的模拟 CLI，不修改真实插件；覆盖已有来源、重复安装、来源冲突、禁用插件和失败退出。
+Ponytail 的 Codex 安装回归检查：`python3 skills-manager/tests/test_ponytail.py`（从仓库根目录运行，需 Python 3.11+ 和 `yq`）。测试使用临时配置和模拟 CLI，不修改真实插件；覆盖缺失登记的恢复、备份和配置保留、已有来源、重复安装、来源冲突、禁用插件和失败退出。
 
 ## 云 Agent（bundle）
 
