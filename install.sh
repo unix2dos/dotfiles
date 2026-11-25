@@ -119,8 +119,6 @@ link_file "$DOTFILES/opencode/opencode.json"        "$HOME/.config/opencode/open
 link_file "$DOTFILES/opencode/oh-my-openagent.json"  "$HOME/.config/opencode/oh-my-openagent.json"
 link_file "$DOTFILES/claude/settings.json"          "$HOME/.claude/settings.json"
 link_file "$DOTFILES/claude/CLAUDE.md"              "$HOME/.claude/CLAUDE.md"
-link_file "$DOTFILES/claude/statusline-hud-wrapper.sh"  "$HOME/.claude/statusline-hud-wrapper.sh"
-link_file "$DOTFILES/claude/plugins/claude-hud/config.json" "$HOME/.claude/plugins/claude-hud/config.json"
 link_file "$DOTFILES/amp/settings.json"             "$HOME/.config/amp/settings.json"
 link_file "$DOTFILES/codex/config.toml"             "$HOME/.codex/config.toml"
 link_file "$DOTFILES/workbuddy/SOUL.md"              "$HOME/.workbuddy/SOUL.md"

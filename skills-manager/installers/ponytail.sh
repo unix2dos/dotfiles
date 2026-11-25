@@ -13,6 +13,14 @@ command -v yq >/dev/null 2>&1 || { echo "ERROR: yq is required by ponytail insta
 
 INSTALLER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# 只装了 Claude Desktop 时 PATH 里没有 claude：回退到 Desktop 自带的最新版 CLI
+if ! command -v claude >/dev/null 2>&1; then
+  CLAUDE_DESKTOP_BIN=$(printf '%s\n' "$HOME/Library/Application Support/Claude/claude-code/"*/*/claude.app/Contents/MacOS/claude | sort -V | tail -n 1)
+  if [[ -n "$CLAUDE_DESKTOP_BIN" && -x "$CLAUDE_DESKTOP_BIN" ]]; then
+    claude() { "$CLAUDE_DESKTOP_BIN" "$@"; }
+  fi
+fi
+
 codex_config_dir() { printf '%s\n' "${CODEX_HOME:-$HOME/.codex}"; }
 
 restore_codex_registration() {
